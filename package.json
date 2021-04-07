@@ -8,7 +8,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "repository": "git://github.com:tastiest-io/tastiest-utils",
-  "version": "0.18.0",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -66,7 +66,6 @@
     "postcss": "^7",
     "prettier": "^2.2.1",
     "react-is": "^17.0.1",
-    "rollup-plugin-postcss": "^4.0.0",
     "size-limit": "^4.9.2",
     "tsdx": "^0.14.1",
     "tslib": "^2.1.0",
