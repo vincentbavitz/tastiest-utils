@@ -1,0 +1,7 @@
+.next
+.git
+.github
+.storybook
+.vscode
+dist
+node_modules
