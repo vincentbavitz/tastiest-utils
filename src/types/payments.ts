@@ -44,18 +44,6 @@ export interface IOrder {
   };
 }
 
-export enum CheckoutStep {
-  SIGN_IN = 'SIGN_IN',
-  PAYMENT = 'PAYMENT',
-  COMPLETE = 'COMPLETE',
-}
-
-export enum CheckoutSignInTabSelected {
-  HAS_ACCOUNT = 'HAS_ACCOUNT',
-  NEW_USER = 'NEW_USER',
-  NONE = 'NONE',
-}
-
 export interface IPaymentDetails {
   cardHolderName: string;
   cardLastFour: string;

@@ -87,6 +87,8 @@ export class CmsApi {
   }
 
   public async getPostBySlug(slug: string): Promise<IPost | undefined> {
+    slug;
+
     const entries = await this.client.getEntries({
       content_type: 'post',
       // 'fields.slug[in]': slug,
@@ -190,6 +192,9 @@ export class CmsApi {
   }
 
   public async getCuisinePosts(cuisine: CuisineSymbol, limit: number) {
+    limit;
+    cuisine;
+
     // const query = groq`
     //     *[_type == "post" && cuisine->title match "${titleCase(cuisine)}"][0..${
     //   limit ?? 100
