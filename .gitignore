@@ -5,6 +5,5 @@ node_modules
 dist
 .npmrc
 .yarnrc
-example/.parcel-cache
-example/node_modules
-example/dist
+
+.env.local

@@ -26,7 +26,10 @@ export class CmsApi {
   [x: string]: any;
   client: ContentfulClientApi;
 
-  constructor(space: string, accessToken: string) {
+  constructor(
+    space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
+    accessToken: string = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ?? '',
+  ) {
     this.client = createClient({
       space,
       accessToken,
