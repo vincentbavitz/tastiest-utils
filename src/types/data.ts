@@ -2,6 +2,12 @@ import { ILocation } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IPaymentDetails } from './payments';
 
+//
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//                          USER DATA                         //
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 export enum UserData {
   DISPLAY_NAME = 'displayName',
   BOOKINGS = 'bookings',
@@ -19,15 +25,6 @@ export enum UserData {
 
   USER_SESSIONS = 'userSessions',
   USER_DEVICE = 'userDevice',
-}
-
-export enum FirebaseAuthError {
-  INVALID_EMAIL = 'auth/invalid-email',
-  INVALID_PASSWORD = 'auth/invalid-password',
-  EMAIL_ALREADY_EXISTS = 'auth/email-already-exists',
-  WRONG_PASSWORD = 'auth/wrong-password',
-  USER_NOT_FOUND = 'auth/user-not-found',
-  OTHER = 'other',
 }
 
 export interface IUserSession {
@@ -94,7 +91,13 @@ export type IUserData = {
   [key in UserData]: TUserData<key>;
 };
 
-// Support requests and so forth!
+//
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//                 USER AND RESTAURANT SUPPORT                //
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+// Support requests and so forth
 export enum SupportRequestType {
   GENERAL = 'GENERAL',
   ORDER = 'ORDER',
@@ -130,6 +133,7 @@ export interface IUserSupportRequest {
 
 // Queries are unlike support requests in that they don't
 // require a conversation or priority.
+// For example, user letting us know what they expected on /404
 export enum UserQueryType {
   _404_PAGE = '_404_PAGE',
 }
@@ -137,6 +141,7 @@ export enum UserQueryType {
 export interface IUserQuery {
   name: string;
   email: string;
+  message: string;
   userId: string | null;
   type: UserQueryType;
   seen: boolean;
@@ -144,6 +149,12 @@ export interface IUserQuery {
   openedAt: number;
 }
 
+//
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//                VARIOUS USEFUL TYPES FOR DATA               //
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 export interface IDateObject {
   day: TDay;
   month: TMonth;
