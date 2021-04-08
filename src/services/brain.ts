@@ -43,8 +43,8 @@ Big brain must only be run on the server side.
 
 */
 
-import { CmsApi } from '.';
-import { CMS } from '..';
+import CMS from '../constants/cms';
+import { CmsApi } from './cms';
 
 export class BigBrain {
   public inferRecommendedPosts = async (

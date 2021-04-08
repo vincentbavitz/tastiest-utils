@@ -128,6 +128,22 @@ export interface IUserSupportRequest {
   updatedAt: number;
 }
 
+// Queries are unlike support requests in that they don't
+// require a conversation or priority.
+export enum UserQueryType {
+  _404_PAGE = '_404_PAGE',
+}
+
+export interface IUserQuery {
+  name: string;
+  email: string;
+  userId: string | null;
+  type: UserQueryType;
+  seen: boolean;
+  resolved: boolean;
+  openedAt: number;
+}
+
 export interface IDateObject {
   day: TDay;
   month: TMonth;
