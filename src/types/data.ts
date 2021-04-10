@@ -106,12 +106,21 @@ export enum SupportRequestType {
   OTHER = 'OTHER',
 }
 
+export enum SupportMessageDirection {
+  RESTAURANT_TO_SUPPORT = 'RESTAURANT_TO_SUPPORT',
+  SUPPORT_TO_RESTAURANT = 'SUPPORT_TO_RESTAURANT',
+  USER_TO_SUPPORT = 'USER_TO_SUPPORT',
+  SUPPORT_TO_USER = 'SUPPORT_TO_USER',
+}
+
 export interface ISupportMessage {
   // TODO - Allow formatting in the future
   name: string;
   message: string;
   timestamp: number;
-  role: 'user' | 'restaurant' | 'support';
+  direction: SupportMessageDirection;
+  hasOpened: boolean;
+  recipientHasOpened: boolean;
 }
 
 // User requests are stored in Firestore as support-users/<list of support requests>
@@ -127,7 +136,7 @@ export interface IUserSupportRequest {
   seen: boolean;
   resolved: boolean;
   // Timestamps
-  openedAt: number;
+  createdAt: number;
   updatedAt: number;
 }
 
@@ -146,7 +155,24 @@ export interface IUserQuery {
   type: UserQueryType;
   seen: boolean;
   resolved: boolean;
-  openedAt: number;
+  createdAt: number;
+}
+
+// User requests are stored in Firestore as support-restaurants/<restaurantId>
+export interface IRestaurantSupportRequest {
+  restaurantId: string | null;
+  name: string;
+  email: string;
+  // No types for restaurants yet
+  // type: SupportRequestType;
+  subject: string;
+  conversation: ISupportMessage[];
+  priority: 'critical' | 'high' | 'normal' | 'low';
+  seen: boolean;
+  resolved: boolean;
+  // Timestamps
+  createdAt: number;
+  updatedAt: number;
 }
 
 //
