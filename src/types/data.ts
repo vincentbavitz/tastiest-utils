@@ -1,4 +1,4 @@
-import { ILocation } from './cms';
+import { ILocation, IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IPaymentDetails } from './payments';
 
@@ -14,6 +14,7 @@ export interface IGenericAsyncReturnType {
 //                          USER DATA                         //
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// Corresponds to document fields in Firestore
 export enum UserData {
   DISPLAY_NAME = 'displayName',
   BOOKINGS = 'bookings',
@@ -95,6 +96,45 @@ export type TUserData<T extends UserData> =
 
 export type IUserData = {
   [key in UserData]: TUserData<key>;
+};
+
+//
+////////////////////////////////////////////////////////////////
+//                        RESTAURANT DATA                     //
+////////////////////////////////////////////////////////////////
+// Corresponds to document fields in Firestore
+export enum RestaurantData {
+  DETAILS = 'details',
+
+  FINANCIAL = 'financial',
+  BOOKINGS = 'bookings',
+  INVOICES = 'invoices',
+}
+
+export interface IRestaurantFinancialDetails {
+  paymentIntervalDays: number;
+  tastiestCommission: number;
+  revenuedFromTastiest: number;
+}
+
+export interface IRestaurantBookingDetails {
+  totalBookings: number;
+  totalCovers: number;
+}
+
+// prettier-ignore
+export type TRestaurantData<T extends RestaurantData> =
+    // User details and preferences
+    T extends RestaurantData.DETAILS ? Partial<IRestaurant> :
+
+    // Further information
+    T extends RestaurantData.FINANCIAL ? IRestaurantFinancialDetails:
+    T extends RestaurantData.BOOKINGS ? IRestaurantBookingDetails :
+
+    never;
+
+export type IRestaurantData = {
+  [key in RestaurantData]: TRestaurantData<key>;
 };
 
 //
