@@ -2,6 +2,12 @@ import { ILocation } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IPaymentDetails } from './payments';
 
+// Return type for async requests
+export interface IGenericAsyncReturnType {
+  success: boolean;
+  error: Error | null;
+}
+
 //
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
