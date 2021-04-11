@@ -330,8 +330,19 @@ export class CmsApi {
     const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
+    const profilePicture = this.convertImage(
+      rawRestaurant?.fields?.profilePicture,
+    );
 
-    if (!id || !name || !website || !businessType || !location || !cuisines) {
+    if (
+      !id ||
+      !name ||
+      !website ||
+      !businessType ||
+      !location ||
+      !cuisines ||
+      !profilePicture
+    ) {
       return;
     }
 
@@ -342,6 +353,7 @@ export class CmsApi {
       businessType,
       location,
       cuisines,
+      profilePicture,
     };
   };
 

@@ -62,6 +62,7 @@ export interface IRestaurant {
   // Contentful has a contact, but we don't want to
   // share that with the user.
   contact?: IContact;
+  profilePicture: IFigureImage;
 }
 
 export interface IPost {
