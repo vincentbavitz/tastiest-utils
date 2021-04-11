@@ -11,6 +11,7 @@ export enum FirebaseAuthError {
 export enum FirestoreCollection {
   // Eaters!
   USERS = 'users',
+  RESTAURANT_USERS = 'restaurant-users',
 
   // Orders and payments
   ORDERS = 'orders',
