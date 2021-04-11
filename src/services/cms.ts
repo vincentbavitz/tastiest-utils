@@ -244,7 +244,7 @@ export class CmsApi {
     return;
   };
 
-  private convertImage = (rawImage: any): IFigureImage | undefined => {
+  public convertImage = (rawImage: any): IFigureImage | undefined => {
     const imageUrl = rawImage?.file?.url?.replace('//', 'https://');
     const description = rawImage?.description ?? '';
     const title = rawImage?.title ?? '';
@@ -260,7 +260,7 @@ export class CmsApi {
     };
   };
 
-  private convertAuthor = (rawAuthor: any): IAuthor | undefined => {
+  public convertAuthor = (rawAuthor: any): IAuthor | undefined => {
     const name = rawAuthor?.name;
     const profileImage = this.convertImage(rawAuthor?.profileImage?.fields);
     const bio = rawAuthor?.bio;
@@ -274,7 +274,7 @@ export class CmsApi {
     return { name, profileImage, bio, position, email };
   };
 
-  private convertDeal = (rawDeal: any): IDeal | undefined => {
+  public convertDeal = (rawDeal: any): IDeal | undefined => {
     const id = rawDeal.sys.id;
     const restaurant = this.convertRestaurant(rawDeal?.fields?.restaurant);
     const tagline = rawDeal?.fields?.tagline;
@@ -296,7 +296,7 @@ export class CmsApi {
     return { id, restaurant, tagline, includes, pricePerHeadGBP, image };
   };
 
-  private convertLocation = (rawLocation: any): ILocation | undefined => {
+  public convertLocation = (rawLocation: any): ILocation | undefined => {
     const address = rawLocation?.fields?.address;
     const lat = rawLocation?.fields?.coordinates.lat;
     const lon = rawLocation?.fields?.coordinates.lon;
@@ -308,7 +308,7 @@ export class CmsApi {
     return { address, lat, lon };
   };
 
-  private convertCuisines = (rawCuisines: any): CuisineSymbol[] => {
+  public convertCuisines = (rawCuisines: any): CuisineSymbol[] => {
     if (!rawCuisines) {
       return [];
     }
@@ -323,7 +323,7 @@ export class CmsApi {
     return cuisines;
   };
 
-  private convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
+  public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
     const id = rawRestaurant?.sys?.id;
     const name = rawRestaurant?.fields?.name;
     const website = rawRestaurant?.fields?.website;
@@ -357,7 +357,7 @@ export class CmsApi {
     };
   };
 
-  private convertPost = (rawData: any): IPost | undefined => {
+  public convertPost = (rawData: any): IPost | undefined => {
     const rawPost = rawData?.fields;
     const rawFeatureImage = rawPost?.featureImage?.fields;
     const rawAbstractDivider = rawPost?.abstractDivider?.fields;
@@ -426,7 +426,7 @@ export class CmsApi {
     };
   };
 
-  private convertPromo = (rawPromo: any): IDiscount | undefined => {
+  public convertPromo = (rawPromo: any): IDiscount | undefined => {
     const amount = rawPromo?.amountOff ?? null;
     const unit = (rawPromo?.discountUnit as '%' | '£') ?? null;
 
