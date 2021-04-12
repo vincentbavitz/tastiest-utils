@@ -331,7 +331,7 @@ export class CmsApi {
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
     const profilePicture = this.convertImage(
-      rawRestaurant?.fields?.profilePicture,
+      rawRestaurant?.fields?.profilePicture?.fields,
     );
 
     if (
