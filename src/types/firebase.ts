@@ -27,3 +27,9 @@ export enum FirestoreCollection {
   SUPPORT_USERS = 'support-users',
   SUPPORT_RESTAURANTS = 'support-restaurants',
 }
+
+export interface FirebaseAdminCert {
+  privateKey: string;
+  clientEmail: string;
+  projectId: string;
+}

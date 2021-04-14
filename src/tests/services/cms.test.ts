@@ -22,7 +22,22 @@ describe('CMS Servcice', () => {
     const cms = new CmsApi();
 
     const { posts } = await cms.getPosts();
-    console.log('cms.test ➡️ posts:', posts);
+    console.log(
+      'cms.test ➡️ posts:',
+      posts.map(p => p.slug),
+    );
+
+    expect(true).toBeDefined();
+  });
+
+  it('Get restaurant by ID', async () => {
+    const cms = new CmsApi();
+
+    const restaurant = await cms.getRestaurantById(
+      '8OJeowHe84Z89u9epRA7sbMIayu1',
+    );
+
+    console.log('restayrant', restaurant);
 
     expect(true).toBeDefined();
   });

@@ -159,9 +159,22 @@ export class CmsApi {
     return { posts: [], total: 0 } as IFetchPostsReturn;
   }
 
-  public async getRestaurantsOfOrganisation(organisationID: string) {
-    organisationID;
-    return null;
+  public async getRestaurantById(
+    restaurantId: string,
+  ): Promise<IRestaurant | undefined> {
+    const entries = await this.client.getEntries({
+      content_type: 'restaurant',
+      'fields.id[in]': restaurantId,
+      limit: 1,
+      include: 8,
+    });
+
+    if (entries?.items?.length > 0) {
+      const restaurant = this.convertRestaurant(entries.items[0]);
+      return restaurant;
+    }
+
+    return;
   }
 
   public async searchPosts(
@@ -324,7 +337,7 @@ export class CmsApi {
   };
 
   public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
-    const id = rawRestaurant?.sys?.id;
+    const id = rawRestaurant?.fields?.id;
     const name = rawRestaurant?.fields?.name;
     const website = rawRestaurant?.fields?.website;
     const businessType = rawRestaurant?.fields?.businessType;
