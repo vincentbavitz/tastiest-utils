@@ -5,18 +5,16 @@ export class RestaurantDataApi {
   public restaurantUserId: string | null;
   public admin: any | null;
 
-  constructor(firebaseAdmin: any) {
+  constructor(firebaseAdmin: any, restaurantUserId?: string) {
     this.admin = firebaseAdmin;
-    this.restaurantUserId = null;
-  }
 
-  // Initialize from backend where we have no access to
-  // cookies or other session tokens.
-  public async initFromId(restaurantUserId: string) {
-    this.restaurantUserId = restaurantUserId;
+    // Initialize from backend where we have no access to
+    // cookies or other session tokens.
+    this.restaurantUserId = restaurantUserId ?? null;
   }
 
   // Gets restaurantId from cookie if in SSR mode.
+  // In this case, restaurantUserId isn't passed in the constructor.
   // Get context from getServerSideProps
   // Cookie token comes from nookies.get(ctx).token
   public async initFromCookieToken(cookieToken: string) {
