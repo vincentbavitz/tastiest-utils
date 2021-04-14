@@ -2,19 +2,19 @@ import { FirestoreCollection, RestaurantData, TRestaurantData } from '..';
 
 // Intended for server-side use ONLY!
 export class RestaurantDataApi {
-  public restaurantUserId: string | null;
+  public restaurantId: string | null;
   public admin: any | null;
 
-  constructor(firebaseAdmin: any, restaurantUserId?: string) {
+  constructor(firebaseAdmin: any, restaurantId?: string) {
     this.admin = firebaseAdmin;
 
     // Initialize from backend where we have no access to
     // cookies or other session tokens.
-    this.restaurantUserId = restaurantUserId ?? null;
+    this.restaurantId = restaurantId ?? null;
   }
 
   // Gets restaurantId from cookie if in SSR mode.
-  // In this case, restaurantUserId isn't passed in the constructor.
+  // In this case, restaurantId isn't passed in the constructor.
   // Get context from getServerSideProps
   // Cookie token comes from nookies.get(ctx).token
   public async initFromCookieToken(cookieToken: string) {
@@ -22,10 +22,10 @@ export class RestaurantDataApi {
       const token = await this.admin.auth().verifyIdToken(cookieToken);
 
       // User is authenticated!
-      this.restaurantUserId = token.uid;
-      return { restaurantUserId: token.uid, email: token.email };
+      this.restaurantId = token.uid;
+      return { restaurantId: token.uid, email: token.email };
     } catch (error) {
-      return { restaurantUserId: null, email: null };
+      return { restaurantId: null, email: null };
     }
   }
 
@@ -33,7 +33,7 @@ export class RestaurantDataApi {
     field: T,
   ): Promise<TRestaurantData<T> | null> => {
     // Ensure we are initialized
-    if (!this.restaurantUserId) {
+    if (!this.restaurantId) {
       throw new Error('RestaurantDataApi: Ensure you have initialized first.');
     }
 
@@ -41,7 +41,7 @@ export class RestaurantDataApi {
       const doc = await this.admin
         .firestore()
         .collection(FirestoreCollection.RESTAURANTS)
-        .doc(this.restaurantUserId)
+        .doc(this.restaurantId)
         .get();
 
       const restaurantData = await doc.data();
@@ -57,7 +57,7 @@ export class RestaurantDataApi {
     value: TRestaurantData<T>,
   ) => {
     // Ensure we are initialized
-    if (!this.restaurantUserId) {
+    if (!this.restaurantId) {
       throw new Error('RestaurantDataApi: Ensure you have initialized first.');
     }
 
@@ -65,7 +65,7 @@ export class RestaurantDataApi {
       await this.admin
         .firestore()
         .collection(FirestoreCollection.RESTAURANTS)
-        .doc(this.restaurantUserId)
+        .doc(this.restaurantId)
         .set(
           {
             [field]: value,

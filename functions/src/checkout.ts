@@ -3,10 +3,11 @@ import {
     dlog,
     FirestoreCollection,
     IOrder,
-    IOrderRequest, UserDataApi
+    IOrderRequest
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import { v4 as uuid } from 'uuid';
 
 // const STRIPE_SECRET_KEY =
@@ -18,6 +19,15 @@ import { v4 as uuid } from 'uuid';
 //   apiVersion: '2020-08-27',
 // });
 
+
+// GETs the orders of a restaurant
+// Use the parameter ?restaurauntId=<restaurauntId> in your request
+// Use case: get initial data server-side ISR and revalidate with SWR.
+export const getOrdersOfRestaurant = functions.https.onRequest(
+    async (request, response) => {
+        
+    }
+);
 
   export const  getOrderFromOrderRequest = async (
     orderId: string,

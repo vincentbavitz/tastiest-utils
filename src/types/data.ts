@@ -8,6 +8,19 @@ export interface IGenericAsyncReturnType {
   error: Error | null;
 }
 
+// Firebase Functions
+// Reponse shape for Firebase functions GET endpoints
+export interface IFunctionsResponseGET {
+  success: boolean;
+  error: string;
+  data: any;
+}
+
+export interface IFunctionsResponsePOST {
+  success: boolean;
+  error: string;
+}
+
 //
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
