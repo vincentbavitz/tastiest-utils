@@ -68,9 +68,12 @@ export class RestaurantDataApi {
         .firestore()
         .collection(FirestoreCollection.RESTAURANTS)
         .doc(this.restaurantUserId)
-        .update({
-          [field]: value,
-        });
+        .set(
+          {
+            [field]: value,
+          },
+          { merge: true },
+        );
 
       return value;
     } catch (e) {
