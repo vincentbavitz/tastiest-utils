@@ -32,7 +32,6 @@ describe('CMS Servcice', () => {
 
   it('Get restaurant by ID', async () => {
     const cms = new CmsApi();
-
     const restaurant = await cms.getRestaurantById(
       '8OJeowHe84Z89u9epRA7sbMIayu1',
     );

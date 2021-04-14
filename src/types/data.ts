@@ -105,7 +105,6 @@ export type IUserData = {
 // Corresponds to document fields in Firestore
 export enum RestaurantData {
   DETAILS = 'details',
-
   FINANCIAL = 'financial',
   BOOKINGS = 'bookings',
   INVOICES = 'invoices',
