@@ -17,12 +17,14 @@
     "@tastiest-io/tastiest-utils": "^0.44.0",
     "@types/analytics-node": "^3.1.4",
     "analytics-node": "^4.0.1",
+    "cors": "^2.8.5",
     "eslint": "^7.23.0",
     "firebase-admin": "^9.2.0",
     "firebase-functions": "^3.11.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.10",
     "@types/uuid": "^8.3.0",
     "firebase-functions-test": "^0.2.0",
     "typescript": "^3.8.0"
