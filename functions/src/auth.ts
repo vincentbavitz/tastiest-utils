@@ -6,19 +6,6 @@ import * as functions from 'firebase-functions';
 const Analytics = require('analytics-node');
 const analytics = new Analytics(functions.config().segment.write_key);
 
-export const userSignedUp = functions.auth.user().onCreate(async user => {
-  // Verify user has opened email with /preferences?utm_source
-  analytics.track({
-    userId: user.uid,
-    event: 'User Signed Up',
-    properties: {
-      traits: {
-        email: user.email,
-      },
-    },
-  });
-});
-
 // Sign up user with a given role
 // Body must include:
 //    role=<UserRole>
@@ -37,14 +24,14 @@ export const registerUser = functions.https.onRequest(
       role !== String(UserRole.ADMIN)
     ) {
       response.send({
-        success: false,
+        user: null,
         error: 'Invalid user role',
       });
       return;
     }
 
     if (email.length === 0 || password.length === 0) {
-      response.send({ success: false, error: 'No email or no password given' });
+      response.send({ user: null, error: 'No email or no password given' });
       return;
     }
 
@@ -62,12 +49,25 @@ export const registerUser = functions.https.onRequest(
       // Set firstName if it was given
       const firstName = request.body?.firstName?.split(' ')[0];
       if (firstName && role === UserRole.EATER) {
-        await userDataApi.setUserData(UserData.DETAILS, { firstName });
+        await userDataApi.setUserData(UserData.DETAILS, { firstName, email });
       }
 
-      response.send({ success: true, error: null });
+      // Track sign up.
+      // 'Identify' step happens client-side to capture user agent
+      analytics.track({
+        userId: userRecord.uid,
+        event: 'User Signed Up',
+        properties: {
+          traits: {
+            role,
+            email: userRecord.email,
+          },
+        },
+      });
+
+      response.send({ user: userRecord, error: null });
     } catch (error) {
-      response.send({ success: false, error });
+      response.send({ user: null, error });
       return;
     }
   },
