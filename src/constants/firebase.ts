@@ -1,4 +1,4 @@
-import { FirebaseAuthError } from '..';
+import { FirebaseAuthError } from '../types';
 
 export interface IFirestore {
   data: any;
@@ -16,11 +16,12 @@ const ERROR_MESSAGES = {
 };
 
 const FIREBASE = {
-  RRF_CONFIG: {},
   ERROR_MESSAGES,
   MAX_LOGIN_ATTEMPTS: 3,
   ORDER_REQUEST_MAX_AGE_MS: 86400000, // 1 day,
-  FUNCTIONS_ENDPOINT: 'https://us-central1-tastiest-dishes.cloudfunctions.net',
 };
+
+export const getFunctionsEndpoint = (region = 'europe-west3') =>
+  `https://${region}-tastiest-dishes.cloudfunctions.net`;
 
 export default FIREBASE;

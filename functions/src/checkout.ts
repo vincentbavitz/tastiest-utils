@@ -11,8 +11,9 @@ import Stripe from 'stripe';
 const Analytics = require('analytics-node');
 const analytics = new Analytics(functions.config().segment.write_key);
 
-const STRIPE_SECRET_KEY = functions.config().stripe?.secret_test;
-export const stripe = new Stripe(STRIPE_SECRET_KEY, {
+export const STRIPE_SECRET_KEY = functions.config().stripe?.secret_test;
+
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2020-08-27',
 });
 
