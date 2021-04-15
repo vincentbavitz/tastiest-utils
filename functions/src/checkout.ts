@@ -12,33 +12,9 @@ const Analytics = require('analytics-node');
 const analytics = new Analytics(functions.config().segment.write_key);
 
 const STRIPE_SECRET_KEY = functions.config().stripe?.secret_test;
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
+export const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2020-08-27',
 });
-
-/**
- * When a user is created, create a Stripe customer object for them.
- *
- * @see https://stripe.com/docs/payments/save-and-reuse#web-create-customer
- */
-export const createStripeCustomer = functions.auth
-  .user()
-  .onCreate(async user => {
-    const customer = await stripe.customers.create({ email: user.email });
-    const intent = await stripe.setupIntents.create({
-      customer: customer.id,
-    });
-
-    await admin
-      .firestore()
-      .collection(FirestoreCollection.STRIPE_CUSTOMERS)
-      .doc(user.uid)
-      .set({
-        customer_id: customer.id,
-        setup_secret: intent.client_secret,
-      });
-    return;
-  });
 
 /**
  * When adding the payment method ID on the client,
