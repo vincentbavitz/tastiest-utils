@@ -1,5 +1,6 @@
 import {
   CmsApi,
+  IFunctionsResponsePOST,
   RestaurantData,
   RestaurantDataApi,
 } from '@tastiest-io/tastiest-utils';
@@ -8,7 +9,6 @@ import * as functions from 'firebase-functions';
 
 // import Stripe from 'stripe';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Analytics = require('analytics-node');
 
 // Syncs Contentful data to Firestore on publish
 // Includes restaurants, deals, etc.
@@ -43,8 +43,8 @@ export const syncFromContentful = functions.https.onRequest(
       const restaurant = await cmsApi.getRestaurantById(restaurantId);
 
       if (!restaurant) {
-        const responseBody = {
-          sucess: false,
+        const responseBody: IFunctionsResponsePOST = {
+          success: false,
           error: 'No restaurant found',
         };
         response.send(JSON.stringify(responseBody));
@@ -59,12 +59,18 @@ export const syncFromContentful = functions.https.onRequest(
           restaurant,
         );
 
-        const responseBody = { sucess: true, error: null };
-        response.send(JSON.stringify(responseBody));
+        const responseBody: IFunctionsResponsePOST = {
+          success: true,
+          error: null,
+        };
+        response.send(responseBody);
         return;
       } catch (error) {
-        const responseBody = { sucess: false, error: 'Firebase admin error' };
-        response.send(JSON.stringify(responseBody));
+        const responseBody: IFunctionsResponsePOST = {
+          success: false,
+          error: 'Firebase admin error',
+        };
+        response.send(responseBody);
         return;
       }
     }

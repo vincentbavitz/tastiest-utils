@@ -12,13 +12,19 @@ export interface IGenericAsyncReturnType {
 // Reponse shape for Firebase functions GET endpoints
 export interface IFunctionsResponseGET {
   success: boolean;
-  error: string;
+  error: string | null;
   data: any;
 }
 
 export interface IFunctionsResponsePOST {
   success: boolean;
-  error: string;
+  error: string | null;
+}
+
+export enum UserRole {
+  EATER = 'eater',
+  RESTAURANT = 'restaurant',
+  ADMIN = 'admin',
 }
 
 //
@@ -29,6 +35,7 @@ export interface IFunctionsResponsePOST {
 ////////////////////////////////////////////////////////////////
 // Corresponds to document fields in Firestore
 export enum UserData {
+  ROLE = 'role',
   DISPLAY_NAME = 'displayName',
   BOOKINGS = 'bookings',
   COVERS = 'covers',
@@ -41,6 +48,7 @@ export enum UserData {
 
   DETAILS = 'details',
   PAYMENT_DETAILS = 'paymentDetails',
+  PAYMENT_METHODS = 'paymentMethods',
   PREFERENCES = 'preferences',
 
   USER_SESSIONS = 'userSessions',
@@ -83,6 +91,8 @@ export interface IUserPreferences {
 
 // prettier-ignore
 export type TUserData<T extends UserData> =
+    T extends UserData.ROLE ? UserRole :
+
     // User profile
     T extends UserData.DISPLAY_NAME ? string :
     T extends UserData.PROFILE_PICTURE_URL ? string :
@@ -100,6 +110,8 @@ export type TUserData<T extends UserData> =
     // User details and preferences
     T extends UserData.DETAILS ? Partial<IUserDetails> :
     T extends UserData.PAYMENT_DETAILS ? Partial<IPaymentDetails> :
+    // Payment methods from Stripe
+    T extends UserData.PAYMENT_METHODS ? any :
     T extends UserData.PREFERENCES ? Partial<IUserPreferences> :
 
     // User orders
@@ -117,6 +129,7 @@ export type IUserData = {
 ////////////////////////////////////////////////////////////////
 // Corresponds to document fields in Firestore
 export enum RestaurantData {
+  ROLE = 'role',
   DETAILS = 'details',
   FINANCIAL = 'financial',
   BOOKINGS = 'bookings',
@@ -136,6 +149,8 @@ export interface IRestaurantBookingDetails {
 
 // prettier-ignore
 export type TRestaurantData<T extends RestaurantData> =
+    T extends RestaurantData.ROLE ? UserRole.RESTAURANT :
+
     // User details and preferences
     T extends RestaurantData.DETAILS ? Partial<IRestaurant> :
 

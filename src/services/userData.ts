@@ -66,9 +66,12 @@ export class UserDataApi {
         .firestore()
         .collection(FirestoreCollection.USERS)
         .doc(this.userId)
-        .update({
-          [field]: value,
-        });
+        .set(
+          {
+            [field]: value,
+          },
+          { merge: true },
+        );
 
       return value;
     } catch (e) {

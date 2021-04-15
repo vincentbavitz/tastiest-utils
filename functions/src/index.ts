@@ -1,10 +1,4 @@
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
-
-// import Stripe from 'stripe';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Analytics = require('analytics-node');
-const analytics = new Analytics(functions.config().segment.write_key);
 
 admin.initializeApp();
 
@@ -12,10 +6,6 @@ export * from './auth';
 export * from './checkout';
 export * from './email';
 export * from './sync';
-
-// enum EmailTemplate {
-//   WELCOME = 'SKFpWy',
-// }
 
 // Payment endpoint for Tastiest
 // Takes the following parameters
@@ -66,75 +56,6 @@ export * from './sync';
 // ): number => {
 //   return 0;
 // };
-
-export const userSignedUp = functions.auth.user().onCreate(async user => {
-  // Verify user has opened email with /preferences?utm_source
-  analytics.track({
-    userId: user.uid,
-    event: 'User Signed Up',
-    properties: {
-      traits: {
-        email: user.email,
-      },
-    },
-  });
-});
-
-// /**
-//  * When a user is created, create a Stripe customer object for them.
-//  *
-//  * @see https://stripe.com/docs/payments/save-and-reuse#web-create-customer
-//  */
-// export const createStripeCustomer = functions.auth
-//   .user()
-//   .onCreate(async user => {
-//     const customer = await stripe.customers.create({ email: user.email });
-//     const intent = await stripe.setupIntents.create({
-//       customer: customer.id,
-//     });
-//     await admin
-//       .firestore()
-//       .collection(FirestoreCollection.STRIPE_CUSTOMERS)
-//       .doc(user.uid)
-//       .set({
-//         customer_id: customer.id,
-//         setup_secret: intent.client_secret,
-//       });
-//     return;
-//   });
-
-// /**
-//  * When adding the payment method ID on the client,
-//  * this function is triggered to retrieve the payment method details.
-//  */
-// export const addPaymentMethodDetails = functions.firestore
-//   .document('/stripe_customers/{userId}/payment_methods/{pushId}')
-//   .onCreate(async (snap, context) => {
-//     try {
-//       const paymentMethodId = snap.data().id;
-//       const paymentMethod = await stripe.paymentMethods.retrieve(
-//         paymentMethodId,
-//       );
-
-//       await snap.ref.set(paymentMethod);
-//       // Create a new SetupIntent so the customer can add a new method next time.
-//       const intent = await stripe.setupIntents.create({
-//         customer: `${paymentMethod.customer}`,
-//       });
-
-//       await snap?.ref?.parent?.parent?.set(
-//         {
-//           setup_secret: intent.client_secret,
-//         },
-//         { merge: true },
-//       );
-
-//       return;
-//     } catch (error) {
-//       await snap.ref.set({ error: userFacingMessage(error) }, { merge: true });
-//       await reportError(error, context.params.userId);
-//     }
-//   });
 
 // /**
 //  * When a payment document is written on the client,
@@ -247,29 +168,3 @@ export const userSignedUp = functions.auth.user().onCreate(async user => {
 //  */
 
 // // [START reporterror]
-
-// function reportError(error: any, userId: string) {
-//   // This is the name of the StackDriver log stream that will receive the log
-//   // entry. This name can be any valid log stream name, but must contain "err"
-//   // in order for the error to be picked up by StackDriver Error Reporting.
-
-//   analytics.track({
-//     userId: userId ?? null,
-//     event: `Payment Error for user ${userId}`,
-//     properties: {
-//       userId,
-//       message: error?.stack,
-//     },
-//   });
-// }
-
-// // [END reporterror]
-
-// /**
-//  * Sanitize the error message for the user.
-//  */
-// function userFacingMessage(error: any) {
-//   return error?.type
-//     ? error?.message
-//     : 'An error occurred, developers have been alerted';
-// }
