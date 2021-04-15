@@ -65,19 +65,10 @@ export const registerUser = functions.https.onRequest(
         await userDataApi.setUserData(UserData.DETAILS, { firstName });
       }
 
-      response.send({ success: true, error: userRecord });
+      response.send({ success: true, error: null });
     } catch (error) {
       response.send({ success: false, error });
       return;
     }
-    //   if (!entityId || !contentType) {
-    //     response.send(
-    //       JSON.stringify({
-    //         success: false,
-    //         error: 'Invalid entityId or contentType',
-    //       }),
-    //     );
-    //     return;
-    //   }
   },
 );

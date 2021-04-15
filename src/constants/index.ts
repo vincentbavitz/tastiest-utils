@@ -1,5 +1,6 @@
 import CMS from './cms';
+import FIREBASE from './firebase';
 import PAYMENTS from './payments';
 import USER from './user';
 
-export { PAYMENTS, CMS, USER };
+export { CMS, FIREBASE, PAYMENTS, USER };
