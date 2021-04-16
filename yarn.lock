@@ -1385,6 +1385,18 @@
     webpack "^4.44.1"
     webpack-bundle-analyzer "^4.4.0"
 
+"@tastiest-io/tastiest-utils@^0.49.0":
+  version "0.49.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.49.0/79ee372ae3d972a9131b8010b8b5e5b417fb9e1dfdcb5e661023a14f628347e9#c5d343638caad7692e0a79da6d137064e624c536"
+  integrity sha512-Qzu6RwSRNsuLrk4pZlNr8GLhdQL9WdsxxD548IETG1CgfQCO6efb187Gl8DYxaDK6YaPZbh6F3dE3AW0GBX5gQ==
+  dependencies:
+    "@contentful/rich-text-types" "^14.1.2"
+    "@types/react" "^17.0.3"
+    contentful "^8.2.1"
+    firebase-admin "^9.6.0"
+    moment "^2.29.1"
+    stripe "^8.143.0"
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"

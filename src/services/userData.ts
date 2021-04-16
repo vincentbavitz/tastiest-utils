@@ -1,4 +1,9 @@
-import { FirestoreCollection, TUserData, UserData } from '..';
+import {
+  FirestoreCollection,
+  IFunctionsResponsePOST,
+  TUserData,
+  UserData,
+} from '..';
 
 // Intended for server-side use ONLY!
 export class UserDataApi {
@@ -55,7 +60,7 @@ export class UserDataApi {
   public setUserData = async <T extends UserData>(
     field: T,
     value: TUserData<T>,
-  ): Promise<TUserData<T> | null> => {
+  ): Promise<IFunctionsResponsePOST> => {
     // Ensure we are initialized
     if (!this.userId) {
       throw new Error('UserDataApi: Ensure you have initialized first.');
@@ -73,9 +78,9 @@ export class UserDataApi {
           { merge: true },
         );
 
-      return value;
-    } catch (e) {
-      return null;
+      return { success: true, error: null };
+    } catch (error) {
+      return { success: false, error };
     }
   };
 }

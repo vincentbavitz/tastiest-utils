@@ -1,4 +1,5 @@
 import {
+  FIREBASE,
   FirestoreCollection,
   IFunctionsResponseGET,
   UserData,
@@ -21,8 +22,9 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
  * When adding the payment method ID on the client,
  * this function is triggered to retrieve the payment method details.
  */
-export const addPaymentMethodDetails = functions.firestore
-  .document(
+export const addPaymentMethodDetails = functions
+  .region(FIREBASE.DEFAULT_REGION)
+  .firestore.document(
     `/${FirestoreCollection.STRIPE_CUSTOMERS}/{userId}/${UserData.PAYMENT_METHODS}/{pushId}`,
   )
   .onCreate(async (snap, context) => {
@@ -56,8 +58,9 @@ export const addPaymentMethodDetails = functions.firestore
 // GETs the orders of a restaurant
 // Use the parameter ?restaurauntId=<restaurauntId> in your request
 // Use case: get initial data server-side ISR and revalidate with SWR.
-export const getOrdersOfRestaurant = functions.https.onRequest(
-  async (request, response) => {
+export const getOrdersOfRestaurant = functions
+  .region(FIREBASE.DEFAULT_REGION)
+  .https.onRequest(async (request, response) => {
     const restaurantId = request.query?.restaurantId;
 
     if (!restaurantId) {
@@ -93,8 +96,7 @@ export const getOrdersOfRestaurant = functions.https.onRequest(
 
     response.send(responseBody);
     return;
-  },
-);
+  });
 
 //   export const  getOrderFromOrderRequest = async (
 //     orderId: string,

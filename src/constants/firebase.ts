@@ -19,9 +19,7 @@ const FIREBASE = {
   ERROR_MESSAGES,
   MAX_LOGIN_ATTEMPTS: 3,
   ORDER_REQUEST_MAX_AGE_MS: 86400000, // 1 day,
+  DEFAULT_REGION: 'europe-west3',
 };
-
-export const getFunctionsEndpoint = (region = 'europe-west3') =>
-  `https://${region}-tastiest-dishes.cloudfunctions.net`;
 
 export default FIREBASE;
