@@ -19,6 +19,7 @@ export interface IFunctionsResponseGET {
 export interface IFunctionsResponsePOST {
   success: boolean;
   error: string | null;
+  data: any;
 }
 
 export enum UserRole {

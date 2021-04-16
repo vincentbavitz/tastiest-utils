@@ -13,7 +13,8 @@ describe('CMS Servcice', () => {
     const cms = new CmsApi();
 
     const post = await cms.getPostBySlug('this-is-a-slug');
-    console.log('cms.test ➡️ post:', post);
+    // console.log('cms.test ➡️ post:', post);
+    post;
 
     expect(true).toBeDefined();
   });
@@ -22,10 +23,11 @@ describe('CMS Servcice', () => {
     const cms = new CmsApi();
 
     const { posts } = await cms.getPosts();
-    console.log(
-      'cms.test ➡️ posts:',
-      posts.map(p => p.slug),
-    );
+    // console.log(
+    //   'cms.test ➡️ posts:',
+    //   posts.map(p => p.slug),
+    // );
+    posts;
 
     expect(true).toBeDefined();
   });
@@ -36,8 +38,15 @@ describe('CMS Servcice', () => {
       '8OJeowHe84Z89u9epRA7sbMIayu1',
     );
 
-    console.log('restayrant', restaurant);
+    restaurant;
+    expect(true).toBeDefined();
+  });
 
+  it('Get Deal by ID', async () => {
+    const cms = new CmsApi();
+    const deal = await cms.getDeal('7ET4fQpR2srjbmXWOyk4Lc');
+
+    console.log('deal', deal);
     expect(true).toBeDefined();
   });
 

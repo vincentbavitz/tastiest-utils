@@ -78,9 +78,9 @@ export class UserDataApi {
           { merge: true },
         );
 
-      return { success: true, error: null };
+      return { success: true, error: null, data: null };
     } catch (error) {
-      return { success: false, error };
+      return { success: false, error, data: null };
     }
   };
 }

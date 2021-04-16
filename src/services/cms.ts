@@ -236,10 +236,17 @@ export class CmsApi {
   }
 
   public getDeal = async (dealId: string): Promise<IDeal | undefined> => {
-    const entry = await this.client.getEntry(dealId);
-    const deal = this.convertDeal(entry);
+    try {
+      const entry = await this.client.getEntry<IDeal>(dealId, {
+        include: 10,
+      });
 
-    return deal;
+      const deal = this.convertDeal(entry);
+
+      return deal;
+    } catch {
+      return;
+    }
   };
 
   public getPromo = async (code: string): Promise<IDiscount | undefined> => {
@@ -303,6 +310,14 @@ export class CmsApi {
       !pricePerHeadGBP ||
       !image
     ) {
+      console.log('', {
+        id,
+        restaurant,
+        tagline,
+        includes,
+        pricePerHeadGBP,
+        image,
+      });
       return;
     }
 
@@ -311,8 +326,8 @@ export class CmsApi {
 
   public convertLocation = (rawLocation: any): ILocation | undefined => {
     const address = rawLocation?.fields?.address;
-    const lat = rawLocation?.fields?.coordinates.lat;
-    const lon = rawLocation?.fields?.coordinates.lon;
+    const lat = rawLocation?.fields?.coordinates.lat ?? null;
+    const lon = rawLocation?.fields?.coordinates.lon ?? null;
 
     if (!address || !lat || !lon) {
       return;
