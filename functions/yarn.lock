@@ -241,10 +241,10 @@
     component-type "^1.2.1"
     join-component "^1.1.0"
 
-"@tastiest-io/tastiest-utils@^0.51.0":
-  version "0.51.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.51.0/d614feedd234c54177e9b2f44865a6a3117be5115535274bd5a6b470fd1b3a07#8565fd9dc9f86da464845335c834af904bd3d653"
-  integrity sha512-gMoV1nTv6IUjuuiyxG0SHpiGOP3TqOeBDO5frH7C0q1iD0L5snUIvI1RwIT1HgXrot75UOr4oqkDUtti6rdYTg==
+"@tastiest-io/tastiest-utils@^0.65.0":
+  version "0.65.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.65.0/21857547e5746505a1f439d792acbb0a6ad07ef63d4c0be93190e6683e06314b#676b66f482edb9f9fbe4eb69a73e2dceb020e282"
+  integrity sha512-siJ+SJ4U5zrecq20BUC5g4pd8445iFm/Y/R2A07nH8z4Uzwh3O7CoBVjghdTgjX2YotFGIyUfqLewJvszFeIqA==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
     "@types/react" "^17.0.3"

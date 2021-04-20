@@ -44,6 +44,21 @@ export interface IOrder {
   };
 }
 
+// This is what the restaurant sees after eater pays
+// Stored in firestore/bookings
+export interface IBooking {
+  orderId: string;
+  restaurantId: string;
+  eaterName: string;
+  dealName: string;
+  heads: number;
+  orderTotal: number;
+  paidAt: number;
+  bookingDate: number | null;
+  hasBooked: boolean;
+  hasEaten: boolean;
+}
+
 export interface IPaymentDetails {
   cardHolderName: string;
   cardLastFour: string;

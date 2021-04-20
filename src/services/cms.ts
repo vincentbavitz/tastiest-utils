@@ -296,6 +296,7 @@ export class CmsApi {
 
   public convertDeal = (rawDeal: any): IDeal | undefined => {
     const id = rawDeal.sys.id;
+    const name = rawDeal?.fields?.name;
     const restaurant = this.convertRestaurant(rawDeal?.fields?.restaurant);
     const tagline = rawDeal?.fields?.tagline;
     const includes = rawDeal?.fields?.includes ?? [];
@@ -304,24 +305,17 @@ export class CmsApi {
 
     if (
       !id ||
+      !name ||
       !restaurant ||
       !tagline ||
       !includes ||
       !pricePerHeadGBP ||
       !image
     ) {
-      console.log('', {
-        id,
-        restaurant,
-        tagline,
-        includes,
-        pricePerHeadGBP,
-        image,
-      });
       return;
     }
 
-    return { id, restaurant, tagline, includes, pricePerHeadGBP, image };
+    return { id, name, restaurant, tagline, includes, pricePerHeadGBP, image };
   };
 
   public convertLocation = (rawLocation: any): ILocation | undefined => {

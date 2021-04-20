@@ -8,19 +8,12 @@ export interface IGenericAsyncReturnType {
   error: Error | null;
 }
 
-// Firebase Functions
-// Reponse shape for Firebase functions GET endpoints
-export interface IFunctionsResponseGET {
+// Server side and cloud functions
+export type FunctionsResponse<T = any> = {
   success: boolean;
   error: string | null;
-  data: any;
-}
-
-export interface IFunctionsResponsePOST {
-  success: boolean;
-  error: string | null;
-  data: any;
-}
+  data: T | null;
+};
 
 export enum UserRole {
   EATER = 'eater',
@@ -95,7 +88,6 @@ export type TUserData<T extends UserData> =
     T extends UserData.ROLE ? UserRole :
 
     // User profile
-    T extends UserData.DISPLAY_NAME ? string :
     T extends UserData.PROFILE_PICTURE_URL ? string :
     T extends UserData.REFERRED_FROM ? string :
 
@@ -135,6 +127,7 @@ export enum RestaurantData {
   FINANCIAL = 'financial',
   BOOKINGS = 'bookings',
   INVOICES = 'invoices',
+  LEGAL = 'legal',
 }
 
 export interface IRestaurantFinancialDetails {
@@ -143,9 +136,20 @@ export interface IRestaurantFinancialDetails {
   revenuedFromTastiest: number;
 }
 
+export interface IPayout {
+  amountGbp: number;
+  timestamp: number;
+  daysSincePrevious: number;
+}
+
 export interface IRestaurantBookingDetails {
   totalBookings: number;
   totalCovers: number;
+  payouts: IPayout[];
+}
+
+export interface IRestaurantLegal {
+  hasAcceptedTerms: boolean;
 }
 
 // prettier-ignore
@@ -158,7 +162,8 @@ export type TRestaurantData<T extends RestaurantData> =
     // Further information
     T extends RestaurantData.FINANCIAL ? IRestaurantFinancialDetails:
     T extends RestaurantData.BOOKINGS ? IRestaurantBookingDetails :
-
+    T extends RestaurantData.LEGAL ? IRestaurantLegal :
+    
     never;
 
 export type IRestaurantData = {

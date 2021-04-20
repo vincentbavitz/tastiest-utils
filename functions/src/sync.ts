@@ -1,6 +1,6 @@
 import {
   CmsApi,
-  IFunctionsResponsePOST,
+  FunctionsResponse,
   RestaurantData,
   RestaurantDataApi,
 } from '@tastiest-io/tastiest-utils';
@@ -13,7 +13,7 @@ import * as functions from 'firebase-functions';
 // Syncs Contentful data to Firestore on publish
 // Includes restaurants, deals, etc.
 export const syncFromContentful = functions.https.onRequest(
-  async (request, response) => {
+  async (request, response: functions.Response<FunctionsResponse>) => {
     // Our Contentful webhook gives us our entity type (eg, 'restaurant', etc)
     // and an entity ID.
     // Currently (as of 15/04/2021), Contentful Webhooks don't give us linked
@@ -28,12 +28,12 @@ export const syncFromContentful = functions.https.onRequest(
     const entityId = request.body?.sys?.id;
 
     if (!entityId || !contentType) {
-      response.send(
-        JSON.stringify({
-          success: false,
-          error: 'Invalid entityId or contentType',
-        }),
-      );
+      response.json({
+        data: null,
+        success: false,
+        error: 'Invalid entityId or contentType',
+      });
+
       return;
     }
 
@@ -43,11 +43,12 @@ export const syncFromContentful = functions.https.onRequest(
       const restaurant = await cmsApi.getRestaurantById(restaurantId);
 
       if (!restaurant) {
-        const responseBody: IFunctionsResponsePOST = {
+        response.json({
+          data: null,
           success: false,
           error: 'No restaurant found',
-        };
-        response.send(JSON.stringify(responseBody));
+        });
+
         return;
       }
 
@@ -59,18 +60,18 @@ export const syncFromContentful = functions.https.onRequest(
           restaurant,
         );
 
-        const responseBody: IFunctionsResponsePOST = {
+        response.json({
+          data: null,
           success: true,
           error: null,
-        };
-        response.send(responseBody);
+        });
         return;
       } catch (error) {
-        const responseBody: IFunctionsResponsePOST = {
+        response.json({
           success: false,
+          data: null,
           error: 'Firebase admin error',
-        };
-        response.send(responseBody);
+        });
         return;
       }
     }

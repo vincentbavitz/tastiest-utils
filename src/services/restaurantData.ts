@@ -30,7 +30,7 @@ export class RestaurantDataApi {
   }
 
   public getRestaurantData = async <T extends RestaurantData>(
-    field: T,
+    field?: T,
   ): Promise<TRestaurantData<T> | null> => {
     // Ensure we are initialized
     if (!this.restaurantId) {
