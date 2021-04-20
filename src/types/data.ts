@@ -145,6 +145,7 @@ export interface IPayout {
 export interface IRestaurantBookingDetails {
   totalBookings: number;
   totalCovers: number;
+  bookings: string[]; // Array of orderIds
   payouts: IPayout[];
 }
 

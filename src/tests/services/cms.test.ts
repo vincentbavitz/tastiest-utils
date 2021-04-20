@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { dlog } from '../..';
 import { CmsApi } from '../../services/cms';
 import { IPost } from '../../types/cms';
 
@@ -27,7 +28,7 @@ describe('CMS Servcice', () => {
     //   'cms.test ➡️ posts:',
     //   posts.map(p => p.slug),
     // );
-    posts;
+    dlog('cms.test ➡️ posts:', posts);
 
     expect(true).toBeDefined();
   });

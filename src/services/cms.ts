@@ -47,7 +47,7 @@ export class CmsApi {
       skip: (page - 1) * quantity,
       // Allows us to go N layers deep in nested JSON
       // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
-      include: 8,
+      include: 10,
     });
 
     if (entries?.items?.length > 0) {

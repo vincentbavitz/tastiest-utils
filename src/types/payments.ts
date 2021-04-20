@@ -60,9 +60,8 @@ export interface IBooking {
 }
 
 export interface IPaymentDetails {
-  cardHolderName: string;
-  cardLastFour: string;
-  cardPostcode: string;
+  stripeCustomerId: string;
+  stripeSetupSecret: string;
 }
 
 export enum CardBrand {
