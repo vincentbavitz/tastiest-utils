@@ -78,7 +78,7 @@ export const createNewBooking = functions.firestore
       eaterName: `${firstName} ${lastName}`,
       dealName: order.deal.name,
       heads: order.heads,
-      orderTotal: order.totalPrice,
+      orderTotal: order.price.finalPrice,
       paidAt: order.paidAt ?? Date.now(),
       bookingDate: null,
       hasBooked: false,

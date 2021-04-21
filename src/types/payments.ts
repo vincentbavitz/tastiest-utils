@@ -27,7 +27,10 @@ export interface IOrder {
   userId: string;
   heads: number;
   fromSlug: string;
-  totalPrice: number;
+  price: {
+    grossPrice: number;
+    finalPrice: number; // After discount and etc applied
+  };
   paymentDetails: null | IPaymentDetails;
 
   discount: null | IDiscount;
