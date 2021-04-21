@@ -33,6 +33,13 @@ describe('CMS Servcice', () => {
     expect(true).toBeDefined();
   });
 
+  it('Get promo', async () => {
+    const cms = new CmsApi();
+
+    const promo = await cms.getPromo('10OFF');
+    console.log('promo', promo);
+  });
+
   it('Get restaurant by ID', async () => {
     const cms = new CmsApi();
     const restaurant = await cms.getRestaurantById(

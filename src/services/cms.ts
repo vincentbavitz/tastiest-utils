@@ -1,5 +1,6 @@
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
+import { dlog } from '..';
 import CMS from '../constants/cms';
 import {
   IAuthor,
@@ -10,7 +11,7 @@ import {
   IRestaurant,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
-import { DiscountAmount, IDiscount } from '../types/payments';
+import { DiscountAmount, IPromo } from '../types/payments';
 
 interface IFetchPostsReturn {
   posts: Array<IPost>;
@@ -249,14 +250,15 @@ export class CmsApi {
     }
   };
 
-  public getPromo = async (code: string): Promise<IDiscount | undefined> => {
+  public getPromo = async (code: string): Promise<IPromo | undefined> => {
     const entries = await this.client.getEntries({
-      content_type: 'post',
+      content_type: 'promo',
       'fields.code[in]': code,
       limit: 1,
     });
 
     if (entries?.items?.length > 0) {
+      dlog('cms ➡️ entries?.items[0];:', entries?.items[0]);
       const discount = this.convertPromo(entries.items[0]);
       return discount;
     }
@@ -448,20 +450,38 @@ export class CmsApi {
     };
   };
 
-  public convertPromo = (rawPromo: any): IDiscount | undefined => {
-    const amount = rawPromo?.amountOff ?? null;
-    const unit = (rawPromo?.discountUnit as '%' | '£') ?? null;
+  public convertPromo = (rawPromo: any): IPromo | undefined => {
+    const amount = rawPromo?.fields?.amountOff ?? 0;
+    const unit = (rawPromo?.fields?.discountUnit as '%' | '£') ?? '%';
 
-    const amountOff =
-      amount && unit ? ([amount ?? 0, unit ?? '%'] as DiscountAmount) : null;
+    const validTo = moment(rawPromo?.fields?.validTo).unix();
+    // const validForSlugs = rawPromo?.validForSlugs;
+    // const validForUsersIds = rawPromo?.validForUsersIds;
+    const discount: DiscountAmount = { value: amount, unit };
 
-    const name = rawPromo?.name;
-    const promoCode = rawPromo?.code;
+    const name = rawPromo?.fields?.name;
+    const code = rawPromo?.fields?.code;
+    const maximumUses = rawPromo?.fields?.maximumUses ?? null;
 
-    if (!name || !promoCode || !amountOff) {
+    if (
+      !name ||
+      !code ||
+      !discount ||
+      !validTo
+      // !validForSlugs ||
+      // !validForUsersIds
+    ) {
       return;
     }
 
-    return { name, promoCode, amountOff };
+    return {
+      name,
+      code,
+      discount,
+      validTo,
+      maximumUses,
+      // validForSlugs,
+      // validForUsersIds,
+    };
   };
 }

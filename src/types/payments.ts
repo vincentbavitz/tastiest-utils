@@ -1,11 +1,15 @@
 import { IDeal } from './cms';
 
-export type DiscountAmount = [number, '%' | '£'];
+export type DiscountAmount = { value: number; unit: '%' | '£' };
 
-export interface IDiscount {
+export interface IPromo {
   name: string;
-  promoCode: string;
-  amountOff: DiscountAmount;
+  code: string;
+  discount: DiscountAmount;
+  validTo: number;
+  maximumUses: number | null;
+  validForSlugs?: 'all' | string[];
+  validForUsersIds?: 'all' | string[];
 }
 
 // Order type in the raw DB form
@@ -23,22 +27,23 @@ export interface IOrderRequest {
 
 export interface IOrder {
   id: string;
+  // To validate clientside before user logs in
+  token: string;
   deal: IDeal;
   userId: string;
   heads: number;
   fromSlug: string;
   price: {
-    grossPrice: number;
-    finalPrice: number; // After discount and etc applied
+    gross: number;
+    final: number; // After discount and etc applied
   };
   paymentDetails: null | IPaymentDetails;
-
-  discount: null | IDiscount;
+  promoCode: string;
 
   // Timestamps
   // Null denotes not paid yet; not done yet.
   paidAt: null | number;
-  orderedAt: null | number;
+  createdAt: null | number;
   abandonedAt: null | number;
 
   refund: null | {
