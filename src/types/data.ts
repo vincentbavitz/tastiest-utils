@@ -1,3 +1,4 @@
+import { PaymentMethod } from '@stripe/stripe-js';
 import { ILocation, IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IPaymentDetails } from './payments';
@@ -83,6 +84,10 @@ export interface IUserPreferences {
     | null;
 }
 
+interface PaymentMethods {
+  [key: string]: PaymentMethod;
+}
+
 // prettier-ignore
 export type TUserData<T extends UserData> =
     T extends UserData.ROLE ? UserRole :
@@ -102,10 +107,11 @@ export type TUserData<T extends UserData> =
         
     // User details and preferences
     T extends UserData.DETAILS ? Partial<IUserDetails> :
-    T extends UserData.PAYMENT_DETAILS ? Partial<IPaymentDetails> :
-    // Payment methods from Stripe
-    T extends UserData.PAYMENT_METHODS ? any :
     T extends UserData.PREFERENCES ? Partial<IUserPreferences> :
+
+    // Payment information from Stripe
+    T extends UserData.PAYMENT_DETAILS ? Partial<IPaymentDetails> :
+    T extends UserData.PAYMENT_METHODS ? PaymentMethods :
 
     // User orders
     T extends UserData.RESTAURANTS_VISITED ? Array<string> :

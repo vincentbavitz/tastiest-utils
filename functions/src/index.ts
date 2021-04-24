@@ -133,7 +133,7 @@ export * from './sync';
 // export const cleanupUser = functions.auth.user().onDelete(async user => {
 //   const dbRef = admin
 //     .firestore()
-//     .collection(FirestoreCollection.STRIPE_CUSTOMERS);
+//     .collection(FirestoreCollection.USERS);
 //   const customer = (await dbRef.doc(user.uid).get()).data();
 
 //   if (customer) {

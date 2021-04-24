@@ -241,12 +241,18 @@
     component-type "^1.2.1"
     join-component "^1.1.0"
 
-"@tastiest-io/tastiest-utils@^0.65.0":
-  version "0.65.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.65.0/21857547e5746505a1f439d792acbb0a6ad07ef63d4c0be93190e6683e06314b#676b66f482edb9f9fbe4eb69a73e2dceb020e282"
-  integrity sha512-siJ+SJ4U5zrecq20BUC5g4pd8445iFm/Y/R2A07nH8z4Uzwh3O7CoBVjghdTgjX2YotFGIyUfqLewJvszFeIqA==
+"@stripe/stripe-js@^1.13.2":
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
+  integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
+
+"@tastiest-io/tastiest-utils@^0.80.0":
+  version "0.80.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.80.0/a7639265a493c52d7595bd2805b7be57ea4a793204ff2e71861cbc186d1c8138#6984d11919b4d3043b3e7784da5eaf42f4c44563"
+  integrity sha512-IjhvAr0peX8+NQlsN+UeGMiBbtNl4V8Ow/OuiniNJvvWAQZqbwl/T5+37BjjPNsXfnt1JZAsymd4qOl5UEuKqw==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
+    "@stripe/stripe-js" "^1.13.2"
     "@types/react" "^17.0.3"
     contentful "^8.2.1"
     firebase-admin "^9.6.0"

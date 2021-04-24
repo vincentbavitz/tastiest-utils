@@ -16,8 +16,6 @@ export enum FirestoreCollection {
   // Orders and payments
   ORDERS = 'orders',
   BOOKINGS = 'bookings',
-  STRIPE_CUSTOMERS = 'stripe-customers',
-  PAYMENT_METHODS = 'payment-methods',
 
   // User recommendations and queries
   USER_QUERIES = 'user-queries',

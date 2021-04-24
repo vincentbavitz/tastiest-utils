@@ -37,7 +37,7 @@ export interface IOrder {
     gross: number;
     final: number; // After discount and etc applied
   };
-  paymentDetails: null | IPaymentDetails;
+  paymentMethod: null | string;
   promoCode: string;
 
   // Timestamps
@@ -60,16 +60,27 @@ export interface IBooking {
   eaterName: string;
   dealName: string;
   heads: number;
-  orderTotal: number;
+  price: {
+    gross: number;
+    final: number; // After discount and etc applied
+  };
   paidAt: number;
   bookingDate: number | null;
   hasBooked: boolean;
-  hasEaten: boolean;
+  hasArrived: boolean;
+  hasCancelled: boolean;
+  cancelledAt: number | null;
+
+  // Code required when customer enters restaurant
+  confirmationCode: string;
+  isConfirmationCodeVerified: boolean;
 }
 
 export interface IPaymentDetails {
+  // https://stripe.com/docs/payments/save-and-reuse#web-create-setup-intent
   stripeCustomerId: string;
   stripeSetupSecret: string;
+  paymentMethods: string[];
 }
 
 export enum CardBrand {

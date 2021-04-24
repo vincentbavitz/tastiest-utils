@@ -1,14 +1,10 @@
 import {
   FIREBASE,
   FirestoreCollection,
-  IBooking,
-  IOrder,
   UserData,
-  UserDataApi,
 } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
 import Stripe from 'stripe';
-import { firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Analytics = require('analytics-node');
@@ -26,7 +22,7 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
 export const addPaymentMethodDetails = functions
   .region(FIREBASE.DEFAULT_REGION)
   .firestore.document(
-    `/${FirestoreCollection.STRIPE_CUSTOMERS}/{userId}/${UserData.PAYMENT_METHODS}/{pushId}`,
+    `/${FirestoreCollection.USERS}/{userId}/${UserData.PAYMENT_METHODS}/{pushId}`,
   )
   .onCreate(async (snap, context) => {
     try {
@@ -54,38 +50,6 @@ export const addPaymentMethodDetails = functions
       await snap.ref.set({ error: userFacingMessage(error) }, { merge: true });
       await reportError(error, context.params.userId);
     }
-  });
-
-export const createNewBooking = functions.firestore
-  .document('orders/{orderId}/paidAt')
-  .onUpdate(async (snap, context) => {
-    firebaseAdmin
-      .firestore()
-      .collection('bookings')
-      .add({
-        context: JSON.stringify(context),
-        snap: JSON.stringify(snap),
-      });
-
-    const order = snap.after.data() as IOrder;
-    const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
-    const { firstName = '', lastName = '' } =
-      (await userDataApi.getUserData(UserData.DETAILS)) ?? {};
-
-    const booking: IBooking = {
-      orderId: context.params.orderId,
-      restaurantId: order.deal.restaurant.id,
-      eaterName: `${firstName} ${lastName}`,
-      dealName: order.deal.name,
-      heads: order.heads,
-      orderTotal: order.price.finalPrice,
-      paidAt: order.paidAt ?? Date.now(),
-      bookingDate: null,
-      hasBooked: false,
-      hasEaten: false,
-    };
-
-    firebaseAdmin.firestore().collection('bookings').add(booking);
   });
 
 // GETs the orders of a restaurant
