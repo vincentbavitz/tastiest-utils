@@ -12,10 +12,10 @@ export const postFetch = async <P = any, R = any>(
   const options = {
     method: 'POST',
     body: JSON.stringify(params),
-    headers: new Headers({
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    }),
+    // headers: new Headers({
+    // 'Content-Type': 'application/json',
+    // Accept: 'application/json',
+    // }),
   };
 
   dlog('api ➡️ endpoint:', endpoint);
