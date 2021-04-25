@@ -1,18 +1,24 @@
-import { FunctionsResponse } from '..';
+import { dlog, FunctionsResponse } from '..';
 
 /**
  * Gets data from a POST request on our local API.
  * Response type MUST be FunctionsResponse for the endpoint.
- * Local GET endpoints should ALWAYS use SWR
+ * Local GET endpoints should ALWAYS use SWR not this function.
  */
-export const postFetch = async <R>(
+export const postFetch = async <P = any, R = any>(
   endpoint: string,
-  params: any,
+  params: P,
 ): Promise<FunctionsResponse<R>> => {
   const options = {
     method: 'POST',
     body: JSON.stringify(params),
+    headers: new Headers({
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    }),
   };
+
+  dlog('api ➡️ endpoint:', endpoint);
 
   try {
     const response = await fetch(endpoint, options);
