@@ -354,7 +354,8 @@ export class CmsApi {
     const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
-    const publicPhoneNumber = rawRestaurant?.fields?.phone;
+    const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
+    const bookingSystemSite = rawRestaurant?.fields?.bookingSystemSite ?? null;
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
@@ -368,6 +369,7 @@ export class CmsApi {
       !cuisines ||
       !publicPhoneNumber ||
       !profilePicture
+      // bookingSystemSite is optional
     ) {
       return;
     }
@@ -381,6 +383,7 @@ export class CmsApi {
       cuisines,
       publicPhoneNumber,
       profilePicture,
+      bookingSystemSite,
     };
   };
 

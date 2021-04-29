@@ -65,6 +65,7 @@ export interface IRestaurant {
   // share that with the user.
   contact?: IContact;
   profilePicture: IFigureImage;
+  bookingSystemSite: string;
 }
 
 export interface IPost {
