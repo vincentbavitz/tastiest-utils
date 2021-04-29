@@ -60,6 +60,7 @@ export interface IRestaurant {
   businessType: 'restaurant' | 'take-away' | 'cafe';
   location: ILocation;
   cuisines: CuisineSymbol[];
+  publicPhoneNumber: string;
   // Contentful has a contact, but we don't want to
   // share that with the user.
   contact?: IContact;

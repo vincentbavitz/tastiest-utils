@@ -354,6 +354,7 @@ export class CmsApi {
     const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
+    const publicPhoneNumber = rawRestaurant?.fields?.phone;
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
@@ -365,6 +366,7 @@ export class CmsApi {
       !businessType ||
       !location ||
       !cuisines ||
+      !publicPhoneNumber ||
       !profilePicture
     ) {
       return;
@@ -377,6 +379,7 @@ export class CmsApi {
       businessType,
       location,
       cuisines,
+      publicPhoneNumber,
       profilePicture,
     };
   };
