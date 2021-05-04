@@ -72,6 +72,7 @@ export interface IUserDetails {
   firstName: string | null;
   lastName: string | null;
   address: ILocation | null;
+  postalCode: string | null;
   birthday: IDateObject | null;
   email: string | null;
   mobile: string | null;

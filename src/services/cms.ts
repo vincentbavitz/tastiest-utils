@@ -23,6 +23,11 @@ export const slugify = (id: string) => id?.replace(/_/g, '-').toLowerCase();
 export const unslugify = (slug: string) =>
   slug.replace(/-/g, '_').toUpperCase();
 
+interface IGetPostsOptions {
+  // Order results cloests to
+  near: ILocation;
+}
+
 export class CmsApi {
   [x: string]: any;
   client: ContentfulClientApi;
@@ -40,10 +45,12 @@ export class CmsApi {
   public async getPosts(
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
+    options: Partial<IGetPostsOptions> = {},
   ): Promise<IFetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
+      // '[near]'
       limit: quantity,
       skip: (page - 1) * quantity,
       // Allows us to go N layers deep in nested JSON
@@ -88,11 +95,9 @@ export class CmsApi {
   }
 
   public async getPostBySlug(slug: string): Promise<IPost | undefined> {
-    slug;
-
     const entries = await this.client.getEntries({
       content_type: 'post',
-      // 'fields.slug[in]': slug,
+      'fields.slug[in]': slug,
       limit: 1,
       include: 8,
     });
@@ -203,32 +208,6 @@ export class CmsApi {
     }
 
     return { posts: [], total: 0 } as IFetchPostsReturn;
-  }
-
-  public async getCuisinePosts(cuisine: CuisineSymbol, limit: number) {
-    limit;
-    cuisine;
-
-    // const query = groq`
-    //     *[_type == "post" && cuisine->title match "${titleCase(cuisine)}"][0..${
-    //   limit ?? 100
-    // }]|order(publishedAt desc) {
-    //       ${sanityPostQuery}
-    //     }
-    //   `;
-
-    // let posts: Array<ISanityArticle>;
-
-    // try {
-    //   posts = await client.fetch(query);
-    //   console.log('Posts', posts);
-    // } catch (error) {
-    //   console.warn('Error:', error);
-    // }
-
-    // return posts;
-
-    return [];
   }
 
   public async getTopPosts(limit?: number) {
