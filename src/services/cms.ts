@@ -47,6 +47,8 @@ export class CmsApi {
     page = 1,
     options: Partial<IGetPostsOptions> = {},
   ): Promise<IFetchPostsReturn> {
+    options;
+
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -95,19 +97,8 @@ export class CmsApi {
   }
 
   public async getPostBySlug(slug: string): Promise<IPost | undefined> {
-    const entries = await this.client.getEntries({
-      content_type: 'post',
-      'fields.slug[in]': slug,
-      limit: 1,
-      include: 8,
-    });
-
-    if (entries?.items?.length > 0) {
-      const post = this.convertPost(entries.items[0]);
-      return post;
-    }
-
-    return;
+    const { posts } = await this.getPostsOfSlugs([slug], 1);
+    return posts?.[0];
   }
 
   public async getPostsOfSlugs(

@@ -27,6 +27,9 @@ export interface IOrderRequest {
 
 export interface IOrder {
   id: string;
+  // For emails and support
+  userFacingOrderId: string;
+
   // To validate clientside before user logs in
   token: string;
   deal: IDeal;
@@ -56,6 +59,7 @@ export interface IOrder {
 // Stored in firestore/bookings
 export interface IBooking {
   orderId: string;
+  userFacingBookingId: string;
   restaurantId: string;
   eaterName: string;
   dealName: string;
