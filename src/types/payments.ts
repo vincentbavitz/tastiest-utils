@@ -2,6 +2,8 @@ import { IDeal } from './cms';
 
 export type DiscountAmount = { value: number; unit: '%' | '£' };
 
+export type Currency = 'GBP' | 'USD' | 'EUR' | 'AUD';
+
 export interface IPromo {
   name: string;
   code: string;
@@ -67,6 +69,7 @@ export interface IBooking {
   price: {
     gross: number;
     final: number; // After discount and etc applied
+    currency: Currency;
   };
   paidAt: number;
   bookingDate: number | null;

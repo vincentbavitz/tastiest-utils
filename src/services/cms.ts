@@ -361,6 +361,7 @@ export class CmsApi {
     const rawPost = rawData?.fields;
     const rawFeatureImage = rawPost?.featureImage?.fields;
     const rawAbstractDivider = rawPost?.abstractDivider?.fields;
+    const rawTitleDivider = rawPost?.titleDivider?.fields;
     const rawOfferDivider = rawPost?.offerDivider?.fields;
     const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
@@ -380,6 +381,7 @@ export class CmsApi {
     const featureImage = this.convertImage(rawFeatureImage);
     const tags = rawPost?.tags ?? []; //?.map(t => t?.fields?.label) ?? [];
     const slug = rawPost?.slug;
+    const titleDivider = this.convertImage(rawTitleDivider);
     const abstractDivider = this.convertImage(rawAbstractDivider);
     const offerDivider = this.convertImage(rawOfferDivider);
 
@@ -399,6 +401,7 @@ export class CmsApi {
       !featureImage ||
       !tags ||
       !slug ||
+      !titleDivider ||
       !abstractDivider ||
       !offerDivider
     ) {
@@ -421,6 +424,7 @@ export class CmsApi {
       featureImage,
       tags,
       slug,
+      titleDivider,
       abstractDivider,
       offerDivider,
     };

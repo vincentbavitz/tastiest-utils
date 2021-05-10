@@ -83,6 +83,7 @@ export interface IPost {
   featureImage: IFigureImage;
   tags: Array<string>;
   slug: string;
+  titleDivider: IFigureImage;
   abstractDivider: IFigureImage;
   offerDivider: IFigureImage;
 }
