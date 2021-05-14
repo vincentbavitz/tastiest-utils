@@ -235,10 +235,10 @@ export enum UserQueryType {
 }
 
 export interface IUserQuery {
-  name: string;
   email: string;
   message: string;
   userId: string | null;
+  name: string | null;
   type: UserQueryType;
   seen: boolean;
   resolved: boolean;

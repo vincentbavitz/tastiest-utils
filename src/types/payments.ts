@@ -3,6 +3,11 @@ import { IDeal } from './cms';
 export type DiscountAmount = { value: number; unit: '%' | '£' };
 
 export type Currency = 'GBP' | 'USD' | 'EUR' | 'AUD';
+export type OrderPrice = {
+  gross: number;
+  final: number; // After discount and etc applied
+  currency: Currency;
+};
 
 export interface IPromo {
   name: string;
@@ -38,10 +43,7 @@ export interface IOrder {
   userId: string;
   heads: number;
   fromSlug: string;
-  price: {
-    gross: number;
-    final: number; // After discount and etc applied
-  };
+  price: OrderPrice;
   paymentMethod: null | string;
   promoCode: string;
 
@@ -66,11 +68,7 @@ export interface IBooking {
   eaterName: string;
   dealName: string;
   heads: number;
-  price: {
-    gross: number;
-    final: number; // After discount and etc applied
-    currency: Currency;
-  };
+  price: OrderPrice;
   paidAt: number;
   bookingDate: number | null;
   hasBooked: boolean;

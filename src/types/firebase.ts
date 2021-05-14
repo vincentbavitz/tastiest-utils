@@ -24,6 +24,9 @@ export enum FirestoreCollection {
   // Support conversations
   SUPPORT_USERS = 'support-users',
   SUPPORT_RESTAURANTS = 'support-restaurants',
+
+  // 404 Page Support
+  EGGSTINCT_PAGE_SUPPORT = 'eggstinct-page-support',
 }
 
 export interface FirebaseAdminCert {
