@@ -18,6 +18,11 @@ interface IFetchPostsReturn {
   total: number;
 }
 
+interface IFetchRestaurantsReturn {
+  restaurants: Array<IRestaurant>;
+  total: number;
+}
+
 // Turns CMS IDs into slugs
 export const slugify = (id: string) => id?.replace(/_/g, '-').toLowerCase();
 export const unslugify = (slug: string) =>
@@ -154,6 +159,30 @@ export class CmsApi {
     }
 
     return { posts: [], total: 0 } as IFetchPostsReturn;
+  }
+
+  public async getRestaurants(
+    quantity = 100,
+    page = 1,
+  ): Promise<IFetchRestaurantsReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'restaurant',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      // Allows us to go N layers deep in nested JSON
+      // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
+      include: 10,
+    });
+
+    if (entries?.items?.length > 0) {
+      const restaurants = entries.items
+        .map(entry => this.convertRestaurant(entry))
+        .filter(post => Boolean(post)) as IRestaurant[];
+
+      return { restaurants, total: entries.total };
+    }
+
+    return { restaurants: [], total: 0 } as IFetchRestaurantsReturn;
   }
 
   public async getRestaurantById(

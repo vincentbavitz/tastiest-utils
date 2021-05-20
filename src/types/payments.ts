@@ -1,4 +1,4 @@
-import { StripeError, StripeErrorType } from '@stripe/stripe-js';
+import { StripeErrorType } from '@stripe/stripe-js';
 import Stripe from 'stripe';
 import { IDeal } from './cms';
 
@@ -99,17 +99,18 @@ export enum CardBrand {
 ///////////////////////////////////////////////
 //////////// User Facing Validation ///////////
 ///////////////////////////////////////////////
-type TastiestPaymentErrorCode = Stripe.RawErrorType &
-  (
-    | 'update_order_error'
-    | 'general_payment_error'
-    | 'incomplete_cardholder_name'
-  );
+export type TastiestPaymentErrorCode =
+  | Stripe.RawErrorType
+  | 'update_order_error'
+  | 'general_payment_error'
+  | 'incomplete_cardholder_name';
 
-type TastiestPaymentErrorType = StripeErrorType & 'tastiest-payment-error';
+export type TastiestPaymentErrorType =
+  | StripeErrorType
+  | 'tastiest-payment-error';
 
 // Used for user facing error reporting in the checkout flow.
-export interface TastiestPaymentError extends StripeError {
+export interface TastiestPaymentError {
   code: TastiestPaymentErrorCode;
   type: TastiestPaymentErrorType;
   message: string;

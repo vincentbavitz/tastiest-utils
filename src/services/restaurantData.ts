@@ -78,4 +78,18 @@ export class RestaurantDataApi {
       return null;
     }
   };
+
+  /**
+   * Gets the restaurant from their slug name.
+   * Eg. /london/bite-me-burger returns
+   * the Bite Me Burger restaurant file from Contentful.
+  //  */
+  // public initFromUriName = async (city: string, uriName: string) => {
+  //   const restaurant = await this.admin
+  //     .firestore()
+  //     .collection(FirestoreCollection.RESTAURANTS)
+  //     .where('uriName', '==', uriName)
+  //     .limit(1)
+  //     .get();
+  // };
 }

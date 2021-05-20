@@ -1,90 +1,64 @@
 import dotenv from 'dotenv';
 import { dlog } from '../..';
 import { CmsApi } from '../../services/cms';
-import { IPost } from '../../types/cms';
 
 dotenv.config({ path: '.env.local' });
 
-interface IPath {
-  params: { slug: string; city: string; cuisine: string };
-}
-
 describe('CMS Servcice', () => {
-  test('Get post of slug', async () => {
-    const cms = new CmsApi();
+  // test('Get post of slug', async () => {
+  //   const cms = new CmsApi();
 
-    const post = await cms.getPostBySlug('this-is-a-slug');
-    // console.log('cms.test ➡️ post:', post);
-    post;
+  //   const post = await cms.getPostBySlug('this-is-a-slug');
+  //   // console.log('cms.test ➡️ post:', post);
+  //   post;
+
+  //   expect(true).toBeDefined();
+  // });
+
+  // it('Convert post', async () => {
+  //   const cms = new CmsApi();
+
+  //   const { posts } = await cms.getPosts();
+  //   // console.log(
+  //   //   'cms.test ➡️ posts:',
+  //   //   posts.map(p => p.slug),
+  //   // );
+  //   // dlog('cms.test ➡️ posts:', posts);
+
+  //   expect(true).toBeDefined();
+  // });
+
+  // it('Get promo', async () => {
+  //   const cms = new CmsApi();
+
+  //   const promo = await cms.getPromo('10OFF');
+  //   // console.log('promo', promo);
+  // });
+
+  it('Get all restaurants', async () => {
+    const cms = new CmsApi();
+    const restaurants = await cms.getRestaurants();
+
+    dlog('cms.test ➡️ restaurants:', restaurants);
 
     expect(true).toBeDefined();
   });
 
-  it('Convert post', async () => {
-    const cms = new CmsApi();
+  // it('Get restaurant by ID', async () => {
+  //   const cms = new CmsApi();
+  //   const restaurant = await cms.getRestaurantById(
+  //     '8OJeowHe84Z89u9epRA7sbMIayu1',
+  //   );
 
-    const { posts } = await cms.getPosts();
-    // console.log(
-    //   'cms.test ➡️ posts:',
-    //   posts.map(p => p.slug),
-    // );
-    dlog('cms.test ➡️ posts:', posts);
+  //   restaurant;
+  //   expect(true).toBeDefined();
+  // });
 
-    expect(true).toBeDefined();
-  });
+  // it('Get Deal by ID', async () => {
+  //   const cms = new CmsApi();
+  //   const deal = await cms.getDeal('7ET4fQpR2srjbmXWOyk4Lc');
 
-  it('Get promo', async () => {
-    const cms = new CmsApi();
-
-    const promo = await cms.getPromo('10OFF');
-    console.log('promo', promo);
-  });
-
-  it('Get restaurant by ID', async () => {
-    const cms = new CmsApi();
-    const restaurant = await cms.getRestaurantById(
-      '8OJeowHe84Z89u9epRA7sbMIayu1',
-    );
-
-    restaurant;
-    expect(true).toBeDefined();
-  });
-
-  it('Get Deal by ID', async () => {
-    const cms = new CmsApi();
-    const deal = await cms.getDeal('7ET4fQpR2srjbmXWOyk4Lc');
-
-    console.log('deal', deal);
-    expect(true).toBeDefined();
-  });
-
-  it('Static slug paths', async () => {
-    const cms = new CmsApi();
-    let posts: IPost[] = [];
-    let page = 1;
-    let foundAllPosts = false;
-
-    // Contentful only allows 100 at a time
-    while (!foundAllPosts) {
-      const { posts: _posts } = await cms.getPosts(100, page);
-
-      if (_posts.length === 0) {
-        foundAllPosts = true;
-        continue;
-      }
-
-      posts = [...posts, ..._posts];
-      page++;
-    }
-
-    const paths: IPath[] = posts.map(item => ({
-      params: {
-        city: item.city,
-        cuisine: item.cuisine.toLowerCase(),
-        slug: item.slug,
-      },
-    }));
-
-    return { paths, fallback: true };
-  });
+  //   // console.log('deal', deal);
+  //   expect(true).toBeDefined();
+  // });
 });
