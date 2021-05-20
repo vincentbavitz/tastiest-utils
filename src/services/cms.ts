@@ -11,6 +11,7 @@ import {
   IRestaurant,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
+import { IAddress } from '../types/geography';
 import { DiscountAmount, IPromo } from '../types/payments';
 
 interface IFetchPostsReturn {
@@ -30,7 +31,7 @@ export const unslugify = (slug: string) =>
 
 interface IGetPostsOptions {
   // Order results cloests to
-  near: ILocation;
+  near: IAddress;
 }
 
 export class CmsApi {
@@ -349,6 +350,7 @@ export class CmsApi {
   public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
     const id = rawRestaurant?.fields?.id;
     const name = rawRestaurant?.fields?.name;
+    const uriName = rawRestaurant?.fields?.uriName;
     const website = rawRestaurant?.fields?.website;
     const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
@@ -367,7 +369,8 @@ export class CmsApi {
       !location ||
       !cuisines ||
       !publicPhoneNumber ||
-      !profilePicture
+      !profilePicture ||
+      !uriName
       // bookingSystemSite is optional
     ) {
       return;
@@ -376,6 +379,7 @@ export class CmsApi {
     return {
       id,
       name,
+      uriName,
       website,
       businessType,
       location,

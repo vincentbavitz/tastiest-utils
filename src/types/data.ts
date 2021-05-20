@@ -1,5 +1,5 @@
 import { PaymentMethod } from '@stripe/stripe-js';
-import { ILocation, IRestaurant } from './cms';
+import { IAddress, IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IPaymentDetails } from './payments';
 
@@ -71,7 +71,7 @@ export interface IUserDetails {
   // with contentful
   firstName: string | null;
   lastName: string | null;
-  address: ILocation | null;
+  address: IAddress | null;
   postalCode: string | null;
   birthday: IDateObject | null;
   email: string | null;

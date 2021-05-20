@@ -1,5 +1,6 @@
 import { Document } from '@contentful/rich-text-types';
 import { CuisineSymbol } from './cuisine';
+import { IAddress } from './geography';
 
 export type IAuthor = {
   name: string;
@@ -30,12 +31,6 @@ export interface IDeal {
   image: IFigureImage;
 }
 
-export interface ILocation {
-  address: string;
-  lat: number;
-  lon: number;
-}
-
 export interface IContact {
   firstName: string;
   lastName: string;
@@ -57,7 +52,8 @@ export interface IRestaurant {
   name: string;
   website: string;
   businessType: 'restaurant' | 'take-away' | 'cafe';
-  location: ILocation;
+  city: string;
+  address: IAddress;
   cuisines: CuisineSymbol[];
   publicPhoneNumber: string;
   // Contentful has a contact, but we don't want to
@@ -65,6 +61,9 @@ export interface IRestaurant {
   contact?: IContact;
   profilePicture: IFigureImage;
   bookingSystemSite: string;
+
+  // This is the name as it appears in the URL. Eg. tastiest.io/london/bite-be-burger
+  uriName: string;
 }
 
 export interface IPost {
