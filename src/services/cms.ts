@@ -2,14 +2,7 @@ import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
 import { dlog } from '..';
 import CMS from '../constants/cms';
-import {
-  IAuthor,
-  IDeal,
-  IFigureImage,
-  ILocation,
-  IPost,
-  IRestaurant,
-} from '../types/cms';
+import { IAuthor, IDeal, IFigureImage, IPost, IRestaurant } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { IAddress } from '../types/geography';
 import { DiscountAmount, IPromo } from '../types/payments';
@@ -204,6 +197,33 @@ export class CmsApi {
     return;
   }
 
+  /**
+   * Gets the restaurant from their uri name.
+   * Eg. /london/bite-me-burger returns
+   * the Bite Me Burger restaurant file from Contentful.
+   */
+  public getRestaurantFromUriName = async (city: string, uriName: string) => {
+    try {
+      const entries = await this.client.getEntries({
+        content_type: 'restaurant',
+        'fields.uriName[in]': uriName,
+        'fields.city[in]': city,
+        limit: 1,
+        include: 10,
+      });
+
+      city;
+      if (entries?.items?.length > 0) {
+        const restaurant = this.convertRestaurant(entries.items[0]);
+        return restaurant;
+      }
+    } catch (error) {
+      return;
+    }
+
+    return;
+  };
+
   public async searchPosts(
     query: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
@@ -320,7 +340,7 @@ export class CmsApi {
     return { id, name, restaurant, tagline, includes, pricePerHeadGBP, image };
   };
 
-  public convertLocation = (rawLocation: any): ILocation | undefined => {
+  public convertLocation = (rawLocation: any): IAddress | undefined => {
     const address = rawLocation?.fields?.address;
     const lat = rawLocation?.fields?.coordinates.lat ?? null;
     const lon = rawLocation?.fields?.coordinates.lon ?? null;
@@ -351,6 +371,7 @@ export class CmsApi {
     const id = rawRestaurant?.fields?.id;
     const name = rawRestaurant?.fields?.name;
     const uriName = rawRestaurant?.fields?.uriName;
+    const city = rawRestaurant?.fields?.city;
     const website = rawRestaurant?.fields?.website;
     const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
@@ -381,6 +402,7 @@ export class CmsApi {
       name,
       uriName,
       website,
+      city,
       businessType,
       location,
       cuisines,

@@ -1,6 +1,7 @@
 import { PaymentMethod } from '@stripe/stripe-js';
-import { IAddress, IRestaurant } from './cms';
+import { IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
+import { IAddress } from './geography';
 import { IPaymentDetails } from './payments';
 
 // Return type for async requests

@@ -35,11 +35,14 @@ describe('CMS Servcice', () => {
   //   // console.log('promo', promo);
   // });
 
-  it('Get all restaurants', async () => {
+  it('Get Restaurant from URI Name', async () => {
     const cms = new CmsApi();
-    const restaurants = await cms.getRestaurants();
+    const restaurant = await cms.getRestaurantFromUriName(
+      'london',
+      'bite-me-burger',
+    );
 
-    dlog('cms.test ➡️ restaurants:', restaurants);
+    dlog('cms.test ➡️ restaurant:', restaurant);
 
     expect(true).toBeDefined();
   });

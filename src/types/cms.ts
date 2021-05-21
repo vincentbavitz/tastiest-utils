@@ -53,7 +53,7 @@ export interface IRestaurant {
   website: string;
   businessType: 'restaurant' | 'take-away' | 'cafe';
   city: string;
-  address: IAddress;
+  location: IAddress;
   cuisines: CuisineSymbol[];
   publicPhoneNumber: string;
   // Contentful has a contact, but we don't want to
