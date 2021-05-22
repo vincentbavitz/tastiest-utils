@@ -13,6 +13,7 @@ export interface ICuisine {
 export enum CuisineSymbol {
   ITALIAN = 'ITALIAN',
   FRENCH = 'FRENCH',
+  BRAZILIAN = 'BRAZILIAN',
   JAPANESE = 'JAPANESE',
   CHINESE = 'CHINESE',
   INDIAN = 'INDIAN',

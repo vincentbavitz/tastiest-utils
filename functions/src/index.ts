@@ -4,6 +4,7 @@ admin.initializeApp();
 
 export * from './checkout';
 export * from './email';
+export * from './shopify';
 export * from './sync';
 
 /**
