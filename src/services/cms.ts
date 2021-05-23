@@ -84,7 +84,7 @@ export class CmsApi {
       'fields.tags[in]': tag,
       limit: quantity,
       skip: (page - 1) * quantity,
-      include: 8,
+      include: 10,
     });
 
     if (entries?.items?.length > 0) {
@@ -115,7 +115,7 @@ export class CmsApi {
       order: '-fields.date',
       limit: quantity,
       skip: (page - 1) * quantity,
-      include: 8,
+      include: 10,
       'fields.slug[in]': slugs?.join(','),
     });
 
@@ -142,9 +142,35 @@ export class CmsApi {
       order: '-fields.date',
       limit: quantity,
       skip: (page - 1) * quantity,
-      include: 8,
+      include: 10,
       'fields.cuisine.sys.contentType.sys.id': 'cuisine',
       'fields.cuisine.fields.name[in]': cuisineToMatch,
+    });
+
+    if (entries?.items?.length > 0) {
+      const posts = entries.items
+        .map(entry => this.convertPost(entry))
+        .filter(post => Boolean(post)) as IPost[];
+
+      return { posts, total: entries.total };
+    }
+
+    return { posts: [], total: 0 } as IFetchPostsReturn;
+  }
+
+  public async getPostsOfRestaurant(
+    restaurantUriName: string,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchPostsReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'post',
+      order: '-fields.date',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      'fields.restaurant.sys.contentType.sys.id': 'restaurant',
+      'fields.restaurant.fields.uriName[in]': restaurantUriName,
     });
 
     if (entries?.items?.length > 0) {
@@ -189,7 +215,7 @@ export class CmsApi {
       content_type: 'restaurant',
       'fields.id[in]': restaurantId,
       limit: 1,
-      include: 8,
+      include: 10,
     });
 
     if (entries?.items?.length > 0) {
@@ -239,7 +265,7 @@ export class CmsApi {
       skip: (page - 1) * quantity,
       // Allows us to go N layers deep in nested JSON
       // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
-      include: 8,
+      include: 10,
       'fields.title[match]': query.trim().toLowerCase(),
     });
 
@@ -389,6 +415,7 @@ export class CmsApi {
       !id ||
       !name ||
       !website ||
+      !city ||
       !businessType ||
       !location ||
       !cuisines ||
