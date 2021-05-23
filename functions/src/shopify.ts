@@ -17,6 +17,7 @@ export const syncShopifyToFirestore = functions.https.onRequest(
     // Get event type. Given the event type, send data to Firestore or otherwise act on the data.
 
     const body = request.body;
+    admin.firestore().collection('testing').add(body);
 
     // No event given
     if (!body?.event?.length) {
@@ -31,24 +32,40 @@ export const syncShopifyToFirestore = functions.https.onRequest(
     // Was it a Payment Success event?
     // PAYMENT SUCCESS LOGIC
 
+    // Refeed event back into Segment
     try {
-      // Refeed event back into Segment
-      analytics.track({
-        userId: body.userId ?? null,
-        anonymousId: body.anonymousId ?? null,
-        event: body.event,
-        properties: body.properties,
-        timestamp: body.originalTimestamp ?? Date.now(),
-      });
+      // Events
+      if (body?.type === 'track') {
+        analytics.track({
+          userId: body.userId ?? null,
+          anonymousId: body.anonymousId ?? null,
+          context: body.context ?? null,
+          event: body.event,
+          properties: body.properties,
+        });
 
-      admin.firestore().collection('testing').add(body);
+        response.send({
+          success: true,
+          error: null,
+          data: null,
+        });
+      }
 
-      // DONE DONE DONE DONE
-      response.send({
-        success: true,
-        error: null,
-        data: null,
-      });
+      // Page Views
+      if (body?.type === 'page') {
+        analytics.page({
+          userId: body.userId ?? null,
+          anonymousId: body.anonymousId ?? null,
+          context: body.context ?? null,
+          properties: body.properties ?? {},
+        });
+
+        response.send({
+          success: true,
+          error: null,
+          data: null,
+        });
+      }
 
       return;
     } catch (error) {
