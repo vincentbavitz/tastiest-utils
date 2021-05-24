@@ -36,35 +36,41 @@ export const syncShopifyToFirestore = functions.https.onRequest(
     try {
       // Events
       if (body?.type === 'track') {
-        analytics.track({
-          userId: body.userId ?? null,
-          anonymousId: body.anonymousId ?? null,
-          context: body.context ?? null,
-          event: body.event,
-          properties: body.properties,
-        });
-
-        response.send({
-          success: true,
-          error: null,
-          data: null,
-        });
+        analytics.track(
+          {
+            userId: body.userId ?? null,
+            anonymousId: body.anonymousId ?? null,
+            context: body.context ?? null,
+            event: body.event,
+            properties: body.properties,
+          },
+          () => {
+            response.send({
+              success: true,
+              error: null,
+              data: null,
+            });
+          },
+        );
       }
 
       // Page Views
       if (body?.type === 'page') {
-        analytics.page({
-          userId: body.userId ?? null,
-          anonymousId: body.anonymousId ?? null,
-          context: body.context ?? null,
-          properties: body.properties ?? {},
-        });
-
-        response.send({
-          success: true,
-          error: null,
-          data: null,
-        });
+        analytics.page(
+          {
+            userId: body.userId ?? null,
+            anonymousId: body.anonymousId ?? null,
+            context: body.context ?? null,
+            properties: body.properties ?? {},
+          },
+          () => {
+            response.send({
+              success: true,
+              error: null,
+              data: null,
+            });
+          },
+        );
       }
 
       return;
