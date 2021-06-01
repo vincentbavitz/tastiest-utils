@@ -246,10 +246,10 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
-"@tastiest-io/tastiest-utils@^0.95.0":
-  version "0.95.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.95.0/f15dc3616ad0a0ea3f43aa92b341b0684752d5a20bf56bba2c9abdf4f5a9c07d#6ee1d14b2a2567f3a2625ac14410e7dbe61d6627"
-  integrity sha512-DLuuAJFCmHcYZXWdNv3VsGLK03IUHxxZAClgsO6z1fJr+txWDWBFKjGmBuYB3YrelcU99cKdK+5EP786lWKoEw==
+"@tastiest-io/tastiest-utils@^0.121.0":
+  version "0.121.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.121.0/55efd449a2b31584e717ed6e36511969d49322e895395fd4952b6c5672e4cb23#1e9e51bcc6a987f6e108dded9baa9015dd95eba8"
+  integrity sha512-8e/DjOh7RSVwvaiqh9nfVkFrtxYn+hb688YUzGSY8lJHoFxesEjl4ttE71IY4/TEebJxkdL+RXY2zHs2nOcEEw==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
     "@stripe/stripe-js" "^1.13.2"

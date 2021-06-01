@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 
 export * from './checkout';
-export * from './email';
+export * from './restaurants';
 export * from './shopify';
 export * from './sync';
 

@@ -38,42 +38,44 @@ export const syncFromContentful = functions.https.onRequest(
     }
 
     // For each content type, sync to Firestore
-    if (contentType === 'restaurant') {
-      const restaurantId = request.body?.fields?.id?.['en-US'];
-      const restaurant = await cmsApi.getRestaurantById(restaurantId);
+    if (contentType !== 'restaurant') {
+      return;
+    }
 
-      if (!restaurant) {
-        response.json({
-          data: null,
-          success: false,
-          error: 'No restaurant found',
-        });
+    const restaurantId = request.body?.fields?.id?.['en-US'];
+    const restaurant = await cmsApi.getRestaurantById(restaurantId);
 
-        return;
-      }
+    if (!restaurant) {
+      response.json({
+        data: null,
+        success: false,
+        error: 'No restaurant found',
+      });
 
-      try {
-        const restaurantDataApi = new RestaurantDataApi(admin, restaurant.id);
+      return;
+    }
 
-        await restaurantDataApi.setRestaurantData(
-          RestaurantData.DETAILS,
-          restaurant,
-        );
+    try {
+      const restaurantDataApi = new RestaurantDataApi(admin, restaurant.id);
 
-        response.json({
-          data: null,
-          success: true,
-          error: null,
-        });
-        return;
-      } catch (error) {
-        response.json({
-          success: false,
-          data: null,
-          error: 'Firebase admin error',
-        });
-        return;
-      }
+      await restaurantDataApi.setRestaurantData(
+        RestaurantData.DETAILS,
+        restaurant,
+      );
+
+      response.json({
+        data: null,
+        success: true,
+        error: null,
+      });
+      return;
+    } catch (error) {
+      response.json({
+        success: false,
+        data: null,
+        error: 'Firebase admin error',
+      });
+      return;
     }
   },
 );

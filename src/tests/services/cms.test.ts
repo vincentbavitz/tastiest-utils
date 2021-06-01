@@ -35,26 +35,26 @@ describe('CMS Servcice', () => {
   //   // console.log('promo', promo);
   // });
 
-  // it('Get Restaurant from URI Name', async () => {
-  //   const cms = new CmsApi();
-  //   const restaurant = await cms.getRestaurantFromUriName(
-  //     'london',
-  //     'bite-me-burger',
-  //   );
-
-  //   dlog('cms.test ➡️ restaurant:', restaurant);
-
-  //   expect(true).toBeDefined();
-  // });
-
-  it('Get Restaurant Posts', async () => {
+  it('Get Restaurant from URI Name', async () => {
     const cms = new CmsApi();
-    const posts = await cms.getPostsOfRestaurant('el-vaquero-mill-hill');
+    const restaurant = await cms.getRestaurantFromUriName(
+      'london',
+      'bite-me-burger',
+    );
 
-    dlog('cms.test ➡️ posts:', posts);
+    dlog('cms.test ➡️ restaurant:', restaurant);
 
     expect(true).toBeDefined();
   });
+
+  // it('Get Restaurant Posts', async () => {
+  //   const cms = new CmsApi();
+  //   const posts = await cms.getPostsOfRestaurant('bite-me-burger');
+
+  //   dlog('cms.test ➡️ posts:', posts);
+
+  //   expect(true).toBeDefined();
+  // });
 
   // it('Get restaurant by ID', async () => {
   //   const cms = new CmsApi();
