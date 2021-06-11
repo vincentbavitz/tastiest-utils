@@ -64,9 +64,52 @@ export const connectAccountCreated = functions.https.onRequest(
   async (request, response: functions.Response<FunctionsResponse>) => {
     const body = request.body;
 
-    firebaseAdmin.firestore().collection('aaaa').add({ body });
+    const data: Stripe.Account = body?.data?.object;
 
-    stripe.accounts.create;
+    if (!data) {
+      response.status(400).json({
+        data: null,
+        error: 'Invalid JSON format',
+        success: false,
+      });
+      return;
+    }
+
+    const restaurantId = data?.metadata?.restaurantId;
+
+    // If no restaurant ID was given, we didnt' set up their Connected Account correctly.
+    if (!restaurantId) {
+      const error =
+        "No restaurant ID field in the restaurant's Connected Account metadata. See Notion 'Restaurant Onboarding Technicals'";
+
+      analytics.track({
+        userId: restaurantId,
+        event: `Restauraut onboard webhook failed`,
+        properties: {
+          error,
+        },
+      });
+
+      response.status(400).json({
+        data: null,
+        success: false,
+        error,
+      });
+
+      return;
+    }
+
+    const restaurantDataApi = new RestaurantDataApi(
+      firebaseAdmin,
+      restaurantId,
+    );
+
+    await restaurantDataApi.setRestaurantData(RestaurantData.FINANCIAL, {
+      stripeConnectedAccount: data,
+    });
+
+    stripe;
+
     response.json({
       data: null,
       error: null,
