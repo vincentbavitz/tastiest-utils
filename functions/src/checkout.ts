@@ -1,8 +1,4 @@
-import {
-  FIREBASE,
-  FirestoreCollection,
-  UserData,
-} from '@tastiest-io/tastiest-utils';
+import { FirestoreCollection, UserData } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
 import Stripe from 'stripe';
 
@@ -23,9 +19,8 @@ const stripe = new Stripe(STRIPE_SECRET_KEY, {
  * When adding the payment method ID on the client,
  * this function is triggered to retrieve the payment method details.
  */
-export const addPaymentMethodDetails = functions
-  .region(FIREBASE.DEFAULT_REGION)
-  .firestore.document(
+export const addPaymentMethodDetails = functions.firestore // .region(FIREBASE.DEFAULT_REGION)
+  .document(
     `/${FirestoreCollection.USERS}/{userId}/${UserData.PAYMENT_METHODS}/{pushId}`,
   )
   .onCreate(async (snap, context) => {

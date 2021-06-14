@@ -1,6 +1,7 @@
 import { FunctionsResponse } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
+import fetch from 'node-fetch';
 import { v4 as uuid } from 'uuid';
 import { firebaseAdmin } from './admin';
 
@@ -142,62 +143,78 @@ export const syncPaymentsToShopify = functions.https.onRequest(
       unitPrice = description?.unitPrice;
       quantity = description?.quantity;
 
-      if (!shopifyProductId.length || !unitPrice || !quantity) {
+      if (!shopifyProductId?.length || !unitPrice || !quantity) {
+        await firebaseAdmin
+          .firestore()
+          .collection('errors')
+          .add({ line: 146, body });
+
         response.status(406).json({
           success: false,
           data: null,
           error:
             'Invalid order description. Must include valid JSON with the key-value pair of shopifyProductId, unitPrice and quantity',
         });
+
+        return;
       }
     } catch (e) {
-      await firebaseAdmin.firestore().collection('errors').add({ body });
-
       response.status(406).json({
         success: false,
         data: null,
         error: 'Invalid JSON in order description.',
       });
+
+      return;
     }
 
     const email =
       body?.data?.object?.email ?? body?.data?.object?.receipt_email ?? '';
 
+    // Actual amount is 1.33 * unitPrice since Stripe send us Tastiest's 75% cut.
+    const amount = (unitPrice * 1.333333).toFixed(2);
+
     try {
-      await fetch('', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': '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',
-        },
-        body: JSON.stringify({
-          order: {
-            email,
-            financial_status: 'paid',
-            currency: 'GBP',
-            fulfillment_status: 'fulfilled',
-            send_receipt: false,
-            send_fulfillment_receipt: false,
-            inventory_behaviour: 'bypass',
-            transactions: [
-              {
-                amount: unitPrice.toFixed(2),
-                kind: 'authorization',
-                status: 'success',
-              },
-            ],
-            line_items: [
-              {
-                variant_id: shopifyProductId,
-                quantity: String(Number(Math.round(quantity))),
-              },
-            ],
-            tags: 'Imported from Stripe',
+      await fetch(
+        'https://tastiestio.myshopify.com/admin/api/2021-04/orders.json',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': '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',
           },
-        }),
-      });
+          body: JSON.stringify({
+            order: {
+              email,
+              financial_status: 'paid',
+              currency: 'GBP',
+              fulfillment_status: 'fulfilled',
+              send_receipt: false,
+              send_fulfillment_receipt: false,
+              inventory_behaviour: 'bypass',
+              transactions: [
+                {
+                  amount,
+                  kind: 'authorization',
+                  status: 'success',
+                },
+              ],
+              line_items: [
+                {
+                  variant_id: shopifyProductId,
+                  quantity: String(Number(Math.round(quantity))),
+                },
+              ],
+              tags: 'Imported from Stripe',
+            },
+          }),
+        },
+      );
+
+      response.json({ success: true, data: null, error: null });
+      return;
     } catch (error) {
-      await firebaseAdmin.firestore().collection('errors').add({ error });
+      response.json({ success: false, data: null, error: String(error) });
     }
   },
 );
