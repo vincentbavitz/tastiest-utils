@@ -20,7 +20,7 @@ const FIREBASE = {
   MAX_LOGIN_ATTEMPTS: 3,
   ORDER_REQUEST_MAX_AGE_MS: 86400000, // 1 day,
   ORDER_REQUEST_MAX_HEADS: 100,
-  DEFAULT_REGION: 'europe-west3',
+  // DEFAULT_REGION: 'europe-west3',
 };
 
 export default FIREBASE;
