@@ -1,8 +1,8 @@
 import { FunctionsResponse } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
-import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { v4 as uuid } from 'uuid';
+import { firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const SegmentAnalytics = require('analytics-node');
@@ -19,7 +19,7 @@ interface IEventsTransform {
  * Syncs Shopify tracking to Firestore using webhooks
  */
 export const syncShopifyToFirestore = functions.https.onRequest(
-  async (request, response: functions.Response<FunctionsResponse>) => {
+  async (request: any, response: functions.Response<FunctionsResponse>) => {
     // Get event type. Given the event type, send data to Firestore or otherwise act on the data.
     const body = request.body;
 
@@ -95,6 +95,8 @@ export const syncShopifyToFirestore = functions.https.onRequest(
     } catch (error) {
       const errorMessage = 'Tracking Forwarding Error';
 
+      firebaseAdmin.firestore().collection('errors').add({ error });
+
       analytics.track(
         {
           anonymousId: uuid(),
@@ -102,6 +104,7 @@ export const syncShopifyToFirestore = functions.https.onRequest(
           event: errorMessage,
           properties: {
             ...body,
+            error,
           },
         },
         () => {
@@ -116,11 +119,94 @@ export const syncShopifyToFirestore = functions.https.onRequest(
   },
 );
 
+/**
+ * Marks orders as paid as soon as they're fulfilled, since they've
+ * already paid through Stripe
+ */
+export const syncPaymentsToShopify = functions.https.onRequest(
+  async (request: any, response: functions.Response<FunctionsResponse>) => {
+    // Get event type. Given the event type, send data to Firestore or otherwise act on the data.
+    const body = request.body;
+
+    await firebaseAdmin.firestore().collection('testing').add({ body });
+
+    // Values come from the JSON encoded description of the Stripe payment
+    let quantity = 0;
+    let unitPrice = 0;
+    let shopifyProductId = '';
+
+    try {
+      const description = JSON.parse(body?.data?.object?.description);
+
+      shopifyProductId = description?.shopifyProductId;
+      unitPrice = description?.unitPrice;
+      quantity = description?.quantity;
+
+      if (!shopifyProductId.length || !unitPrice || !quantity) {
+        response.status(406).json({
+          success: false,
+          data: null,
+          error:
+            'Invalid order description. Must include valid JSON with the key-value pair of shopifyProductId, unitPrice and quantity',
+        });
+      }
+    } catch (e) {
+      await firebaseAdmin.firestore().collection('errors').add({ body });
+
+      response.status(406).json({
+        success: false,
+        data: null,
+        error: 'Invalid JSON in order description.',
+      });
+    }
+
+    const email =
+      body?.data?.object?.email ?? body?.data?.object?.receipt_email ?? '';
+
+    try {
+      await fetch('', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': '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',
+        },
+        body: JSON.stringify({
+          order: {
+            email,
+            financial_status: 'paid',
+            currency: 'GBP',
+            fulfillment_status: 'fulfilled',
+            send_receipt: false,
+            send_fulfillment_receipt: false,
+            inventory_behaviour: 'bypass',
+            transactions: [
+              {
+                amount: unitPrice.toFixed(2),
+                kind: 'authorization',
+                status: 'success',
+              },
+            ],
+            line_items: [
+              {
+                variant_id: shopifyProductId,
+                quantity: String(Number(Math.round(quantity))),
+              },
+            ],
+            tags: 'Imported from Stripe',
+          },
+        }),
+      });
+    } catch (error) {
+      await firebaseAdmin.firestore().collection('errors').add({ error });
+    }
+  },
+);
+
 // export const shopifyPaymentSuccessWebhook = functions.https.onRequest(
 //   async (request, response: functions.Response<FunctionsResponse>) => {
 //     const body = request.body;
 
-//     admin.firestore().collection('webhook').add(body);
+//     firebaseAdmin.firestore().collection('webhook').add(body);
 
 //     try {
 //       // There should only be one product per cart. So we just grab the first one.
@@ -200,8 +286,8 @@ export const syncShopifyToFirestore = functions.https.onRequest(
 //       };
 
 //       // Sync to Firebase
-//       admin.firestore().collection('orders').add(order);
-//       admin.firestore().collection('bookings').add(booking);
+//       firebaseAdmin.firestore().collection('orders').add(order);
+//       firebaseAdmin.firestore().collection('bookings').add(booking);
 
 //       // Reconstruct the deal (offer) from the SKU where the
 //       // SKU is the Deal ID in Contentful
@@ -251,32 +337,3 @@ export const syncShopifyToFirestore = functions.https.onRequest(
 //     return;
 //   },
 // );
-
-/**
- * Marks orders as paid as soon as they're fulfilled, since they've
- * already paid through Stripe
- */
-export const shopifyOrderFulfillmentWebhook = functions.https.onRequest(
-  async (request, response: functions.Response<FunctionsResponse>) => {
-    const body = request.body;
-    const orderId = body?.id;
-
-    if (!orderId) {
-      response
-        .status(402)
-        .json({ success: false, data: null, error: 'Invalid order ID.' });
-      return;
-    }
-
-    admin.firestore().collection('body').add({ body });
-
-    // Fulfill the order
-    await fetch(`https://tastiestio.myshopify.com/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': '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',
-      },
-    });
-  },
-);

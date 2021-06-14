@@ -1,4 +1,9 @@
-import { FirestoreCollection, RestaurantData, TRestaurantData } from '..';
+import {
+  FirestoreCollection,
+  IRestaurantData,
+  RestaurantData,
+  TRestaurantData,
+} from '..';
 
 // Intended for server-side use ONLY!
 export class RestaurantDataApi {
@@ -29,7 +34,7 @@ export class RestaurantDataApi {
     }
   }
 
-  public getRestaurantData = async <T extends RestaurantData>(
+  public getRestaurantField = async <T extends RestaurantData>(
     field?: T,
   ): Promise<TRestaurantData<T> | null> => {
     // Ensure we are initialized
@@ -47,6 +52,27 @@ export class RestaurantDataApi {
       const restaurantData = await doc.data();
 
       return (restaurantData?.[field] as TRestaurantData<T>) ?? null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  public getRestaurantData = async (): Promise<Partial<IRestaurantData> | null> => {
+    // Ensure we are initialized
+    if (!this.restaurantId) {
+      throw new Error('RestaurantDataApi: Ensure you have initialized first.');
+    }
+
+    try {
+      const doc = await this.admin
+        .firestore()
+        .collection(FirestoreCollection.RESTAURANTS)
+        .doc(this.restaurantId)
+        .get();
+
+      const restaurantData = await doc.data();
+
+      return restaurantData ?? null;
     } catch (error) {
       return null;
     }

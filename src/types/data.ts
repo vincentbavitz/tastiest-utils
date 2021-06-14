@@ -1,4 +1,5 @@
 import { PaymentMethod } from '@stripe/stripe-js';
+import Stripe from 'stripe';
 import { IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IAddress } from './geography';
@@ -142,6 +143,7 @@ export interface IRestaurantFinancialDetails {
   paymentIntervalDays: number;
   tastiestCommission: number;
   revenuedFromTastiest: number;
+  stripeConnectedAccount: Stripe.Account;
 }
 
 export interface IPayout {
@@ -169,7 +171,7 @@ export type TRestaurantData<T extends RestaurantData> =
     T extends RestaurantData.DETAILS ? Partial<IRestaurant> :
 
     // Further information
-    T extends RestaurantData.FINANCIAL ? IRestaurantFinancialDetails:
+    T extends RestaurantData.FINANCIAL ? Partial<IRestaurantFinancialDetails>:
     T extends RestaurantData.BOOKINGS ? IRestaurantBookingDetails :
     T extends RestaurantData.LEGAL ? IRestaurantLegal :
     

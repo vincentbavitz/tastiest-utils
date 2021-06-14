@@ -34,14 +34,12 @@ export class CmsApi {
   constructor(
     space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
     accessToken: string = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ?? '',
+    environment: 'production' | 'development' = 'production',
   ) {
-    const isProduction =
-      typeof process !== 'undefined' && process.env?.NODE_ENV === 'production';
-
     this.client = createClient({
       space,
-      environment: isProduction ? 'production' : 'development',
       accessToken,
+      environment,
     });
   }
 
