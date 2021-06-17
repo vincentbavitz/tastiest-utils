@@ -57,7 +57,6 @@ export const syncFromContentful = functions.https.onRequest(
 
     try {
       const restaurantDataApi = new RestaurantDataApi(admin, restaurant.id);
-
       await restaurantDataApi.setRestaurantData(
         RestaurantData.DETAILS,
         restaurant,

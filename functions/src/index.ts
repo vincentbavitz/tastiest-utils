@@ -3,9 +3,9 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 
 export * from './checkout';
+export * from './contentful';
 export * from './restaurants';
 export * from './shopify';
-export * from './sync';
 
 /**
  * When a payment document is written on the client,
