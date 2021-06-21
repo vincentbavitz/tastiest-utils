@@ -48,14 +48,32 @@ export enum UserData {
   PAYMENT_METHODS = 'paymentMethods',
   PREFERENCES = 'preferences',
 
-  USER_SESSIONS = 'userSessions',
+  // Activity such as sessions, where they came from, etc.
+  ACTIVITY = 'activity',
   USER_DEVICE = 'userDevice',
+}
+
+export interface EventTrigger {
+  event: string;
+  context: any;
+  properties: any;
+  timestamp: number;
 }
 
 export interface IUserSession {
   device: 'mobile' | 'tablet' | 'desktop';
+  userAgent: string;
   sessionStartTimestamp: number;
-  sessionEndTimestamp: number;
+  sessionEndTimestamp: number | null;
+  pagesVisited: string[];
+  sessionUTMs: {
+    utm_campaign: string | null;
+    utm_source: string | null;
+    utm_medium: string | null;
+    utm_content: string | null;
+    utm_term: string | null;
+  };
+  eventsTriggered: EventTrigger[];
 }
 
 export interface IRecentSearch {
@@ -105,8 +123,8 @@ export type TUserData<T extends UserData> =
     // User favourites
     T extends UserData.SAVED_ARTICLES ? Array<string> :
 
-    // User metadata
-    T extends UserData.USER_SESSIONS ? Array<IUserSession> :
+    // User Session activity
+    T extends UserData.ACTIVITY ? Array<IUserSession> :
         
     // User details and preferences
     T extends UserData.DETAILS ? Partial<IUserDetails> :

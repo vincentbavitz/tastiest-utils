@@ -174,6 +174,7 @@ export const syncPaymentsToShopify = functions.https.onRequest(
     let unitPrice = 0;
     let shopifyProductId = '';
     let anonymousId = '';
+    let cartToken = '';
 
     // 1. I need to slap the anonymousId into the Stripe description from /api/pay
     // 2. Grab the anonymousId from this webhook ^ as with others in description
@@ -186,6 +187,7 @@ export const syncPaymentsToShopify = functions.https.onRequest(
       shopifyProductId = description?.shopifyProductId;
       anonymousId = description?.anonymousId;
       unitPrice = description?.unitPrice;
+      cartToken = description?.cartToken;
       quantity = description?.quantity;
 
       if (!shopifyProductId?.length || !unitPrice || !quantity) {
@@ -216,7 +218,8 @@ export const syncPaymentsToShopify = functions.https.onRequest(
     // Actual amount is 1.33 * unitPrice since Stripe send us Tastiest's 75% cut.
     // const amount = (unitPrice * 1.333333).toFixed(2);
 
-    const email = billing_details.email ?? billing_details?.receipt_email ?? '';
+    const email =
+      '_' + billing_details.email ?? billing_details?.receipt_email ?? '';
     const phone = billing_details?.address?.phone ?? null;
     const zip = billing_details?.address?.postal_code ?? null;
 
@@ -232,6 +235,7 @@ export const syncPaymentsToShopify = functions.https.onRequest(
     const customer = await stripe.customers.retrieve(
       body?.data?.object?.customer,
     );
+
     if (customer) {
       await firebaseAdmin.firestore().collection('customer').add({ customer });
     }
@@ -244,6 +248,7 @@ export const syncPaymentsToShopify = functions.https.onRequest(
       send_receipt: false,
       send_fulfillment_receipt: false,
       inventory_behaviour: 'bypass',
+      cart_token: cartToken,
       transactions: [
         {
           amount: unitPrice.toFixed(2),
@@ -290,6 +295,18 @@ export const syncPaymentsToShopify = functions.https.onRequest(
           }),
         },
       );
+
+      // Sync to Littledata
+      await fetch('https://transactions.littledata.io/clientID', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clientID: anonymousId,
+          cartID: cartToken,
+        }),
+      });
 
       const data = await result.json();
 

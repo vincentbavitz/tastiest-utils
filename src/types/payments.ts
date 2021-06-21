@@ -28,10 +28,12 @@ export interface IPromo {
 export interface IOrderRequest {
   dealId?: string;
   userId?: string;
+  anonymousId?: string;
   heads?: number;
   fromSlug?: string;
   timestamp?: number;
   promoCode?: string;
+  shopifyProductId?: string;
 }
 
 export interface IOrder {
