@@ -219,7 +219,9 @@ export const syncPaymentsToShopify = functions.https.onRequest(
     // const amount = (unitPrice * 1.333333).toFixed(2);
 
     const email =
-      '_' + billing_details.email ?? billing_details?.receipt_email ?? '';
+      'shopify-' + billing_details.email ??
+      billing_details?.receipt_email ??
+      '';
     const phone = billing_details?.address?.phone ?? null;
     const zip = billing_details?.address?.postal_code ?? null;
 

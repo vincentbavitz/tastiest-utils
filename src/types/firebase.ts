@@ -24,6 +24,9 @@ export enum FirestoreCollection {
   // Support conversations
   SUPPORT_USERS = 'support-users',
   SUPPORT_RESTAURANTS = 'support-restaurants',
+
+  // User sessions and activity
+  SESSIONS = 'sessions',
 }
 
 export interface FirebaseAdminCert {

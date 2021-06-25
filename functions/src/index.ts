@@ -5,6 +5,7 @@ admin.initializeApp();
 export * from './checkout';
 export * from './contentful';
 export * from './restaurants';
+export * from './sessions';
 export * from './shopify';
 
 /**

@@ -61,8 +61,10 @@ export interface EventTrigger {
 }
 
 export interface IUserSession {
-  device: 'mobile' | 'tablet' | 'desktop';
+  userId: string | null;
+  anonymousId: string | null;
   userAgent: string;
+  device: 'mobile' | 'tablet' | 'desktop';
   sessionStartTimestamp: number;
   sessionEndTimestamp: number | null;
   pagesVisited: string[];
@@ -124,7 +126,7 @@ export type TUserData<T extends UserData> =
     T extends UserData.SAVED_ARTICLES ? Array<string> :
 
     // User Session activity
-    T extends UserData.ACTIVITY ? Array<IUserSession> :
+    // T extends UserData.ACTIVITY ? Array<IUserSession> :
         
     // User details and preferences
     T extends UserData.DETAILS ? Partial<IUserDetails> :
