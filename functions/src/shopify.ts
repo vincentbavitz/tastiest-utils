@@ -7,10 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const SegmentAnalytics = require('analytics-node');
-const analytics: Analytics = new SegmentAnalytics(
-  functions.config().segment.write_key,
-);
+const analytics = new Analytics(functions.config().segment.write_key);
 
 // interface IEventsTransform {
 //   shopifyEventName: string;

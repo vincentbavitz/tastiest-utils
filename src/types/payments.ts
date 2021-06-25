@@ -1,6 +1,6 @@
 import { StripeErrorType } from '@stripe/stripe-js';
 import Stripe from 'stripe';
-import { IDeal } from './cms';
+import { IDeal, IRestaurant } from './cms';
 
 export type DiscountAmount = { value: number; unit: '%' | '£' };
 
@@ -67,9 +67,13 @@ export interface IOrder {
 // Stored in firestore/bookings
 export interface IBooking {
   orderId: string;
+  userId: string;
+  restaurant: IRestaurant;
   userFacingBookingId: string;
   restaurantId: string;
   eaterName: string;
+  eaterMobile: string;
+  eaterEmail: string;
   dealName: string;
   heads: number;
   price: OrderPrice;

@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 
 admin.initializeApp();
 
+export * from './bookings';
 export * from './checkout';
 export * from './contentful';
 export * from './restaurants';
