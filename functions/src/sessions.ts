@@ -94,7 +94,8 @@ export const sessionHandler = functions.https.onRequest(
           .doc(body.userId ?? body.anonymousId)
           .get();
 
-        const userSessions = (await userSessionsDoc.data()) as IUserSession[];
+        const userSessions = ((await userSessionsDoc.data()) ??
+          []) as IUserSession[];
 
         const event: EventTrigger = {
           event: body.event ?? '',
