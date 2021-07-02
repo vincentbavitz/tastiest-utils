@@ -33,7 +33,6 @@ export interface IOrderRequest {
   fromSlug?: string;
   timestamp?: number;
   promoCode?: string;
-  shopifyProductId?: string;
 }
 
 export interface IOrder {
@@ -61,6 +60,8 @@ export interface IOrder {
     amountGBP: number;
     timestamp: number;
   };
+
+  isTest: boolean;
 }
 
 // This is what the restaurant sees after eater pays
@@ -87,6 +88,8 @@ export interface IBooking {
   // Code required when customer enters restaurant
   confirmationCode: string;
   isConfirmationCodeVerified: boolean;
+
+  isTest: boolean;
 }
 
 export interface IPaymentDetails {

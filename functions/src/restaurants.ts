@@ -13,8 +13,8 @@ import { firebaseAdmin } from './admin';
 
 const STRIPE_SECRET_KEY =
   process.env.NODE_ENV === 'production'
-    ? functions.config().stripe?.secret_test
-    : functions.config().stripe?.secret_live;
+    ? functions.config().stripe?.secret_live
+    : functions.config().stripe?.secret_test;
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2020-08-27',

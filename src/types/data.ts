@@ -40,6 +40,8 @@ export enum UserData {
   PROFILE_PICTURE_URL = 'profilePictureUrl',
   REFERRED_FROM = 'referredFrom',
 
+  METRICS = 'metrics',
+
   RESTAURANTS_VISITED = 'restaurantsVisited',
   SAVED_ARTICLES = 'savedArticles',
 
@@ -98,6 +100,7 @@ export interface IUserDetails {
   birthday: IDateObject | null;
   email: string | null;
   mobile: string | null;
+  lastActive: number | null;
 }
 
 export interface IUserPreferences {
@@ -105,6 +108,14 @@ export interface IUserPreferences {
   favouriteCuisines:
     | [TFavouriteCuisine?, TFavouriteCuisine?, TFavouriteCuisine?]
     | null;
+}
+
+export interface IUserMetrics {
+  totalBookings: number;
+  totalSpent: { [currency: string]: number };
+
+  // List of RestaurantIds
+  restaurantsVisited: string[];
 }
 
 interface PaymentMethods {
@@ -125,7 +136,8 @@ export type TUserData<T extends UserData> =
     // User favourites
     T extends UserData.SAVED_ARTICLES ? Array<string> :
 
-    // User Session activity
+    // User activity
+    T extends UserData.METRICS ? IUserMetrics :
     // T extends UserData.ACTIVITY ? Array<IUserSession> :
         
     // User details and preferences
