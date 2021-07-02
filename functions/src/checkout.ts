@@ -1,6 +1,16 @@
-import { FirestoreCollection, UserData } from '@tastiest-io/tastiest-utils';
+import {
+  FirestoreCollection,
+  IBooking,
+  IOrder,
+  reportInternalError,
+  TastiestInternalErrorCode,
+  UserData,
+  UserDataApi,
+} from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
+import moment from 'moment';
 import Stripe from 'stripe';
+import { firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Analytics = require('analytics-node');
@@ -8,8 +18,8 @@ const analytics = new Analytics(functions.config().segment.write_key);
 
 const STRIPE_SECRET_KEY =
   process.env.NODE_ENV === 'production'
-    ? functions.config().stripe?.secret_test
-    : functions.config().stripe?.secret_live;
+    ? functions.config().stripe?.secret_live
+    : functions.config().stripe?.secret_test;
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2020-08-27',
@@ -46,165 +56,83 @@ export const addPaymentMethodDetails = functions.firestore // .region(FIREBASE.D
 
       return;
     } catch (error) {
-      await snap.ref.set({ error: userFacingMessage(error) }, { merge: true });
+      await snap.ref.set({ error: String(error) }, { merge: true });
       await reportError(error, context.params.userId);
     }
   });
 
-// GETs the orders of a restaurant
-// Use the parameter ?restaurauntId=<restaurauntId> in your request
-// Use case: get initial data server-side ISR and revalidate with SWR.
-// export const getOrdersOfRestaurant = functions
-//   .region(FIREBASE.DEFAULT_REGION)
-//   .https.onRequest(async (request, response) => {
-//     const restaurantId = request.query?.restaurantId;
+/** On payment success */
+export const onPaymentSuccess = functions.firestore
+  .document(`/${FirestoreCollection.ORDERS}/{orderId}`)
+  .onUpdate(async snap => {
+    const before = snap.before.data() as IOrder;
+    const after = snap.after.data() as IOrder;
 
-//     if (!restaurantId) {
-//       const responseBody: IFunctionsResponseGET = {
-//         success: false,
-//         error:
-//           'No restaurant ID given. Please pass in a restaurantId query parameter.',
-//         data: null,
-//       };
+    // Payment Success
+    if (!before.paidAt && typeof after.paidAt === 'number') {
+      const userDataApi = new UserDataApi(firebaseAdmin, after.userId);
+      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
 
-//       response.send(responseBody);
-//       return;
-//     }
+      try {
+        const paymentMethod = await stripe.paymentMethods.retrieve(
+          after.paymentMethod as string,
+        );
 
-//     // Restaurant ID was given; get orders
-//     // We don't use this in restaurantDataApi because we want it to be
-//     // available clientside as well.
-//     const snapshot = await admin
-//       .firestore()
-//       .collection(FirestoreCollection.ORDERS)
-//       .get();
+        // Get corresponding booking
+        const bookingRef = await firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.BOOKINGS)
+          .doc(after.id)
+          .get();
 
-//     // Get orders of this particular restaurant
-//     const allOrders = snapshot.docs
-//       .map(doc => doc.data())
-//       .filter(order => order?.deal?.restaurant?.id === restaurantId);
+        const booking = (await bookingRef.data()) as IBooking;
 
-//     const responseBody: IFunctionsResponseGET = {
-//       success: true,
-//       error: null,
-//       data: allOrders,
-//     };
+        // Calculate the portions of Tastiest and the restaurant, respectively.
+        const tastiestPortion = after.price.final * 0.25; // TODO ---> Account for promo codes!
+        const restaurantPortion = after.price.final * 0.75;
 
-//     response.send(responseBody);
-//     return;
-//   });
+        const properties = {
+          email: userDetails?.email,
+          firstName: userDetails?.firstName,
+          paidAtDate: moment(after.paidAt).format('Do MMMM YYYY'),
+          paymentCard: paymentMethod.card,
+          ...after,
+          ...booking,
 
-//   export const createOrderFromOrderRequest = async (
-//     orderId: string,
-//   ): Promise<IOrder | null> => {
-//     try {
-//       const doc = await admin
-//         .firestore()
-//         .collection(FirestoreCollection.ORDER_REQUESTS)
-//         .doc(orderId)
-//         .get();
+          user: {
+            ...userDetails,
+          },
 
-//       const orderRequest = (await doc.data()) as Partial<IOrderRequest>;
+          // Internal measurements
+          tastiestPortion,
+          restaurantPortion,
+        };
 
-//       // Get user ID. User MUST be logged in.
-//       const userDataApi = new UserDataApi(admin, orderRequest?.userId);
+        // Internal `Payment Success` event
+        await analytics.track({
+          event: 'Payment Success',
+          userId: after.userId,
+          properties,
+        });
+      } catch (error) {
+        let raw;
+        try {
+          raw = JSON.stringify(error);
+        } catch {
+          raw = String(error);
+        }
 
-//       // Ensure all the types and values from Firebase are valid in the order request
-//       const orderRequestHeadsValid =
-//         orderRequest?.heads >= 1 && orderRequest.heads < 100;
-//       const orderRequestSlugIsValid = orderRequest?.fromSlug?.length > 1;
-//       const orderRequestExpired =
-//         Date.now() >
-//         orderRequest?.timestamp + FIREBASE.ORDER_REQUEST_MAX_AGE_MS;
+        await reportInternalError({
+          code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+          message: '`Payment Success` event failed to fire',
+          timestamp: Date.now(),
+          shouldAlert: true,
+          originFile: 'functions/src/checkout.ts',
+          properties: { ...after },
+          raw,
+        });
+      }
+    }
 
-//       // TODO - Make descriptive errors;
-//       if (
-//         orderRequestExpired ||
-//         !orderRequestHeadsValid ||
-//         !orderRequestSlugIsValid
-//       ) {
-//         dlog('exited early, wrong details');
-//         return null;
-//       }
-
-//       // Get deal and restaurant from Contentful
-//       // If deal does not exist on Contentful, there was a clientside mismatch.
-//       // This could be an innocent error, or the user is sending nefarious requests.
-//       const cms = new CmsApi();
-//       const deal = await cms.getDeal(orderRequest.dealId ?? '');
-
-//       if (!deal) {
-//         dlog('exited early, no deal');
-//         return null;
-//       }
-
-//       const order: IOrder = {
-//         id: orderId,
-//         deal,
-//         userId,
-//         heads: orderRequest.heads,
-//         fromSlug: orderRequest.fromSlug,
-//         totalPrice: deal.pricePerHeadGBP * orderRequest.heads,
-//         discount: null,
-//         // TODO - paidAt should be updated with Firebase functions
-//         paidAt: null,
-//         orderedAt: Date.now(),
-//         abandonedAt: null,
-//         paymentDetails: null,
-//         refund: null,
-//       };
-
-//       // Track the order creation Server Side
-//       const analytics = new Analytics(
-//         process.env.NEXT_PUBLIC_ANALYTICS_WRITE_KEY,
-//       );
-
-//       analytics.track({
-//         userId,
-//         anonymousId: userId ? null : uuid(),
-//         event: 'Order Created',
-//         properties: {
-//           ...order,
-//         },
-//       });
-
-//       // NOW set Firebase order given that we've validated everything server side.
-//       await firebaseAdmin
-//         .firestore()
-//         .collection(FirestoreCollection.ORDERS)
-//         .doc(order.id)
-//         .set(order);
-
-//       dlog('checkout ➡️         order:', order);
-
-//       return order;
-//     } catch (error) {
-//       dlog('checkout ➡️ error:', error);
-//       return null;
-//     }
-//   };
-// }
-
-function reportError(error: any, userId: string) {
-  // This is the name of the StackDriver log stream that will receive the log
-  // entry. This name can be any valid log stream name, but must contain "err"
-  // in order for the error to be picked up by StackDriver Error Reporting.
-
-  analytics.track({
-    userId: userId ?? null,
-    event: `Payment Error for user ${userId}`,
-    properties: {
-      userId,
-      message: error?.stack,
-    },
+    return;
   });
-}
-
-/**
- * Sanitize the error message for the user.
- */
-function userFacingMessage(error: any) {
-  return error?.type
-    ? error?.message
-    : 'An error occurred, developers have been alerted';
-}

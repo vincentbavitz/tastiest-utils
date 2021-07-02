@@ -280,15 +280,30 @@
     moment "^2.29.1"
     stripe "^8.143.0"
 
-"@tastiest-io/tastiest-utils@^0.144.0":
-  version "0.144.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.144.0/4fa0649decbdf2caf968d61686893d4459d2a296642874a6c50e6600a9c41ce7#dcb7c0516832ff65f57246e6f3de589990cd702c"
-  integrity sha512-pTE8LNEeUQuV7mofcuwTIR+M+PXYegDVYpM3STVLJpEQPEIESVy91uDFerW7NsjP3DN0acWuE7LsOTPjOUBwjA==
+"@tastiest-io/tastiest-utils@^0.147.0":
+  version "0.147.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.147.0/ba5a642669e47a6fdea59bf0417bd6e26ef4122c51e52f99b0cab5caf004244f#4151113a28698af8baaaa1f766bf57831d140b16"
+  integrity sha512-Uiq5fOKxfw3r8vCbDfpoJ6tTDrjgs9YnLap2H59Ga+zKxBoDkbktALh1EpqwZcEK9negutsAkO9SPm5TS7kC/g==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
     "@shopify/shopify-api" "^1.4.0"
     "@stripe/stripe-js" "^1.13.2"
     "@tastiest-io/tastiest-utils" "^0.143.0"
+    "@types/react" "^17.0.3"
+    contentful "^8.2.1"
+    firebase-admin "^9.6.0"
+    moment "^2.29.1"
+    stripe "^8.143.0"
+
+"@tastiest-io/tastiest-utils@^0.148.0":
+  version "0.148.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.148.0/32d70b4c3c9e5094eab810f8b7b3badec30ced332d0864b07253780c4d7c4cbf#aedfa049b705e89b168a1747280be4ed7877c0a0"
+  integrity sha512-Q6mRBrZXbPXXMsm1dWiWf8PCfXiwYzItXlv658BgKypBnTpOyqBvqk8/KutA46KlWsGI+PAz5NHiuWKVJOlLag==
+  dependencies:
+    "@contentful/rich-text-types" "^14.1.2"
+    "@shopify/shopify-api" "^1.4.0"
+    "@stripe/stripe-js" "^1.13.2"
+    "@tastiest-io/tastiest-utils" "^0.147.0"
     "@types/react" "^17.0.3"
     contentful "^8.2.1"
     firebase-admin "^9.6.0"
@@ -392,6 +407,13 @@
   version "13.13.48"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.48.tgz#46a3df718aed5217277f2395a682e055a487e341"
   integrity sha512-z8wvSsgWQzkr4sVuMEEOvwMdOQjiRY2Y/ZW4fDfjfe3+TfQrZqFKOthBgk2RnVEmtOKrkwdZ7uTvsxTBLjKGDQ==
+
+"@types/nodemailer@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-6.4.2.tgz#d8ee254c969e6ad83fb9a0a0df3a817406a3fa3b"
+  integrity sha512-yhsqg5Xbr8aWdwjFS3QjkniW5/tLpWXtOYQcJdo9qE3DolBxsKzgRCQrteaMY0hos8MklJNSEsMqDpZynGzMNg==
+  dependencies:
+    "@types/node" "*"
 
 "@types/prop-types@*":
   version "15.7.3"
@@ -1883,6 +1905,11 @@ node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
   integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
+
+nodemailer@^6.6.2:
+  version "6.6.2"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.6.2.tgz#e184c9ed5bee245a3e0bcabc7255866385757114"
+  integrity sha512-YSzu7TLbI+bsjCis/TZlAXBoM4y93HhlIgo0P5oiA2ua9Z4k+E2Fod//ybIzdJxOlXGRcHIh/WaeCBehvxZb/Q==
 
 object-assign@^4:
   version "4.1.1"

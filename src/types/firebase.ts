@@ -27,6 +27,9 @@ export enum FirestoreCollection {
 
   // User sessions and activity
   SESSIONS = 'sessions',
+
+  // Internal error reporting
+  ERRORS = 'errors',
 }
 
 export interface FirebaseAdminCert {
