@@ -1,6 +1,8 @@
 import {
   FirestoreCollection,
   IUserMetrics,
+  reportInternalError,
+  TastiestInternalErrorCode,
   UserData,
   UserDataApi,
 } from '@tastiest-io/tastiest-utils';
@@ -32,7 +34,7 @@ export const onUserCreated = functions.firestore
     // //////////////////////////////////////////////////////// //
     //  When a user is created, create a Stripe customer object for them.
     // https://stripe.com/docs/payments/save-and-reuse#web-create-customer
-    if (userRecord.email) {
+    try {
       const customer = await stripe.customers.create({
         email: userRecord.email,
       });
@@ -45,6 +47,17 @@ export const onUserCreated = functions.firestore
       userDataApi.setUserData(UserData.PAYMENT_DETAILS, {
         stripeCustomerId: customer.id,
         stripeSetupSecret: intent.client_secret ?? undefined,
+      });
+    } catch (error) {
+      // Report setup intent failure
+      await reportInternalError({
+        code: TastiestInternalErrorCode.STRIPE_SETUP_INTENT,
+        message: 'Failed to add payment method details to Firestore',
+        timestamp: Date.now(),
+        shouldAlert: true,
+        originFile: 'functions/src/user.ts:onUserCreated',
+        properties: { userId: context.params.userId, ...userRecord },
+        raw: String(error),
       });
     }
 

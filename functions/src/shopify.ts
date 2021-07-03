@@ -109,32 +109,6 @@ export const syncShopifyTracking = functions.https.onRequest(
       }
 
       return;
-    } catch (error) {
-      const errorMessage = 'Tracking Forwarding Error';
-
-      firebaseAdmin
-        .firestore()
-        .collection('errors')
-        .add({ error: String(error) });
-
-      analytics.track(
-        {
-          anonymousId,
-          context: body.context ?? null,
-          event: errorMessage,
-          properties: {
-            ...body,
-            error: String(error),
-          },
-        },
-        () => {
-          response.send({
-            success: false,
-            error: errorMessage,
-            data: null,
-          });
-        },
-      );
-    }
+    } catch (error) {}
   },
 );

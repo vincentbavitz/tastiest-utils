@@ -1424,6 +1424,21 @@
     moment "^2.29.1"
     stripe "^8.143.0"
 
+"@tastiest-io/tastiest-utils@^0.147.0":
+  version "0.147.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.147.0/ba5a642669e47a6fdea59bf0417bd6e26ef4122c51e52f99b0cab5caf004244f#4151113a28698af8baaaa1f766bf57831d140b16"
+  integrity sha512-Uiq5fOKxfw3r8vCbDfpoJ6tTDrjgs9YnLap2H59Ga+zKxBoDkbktALh1EpqwZcEK9negutsAkO9SPm5TS7kC/g==
+  dependencies:
+    "@contentful/rich-text-types" "^14.1.2"
+    "@shopify/shopify-api" "^1.4.0"
+    "@stripe/stripe-js" "^1.13.2"
+    "@tastiest-io/tastiest-utils" "^0.143.0"
+    "@types/react" "^17.0.3"
+    contentful "^8.2.1"
+    firebase-admin "^9.6.0"
+    moment "^2.29.1"
+    stripe "^8.143.0"
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"

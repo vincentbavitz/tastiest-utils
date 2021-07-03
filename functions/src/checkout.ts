@@ -1,5 +1,6 @@
 import {
   FirestoreCollection,
+  FunctionsResponse,
   IBooking,
   IOrder,
   reportInternalError,
@@ -7,132 +8,154 @@ import {
   UserData,
   UserDataApi,
 } from '@tastiest-io/tastiest-utils';
+import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
 import moment from 'moment';
-import Stripe from 'stripe';
 import { firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Analytics = require('analytics-node');
-const analytics = new Analytics(functions.config().segment.write_key);
+const AnalyticsNode = require('analytics-node');
+const analytics: Analytics = new AnalyticsNode(
+  functions.config().segment.write_key,
+);
 
-const STRIPE_SECRET_KEY =
-  process.env.NODE_ENV === 'production'
-    ? functions.config().stripe?.secret_live
-    : functions.config().stripe?.secret_test;
+// const STRIPE_SECRET_KEY =
+//   process.env.NODE_ENV === 'production'
+//     ? functions.config().stripe?.secret_live
+//     : functions.config().stripe?.secret_test;
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2020-08-27',
-});
+// const stripe = new Stripe(STRIPE_SECRET_KEY, {
+//   apiVersion: '2020-08-27',
+// });
 
-/**
- * When adding the payment method ID on the client,
- * this function is triggered to retrieve the payment method details.
- */
-export const addPaymentMethodDetails = functions.firestore // .region(FIREBASE.DEFAULT_REGION)
-  .document(
-    `/${FirestoreCollection.USERS}/{userId}/${UserData.PAYMENT_METHODS}/{pushId}`,
-  )
-  .onCreate(async (snap, context) => {
+/** On payment success; webhooked to Stripe charge.succeeded */
+export const onPaymentSuccessWebhook = functions.https.onRequest(
+  async (request: any, response: functions.Response<FunctionsResponse>) => {
     try {
-      const paymentMethodId = snap.data().id;
-      const paymentMethod = await stripe.paymentMethods.retrieve(
-        paymentMethodId,
-      );
+      // Get event type. Given the event type, send data to Firestore or otherwise act on the data.
+      const data = request.body.data.object;
+      const orderId = data?.metadata?.orderId;
+      const paymentCard = {
+        brand: data.payment_method_details.card.brand,
+        last4: data.payment_method_details.card.last4,
+      };
 
-      await snap.ref.set(paymentMethod);
+      // Get corresponding order from Firestore
+      const orderRef = await firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.ORDERS)
+        .doc(orderId)
+        .get();
 
-      // Create a new SetupIntent so the customer can add a new method next time.
-      const intent = await stripe.setupIntents.create({
-        customer: `${paymentMethod.customer}`,
-      });
+      // Get corresponding booking from Firestore
+      const bookingRef = await firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.BOOKINGS)
+        .doc(orderId)
+        .get();
 
-      await snap?.ref?.parent?.parent?.set(
-        {
-          setup_secret: intent.client_secret,
-        },
-        { merge: true },
-      );
+      // Get the information for the `Payment Success` event properties
+      const order = orderRef.data() as IOrder;
+      const booking = bookingRef.data() as IBooking;
 
-      return;
-    } catch (error) {
-      await snap.ref.set({ error: String(error) }, { merge: true });
-      await reportError(error, context.params.userId);
-    }
-  });
-
-/** On payment success */
-export const onPaymentSuccess = functions.firestore
-  .document(`/${FirestoreCollection.ORDERS}/{orderId}`)
-  .onUpdate(async snap => {
-    const before = snap.before.data() as IOrder;
-    const after = snap.after.data() as IOrder;
-
-    // Payment Success
-    if (!before.paidAt && typeof after.paidAt === 'number') {
-      const userDataApi = new UserDataApi(firebaseAdmin, after.userId);
-      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
-
-      try {
-        const paymentMethod = await stripe.paymentMethods.retrieve(
-          after.paymentMethod as string,
-        );
-
-        // Get corresponding booking
-        const bookingRef = await firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.BOOKINGS)
-          .doc(after.id)
-          .get();
-
-        const booking = (await bookingRef.data()) as IBooking;
-
-        // Calculate the portions of Tastiest and the restaurant, respectively.
-        const tastiestPortion = after.price.final * 0.25; // TODO ---> Account for promo codes!
-        const restaurantPortion = after.price.final * 0.75;
-
-        const properties = {
-          email: userDetails?.email,
-          firstName: userDetails?.firstName,
-          paidAtDate: moment(after.paidAt).format('Do MMMM YYYY'),
-          paymentCard: paymentMethod.card,
-          ...after,
-          ...booking,
-
-          user: {
-            ...userDetails,
-          },
-
-          // Internal measurements
-          tastiestPortion,
-          restaurantPortion,
-        };
-
-        // Internal `Payment Success` event
-        await analytics.track({
-          event: 'Payment Success',
-          userId: after.userId,
-          properties,
-        });
-      } catch (error) {
-        let raw;
-        try {
-          raw = JSON.stringify(error);
-        } catch {
-          raw = String(error);
-        }
-
+      // Couldn't find order or booking
+      if (!order?.userId || !booking?.userId) {
         await reportInternalError({
           code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
-          message: '`Payment Success` event failed to fire',
+          message:
+            '`Payment Success` event failed to fire. Could not find the corresponding order or booking.',
           timestamp: Date.now(),
           shouldAlert: true,
-          originFile: 'functions/src/checkout.ts',
-          properties: { ...after },
-          raw,
+          originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+          properties: { ...order, ...booking },
         });
-      }
-    }
 
-    return;
-  });
+        response.json({
+          success: false,
+          data: null,
+          error: 'Could not find the corresponding order or booking.',
+        });
+        return;
+      }
+
+      const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
+      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
+
+      // User not found
+      if (!userDetails) {
+        await reportInternalError({
+          code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+          message:
+            '`Payment Success` event failed to fire. Could not find the corresponding user.',
+          timestamp: Date.now(),
+          shouldAlert: true,
+          originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+          properties: { ...order, ...booking },
+        });
+
+        response.json({
+          success: false,
+          data: null,
+          error: 'Could not find the corresponding user.',
+        });
+        return;
+      }
+
+      // Calculate the portions of Tastiest and the restaurant, respectively.
+      const tastiestPortion = order.price.final * 0.25; // TODO ---> Account for promo codes!
+      const restaurantPortion = order.price.final * 0.75;
+
+      const properties = {
+        email: userDetails?.email,
+        firstName: userDetails?.firstName,
+        paidAtDate: moment(Date.now()).format('Do MMMM YYYY'),
+        paymentCard,
+        ...order,
+        ...booking,
+
+        user: {
+          ...userDetails,
+        },
+
+        // Internal measurements
+        tastiestPortion,
+        restaurantPortion,
+      };
+
+      await analytics.track({
+        event: 'Payment Success',
+        userId: order.userId,
+        properties,
+        timestamp: new Date(),
+      });
+
+      // Update chargeId on order in Firestore
+      // ch_00000000000000
+
+      // Internal `Payment Success` event
+
+      //   } catch (error) {
+      //     let raw;
+      //     try {
+      //       raw = JSON.stringify(error);
+      //     } catch {
+      //       raw = String(error);
+      //     }
+
+      // }
+
+      response.json({ success: true, data: null, error: null });
+    } catch (error) {
+      await reportInternalError({
+        code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+        message: '`Payment Success` event failed to fire',
+        timestamp: Date.now(),
+        shouldAlert: true,
+        originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+        properties: { ...request.body },
+      });
+
+      response.json({ success: false, data: null, error: String(error) });
+    }
+  },
+);

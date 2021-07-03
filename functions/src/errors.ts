@@ -46,35 +46,36 @@ export const reportInternalError = functions.https.onRequest(
 
     // This will notify the term internally via email
     if (shouldAlert) {
-      const user = functions.config().gmail.developer_email;
-      const pass = functions.config().gmail.developer_password;
-      const from = '"⚠️ Tastiest Error Reporter" <developers@tastiest.io';
-      const to = 'developers@tastiest.io';
-
-      // create reusable transporter object using the default SMTP transport
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: { user, pass },
-      });
-
-      // Stringfiy our properties to be email-friendly.
-      let propertiesStringified;
       try {
-        propertiesStringified = JSON.stringify(properties);
-      } catch {
-        propertiesStringified = String(properties);
-      }
+        const user = functions.config().gmail.developer_email;
+        const pass = functions.config().gmail.developer_password;
+        const from = '"⚠️ Tastiest Error Reporter" <developers@tastiest.io';
+        const to = 'developers@tastiest.io';
 
-      // send mail with defined transport object
-      const info = await transporter.sendMail({
-        from,
-        to,
-        subject: `${code ?? 'Internal Error Reporting Error'}${
-          message ? ' ' + message : ''
-        }`,
-        text: `
+        // create reusable transporter object using the default SMTP transport
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: { user, pass },
+        });
+
+        // Stringfiy our properties to be email-friendly.
+        let propertiesStringified;
+        try {
+          propertiesStringified = JSON.stringify(properties);
+        } catch {
+          propertiesStringified = String(properties);
+        }
+
+        // send mail with defined transport object
+        const info = await transporter.sendMail({
+          from,
+          to,
+          subject: `${code ?? 'Internal Error Reporting Error'}${
+            message ? ' ' + message : ''
+          }`,
+          text: `
             Error: ${code ?? 'Internal Error Reporting Error'}
             Message: ${message ?? '---'}
 
@@ -83,10 +84,33 @@ export const reportInternalError = functions.https.onRequest(
             Properties: ${propertiesStringified ?? '---'}
             Raw Error: ${raw ?? '---'}
         `,
-      });
+        });
 
-      // Report email not sent
-      if (!info.messageId) {
+        // Report email not sent
+        if (!info.messageId) {
+        }
+      } catch (error) {
+        // Report email failed to send
+        await firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.ERRORS)
+          .add({
+            code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
+            message: 'Email failed to send from reportInternalError',
+            timestamp: Date.now(),
+            originFile: 'functions/src/errors.ts',
+            properties: {
+              code: code ?? null,
+              message: message ?? null,
+              timestamp: timestamp ?? null,
+              originFile: originFile ?? null,
+              properties: properties ?? null,
+              raw: String(error),
+            },
+          });
+
+        response.status(200).end();
+        return;
       }
     }
 
