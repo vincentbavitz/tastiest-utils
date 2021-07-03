@@ -14,7 +14,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@tastiest-io/tastiest-utils": "^0.149.0",
+    "@tastiest-io/tastiest-utils": "^0.151.0",
     "@types/analytics-node": "^3.1.4",
     "@types/node-fetch": "^2.5.10",
     "analytics-node": "^4.0.1",

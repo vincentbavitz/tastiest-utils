@@ -11,11 +11,15 @@ export enum FirebaseAuthError {
 export enum FirestoreCollection {
   // Eaters!
   USERS = 'users',
+  USERS_ARCHIVE = 'users-archive',
+
   RESTAURANTS = 'restaurants',
 
   // Orders and payments
   ORDERS = 'orders',
   BOOKINGS = 'bookings',
+  ORDERS_ARCHIVE = 'orders-archive',
+  BOOKINGS_ARCHIVE = 'bookings-archive',
 
   // User recommendations and queries
   USER_QUERIES = 'user-queries',

@@ -1,5 +1,8 @@
 import {
   FirestoreCollection,
+  IBooking,
+  IOrder,
+  IUserData,
   IUserMetrics,
   reportInternalError,
   TastiestInternalErrorCode,
@@ -88,35 +91,128 @@ export const onUserCreated = functions.firestore
 /**
  * When a user deletes their account, clean up after them
  */
-// export const onDeleteUser = functions.auth.user().onDelete(async user => {
-//   const usersRef = firebaseAdmin
-//     .firestore()
-//     .collection(FirestoreCollection.USERS);
+export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
+  const userSnapshot = await firebaseAdmin
+    .firestore()
+    .collection(FirestoreCollection.USERS)
+    .doc(userRecord.uid)
+    .get();
 
-//   const customer = (await usersRef.doc(user.uid).get()).data();
+  const userDataFull = userSnapshot.data() as Partial<IUserData>;
 
-//   if (customer) {
-//     await stripe.customers.del(customer.customer_id);
-//   }
+  try {
+    // //////////////////////////////////////////////////////////// //
+    // //         Delete the customer's Stripe account.          // //
+    // //////////////////////////////////////////////////////////// //
+    const STRIPE_SECRET_KEY = userRecord?.customClaims?.isTestAccount
+      ? functions.config().stripe?.secret_test
+      : functions.config().stripe?.secret_live;
 
-//   // Delete the customers payments & payment methods in firestore.
-//   const batch = firebaseAdmin.firestore().batch();
-//   const paymetsMethodsSnapshot = await usersRef
-//     .doc(user.uid)
-//     .collection(FirestoreCollection.ORDERS)
-//     .get();
+    const stripe = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: '2020-08-27',
+    });
 
-//   // paymetsMethodsSnapshot.forEach(snap => batch.delete(snap.ref));
-//   // const paymentsSnapshot = await usersRef
-//   //   .doc(user.uid)
-//   //   .collection(FirestoreCollection.ORDERS)
-//   //   .get();
+    if (userDataFull?.paymentDetails?.stripeCustomerId) {
+      stripe.customers.del(userDataFull?.paymentDetails?.stripeCustomerId);
+    }
 
-//   // paymentsSnapshot.forEach(snap => batch.delete(snap.ref));
-//   // await batch.commit();
-//   // await usersRef.doc(user.uid).delete();
+    // //////////////////////////////////////////////////////////// //
+    // //            Archive orders from this user.              // //
+    // //////////////////////////////////////////////////////////// //
+    const batch = firebaseAdmin.firestore().batch();
+    const userOrdersSnapshotDocs = await firebaseAdmin
+      .firestore()
+      .collection(FirestoreCollection.ORDERS)
+      .where('userId', '==', userRecord.uid)
+      .get();
 
-//   // Archive Stripe account
+    // Add user's orders to archive collection
+    userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
+      const order = orderSnapshot.data() as IOrder;
+      const orderRef = firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.ORDERS_ARCHIVE)
+        .doc(order.id);
 
-//   return;
-// });
+      batch.set(orderRef, order);
+    });
+
+    await batch.commit();
+
+    // Remove user's orders from original orders collection
+    userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
+      const order = orderSnapshot.data() as IOrder;
+      const orderRef = firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.ORDERS)
+        .doc(order.id);
+
+      batch.delete(orderRef);
+    });
+
+    await batch.commit();
+
+    // //////////////////////////////////////////////////////////// //
+    // //            Archive bookings from this user.            // //
+    // //////////////////////////////////////////////////////////// //
+    const userBookingsSnapshotDocs = await firebaseAdmin
+      .firestore()
+      .collection(FirestoreCollection.BOOKINGS)
+      .where('userId', '==', userRecord.uid)
+      .get();
+
+    // Add user's bookings to archive collection
+    userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
+      const booking = bookingSnapshot.data() as IBooking;
+      const bookingRef = firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.BOOKINGS_ARCHIVE)
+        .doc(booking.orderId);
+
+      batch.set(bookingRef, booking);
+    });
+
+    await batch.commit();
+
+    // Remove user's bookings from original bookings collection
+    userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
+      const booking = bookingSnapshot.data() as IBooking;
+      const bookingRef = firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.BOOKINGS)
+        .doc(booking.orderId);
+
+      batch.delete(bookingRef);
+    });
+
+    await batch.commit();
+
+    // //////////////////////////////////////////////////////////// //
+    // //                Archive user from USERS.                // //
+    // //////////////////////////////////////////////////////////// //
+    await firebaseAdmin
+      .firestore()
+      .collection(FirestoreCollection.USERS_ARCHIVE)
+      .add(userDataFull);
+
+    await firebaseAdmin
+      .firestore()
+      .collection(FirestoreCollection.USERS)
+      .doc(userRecord.uid)
+      .delete();
+  } catch (error) {
+    await reportInternalError({
+      code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+      message: 'User deletion hook function failed.',
+      properties: {
+        ...userRecord.toJSON(),
+      },
+      originFile: 'functions/src/user.ts:onDelete',
+      timestamp: Date.now(),
+      shouldAlert: false,
+      raw: String(error),
+    });
+  }
+
+  return;
+});

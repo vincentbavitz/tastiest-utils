@@ -21,7 +21,12 @@ export const postFetch = async <P = any, R = any>(
   dlog('api ➡️ endpoint:', endpoint);
 
   try {
-    const response = await fetch(endpoint, options);
+    // Use server side fetch if necessary
+    const response =
+      typeof window === 'undefined'
+        ? await fetch(endpoint, options)
+        : await fetch(endpoint, options);
+
     const {
       success = false,
       data = null,

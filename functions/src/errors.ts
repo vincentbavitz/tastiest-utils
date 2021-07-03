@@ -47,17 +47,22 @@ export const reportInternalError = functions.https.onRequest(
     // This will notify the term internally via email
     if (shouldAlert) {
       try {
-        const user = functions.config().gmail.developer_email;
-        const pass = functions.config().gmail.developer_password;
-        const from = '"⚠️ Tastiest Error Reporter" <developers@tastiest.io';
+        const from = '"⚠️ Tastiest Error Reporter" <vincent@tastiest.io';
         const to = 'developers@tastiest.io';
+        const serviceClient = functions.config().gmail.service_client;
+        const privateKey = functions.config().gmail.private_key;
 
         // create reusable transporter object using the default SMTP transport
         const transporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 465,
           secure: true,
-          auth: { user, pass },
+          auth: {
+            type: 'OAuth2',
+            user: 'vincent@tastiest.io',
+            serviceClient,
+            privateKey,
+          },
         });
 
         // Stringfiy our properties to be email-friendly.
@@ -109,7 +114,11 @@ export const reportInternalError = functions.https.onRequest(
             },
           });
 
-        response.status(200).end();
+        response.status(200).json({
+          success: false,
+          data: null,
+          error: String(error),
+        });
         return;
       }
     }
