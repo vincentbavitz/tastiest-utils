@@ -19,15 +19,6 @@ const analytics: Analytics = new AnalyticsNode(
   functions.config().segment.write_key,
 );
 
-// const STRIPE_SECRET_KEY =
-//   process.env.NODE_ENV === 'production'
-//     ? functions.config().stripe?.secret_live
-//     : functions.config().stripe?.secret_test;
-
-// const stripe = new Stripe(STRIPE_SECRET_KEY, {
-//   apiVersion: '2020-08-27',
-// });
-
 /** On payment success; webhooked to Stripe charge.succeeded */
 export const onPaymentSuccessWebhook = functions.https.onRequest(
   async (request: any, response: functions.Response<FunctionsResponse>) => {
@@ -100,6 +91,18 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         });
         return;
       }
+
+      // Update order payment card
+      await firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.ORDERS)
+        .doc(order.id)
+        .set(
+          {
+            paymentCard,
+          },
+          { merge: true },
+        );
 
       // Calculate the portions of Tastiest and the restaurant, respectively.
       const tastiestPortion = order.price.final * 0.25; // TODO ---> Account for promo codes!

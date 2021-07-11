@@ -23,7 +23,7 @@ export enum FirestoreCollection {
 
   // User recommendations and queries
   USER_QUERIES = 'user-queries',
-  SUGGESTIONS_RESTAURANTS = 'suggestions-restaurants',
+  SUGGESTIONS = 'suggestions',
 
   // Support conversations
   SUPPORT_USERS = 'support-users',

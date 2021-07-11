@@ -100,25 +100,39 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
 
   const userDataFull = userSnapshot.data() as Partial<IUserData>;
 
+  // //////////////////////////////////////////////////////////// //
+  // //         Delete the customer's Stripe account.          // //
+  // //////////////////////////////////////////////////////////// //
+  const STRIPE_SECRET_KEY = userRecord?.customClaims?.isTestAccount
+    ? functions.config().stripe?.secret_test
+    : functions.config().stripe?.secret_live;
+
+  const stripe = new Stripe(STRIPE_SECRET_KEY, {
+    apiVersion: '2020-08-27',
+  });
+
   try {
-    // //////////////////////////////////////////////////////////// //
-    // //         Delete the customer's Stripe account.          // //
-    // //////////////////////////////////////////////////////////// //
-    const STRIPE_SECRET_KEY = userRecord?.customClaims?.isTestAccount
-      ? functions.config().stripe?.secret_test
-      : functions.config().stripe?.secret_live;
-
-    const stripe = new Stripe(STRIPE_SECRET_KEY, {
-      apiVersion: '2020-08-27',
-    });
-
     if (userDataFull?.paymentDetails?.stripeCustomerId) {
       stripe.customers.del(userDataFull?.paymentDetails?.stripeCustomerId);
     }
+  } catch (error) {
+    await reportInternalError({
+      code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+      message: "Failed to delete user's Stripe account",
+      properties: {
+        ...userRecord.toJSON(),
+      },
+      originFile: 'functions/src/user.ts:onDelete',
+      timestamp: Date.now(),
+      shouldAlert: false,
+      raw: String(error),
+    });
+  }
 
-    // //////////////////////////////////////////////////////////// //
-    // //            Archive orders from this user.              // //
-    // //////////////////////////////////////////////////////////// //
+  // //////////////////////////////////////////////////////////// //
+  // //            Archive orders from this user.              // //
+  // //////////////////////////////////////////////////////////// //
+  try {
     const batch = firebaseAdmin.firestore().batch();
     const userOrdersSnapshotDocs = await firebaseAdmin
       .firestore()
@@ -127,34 +141,50 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
       .get();
 
     // Add user's orders to archive collection
-    userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
-      const order = orderSnapshot.data() as IOrder;
-      const orderRef = firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ORDERS_ARCHIVE)
-        .doc(order.id);
+    if (!userOrdersSnapshotDocs.empty) {
+      userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
+        const order = orderSnapshot.data() as IOrder;
+        const orderRef = firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.ORDERS_ARCHIVE)
+          .doc(order.id);
 
-      batch.set(orderRef, order);
-    });
+        batch.set(orderRef, order);
+      });
 
+      await batch.commit();
+
+      // Remove user's orders from original orders collection
+      userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
+        const order = orderSnapshot.data() as IOrder;
+        const orderRef = firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.ORDERS)
+          .doc(order.id);
+
+        batch.delete(orderRef);
+      });
+    }
     await batch.commit();
-
-    // Remove user's orders from original orders collection
-    userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
-      const order = orderSnapshot.data() as IOrder;
-      const orderRef = firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ORDERS)
-        .doc(order.id);
-
-      batch.delete(orderRef);
+  } catch (error) {
+    await reportInternalError({
+      code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+      message: "Failed to archive user's orders",
+      properties: {
+        ...userRecord.toJSON(),
+      },
+      originFile: 'functions/src/user.ts:onDelete',
+      timestamp: Date.now(),
+      shouldAlert: false,
+      raw: String(error),
     });
+  }
 
-    await batch.commit();
-
-    // //////////////////////////////////////////////////////////// //
-    // //            Archive bookings from this user.            // //
-    // //////////////////////////////////////////////////////////// //
+  // //////////////////////////////////////////////////////////// //
+  // //            Archive bookings from this user.            // //
+  // //////////////////////////////////////////////////////////// //
+  try {
+    const batch = firebaseAdmin.firestore().batch();
     const userBookingsSnapshotDocs = await firebaseAdmin
       .firestore()
       .collection(FirestoreCollection.BOOKINGS)
@@ -162,34 +192,50 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
       .get();
 
     // Add user's bookings to archive collection
-    userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
-      const booking = bookingSnapshot.data() as IBooking;
-      const bookingRef = firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.BOOKINGS_ARCHIVE)
-        .doc(booking.orderId);
+    if (!userBookingsSnapshotDocs.empty) {
+      userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
+        const booking = bookingSnapshot.data() as IBooking;
+        const bookingRef = firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.BOOKINGS_ARCHIVE)
+          .doc(booking.orderId);
 
-      batch.set(bookingRef, booking);
+        batch.set(bookingRef, booking);
+      });
+
+      await batch.commit();
+
+      // Remove user's bookings from original bookings collection
+      userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
+        const booking = bookingSnapshot.data() as IBooking;
+        const bookingRef = firebaseAdmin
+          .firestore()
+          .collection(FirestoreCollection.BOOKINGS)
+          .doc(booking.orderId);
+
+        batch.delete(bookingRef);
+      });
+
+      await batch.commit();
+    }
+  } catch (error) {
+    await reportInternalError({
+      code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+      message: "Failed to archive user's bookings",
+      properties: {
+        ...userRecord.toJSON(),
+      },
+      originFile: 'functions/src/user.ts:onDelete',
+      timestamp: Date.now(),
+      shouldAlert: false,
+      raw: String(error),
     });
+  }
 
-    await batch.commit();
-
-    // Remove user's bookings from original bookings collection
-    userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
-      const booking = bookingSnapshot.data() as IBooking;
-      const bookingRef = firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.BOOKINGS)
-        .doc(booking.orderId);
-
-      batch.delete(bookingRef);
-    });
-
-    await batch.commit();
-
-    // //////////////////////////////////////////////////////////// //
-    // //                Archive user from USERS.                // //
-    // //////////////////////////////////////////////////////////// //
+  // //////////////////////////////////////////////////////////// //
+  // //                Archive user from USERS.                // //
+  // //////////////////////////////////////////////////////////// //
+  try {
     await firebaseAdmin
       .firestore()
       .collection(FirestoreCollection.USERS_ARCHIVE)
@@ -203,7 +249,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
   } catch (error) {
     await reportInternalError({
       code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
-      message: 'User deletion hook function failed.',
+      message: 'Failed to archive user',
       properties: {
         ...userRecord.toJSON(),
       },

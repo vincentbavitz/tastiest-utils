@@ -48,6 +48,10 @@ export interface IOrder {
   fromSlug: string;
   price: OrderPrice;
   paymentMethod: null | string;
+  paymentCard: null | {
+    brand: string;
+    last4: string;
+  };
   promoCode: string;
 
   // Timestamps

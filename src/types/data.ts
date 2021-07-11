@@ -248,6 +248,7 @@ export interface ISupportMessage {
 // User requests are stored in Firestore as support-users/<list of support requests>
 // We can't store in terms of user IDs because they might not have an account.
 export interface IUserSupportRequest {
+  id: string;
   userId: string | null;
   name: string;
   email: string;
@@ -282,6 +283,7 @@ export interface IUserQuery {
 
 // User requests are stored in Firestore as support-restaurants/<restaurantId>
 export interface IRestaurantSupportRequest {
+  id: string;
   restaurantId: string | null;
   name: string;
   email: string;

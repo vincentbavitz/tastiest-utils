@@ -1,3 +1,4 @@
+import nodeFetch from 'node-fetch';
 import { dlog, FunctionsResponse } from '..';
 
 /**
@@ -24,7 +25,7 @@ export const postFetch = async <P = any, R = any>(
     // Use server side fetch if necessary
     const response =
       typeof window === 'undefined'
-        ? await fetch(endpoint, options)
+        ? await nodeFetch(endpoint, options)
         : await fetch(endpoint, options);
 
     const {

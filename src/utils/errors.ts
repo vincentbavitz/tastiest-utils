@@ -4,9 +4,10 @@ export const ERROR_REPORTING_FUNCTION_ENDPOINT =
   'https://us-central1-tastiest-dishes.cloudfunctions.net/reportInternalError';
 
 export enum TastiestInternalErrorCode {
+  PAYMENT_ERROR = 'PAYMENT_ERROR',
+  STRIPE_SETUP_INTENT = 'STRIPE_SETUP_INTENT',
   INTERNAL_ERROR_REPORTING = 'INTERNAL_ERROR_REPORTING_ERROR', // When there's an error in the error reporting.
   FUNCTIONS_ERROR = 'FUNCTIONS_ERROR', // An error originating from Firebase Functions
-  STRIPE_SETUP_INTENT = 'STRIPE_SETUP_INTENT',
 }
 
 /** The rrror reporting schema for the Tastiest Admin Panel.
