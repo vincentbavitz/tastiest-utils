@@ -12,10 +12,10 @@ export interface IGenericAsyncReturnType {
 }
 
 // Server side and cloud functions
-export type FunctionsResponse<T = any> = {
+export type FunctionsResponse<Data = any, TError = string> = {
   success: boolean;
-  error: string | null;
-  data: T | null;
+  data: Data | null;
+  error: TError | null;
 };
 
 export enum UserRole {
