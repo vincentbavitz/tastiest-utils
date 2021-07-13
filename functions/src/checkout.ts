@@ -1,9 +1,14 @@
 import {
   FirestoreCollection,
   FunctionsResponse,
+  generateConfirmationCode,
+  generateUserFacingId,
   IBooking,
   IOrder,
+  IRestaurant,
   reportInternalError,
+  RestaurantData,
+  RestaurantDataApi,
   TastiestInternalErrorCode,
   UserData,
   UserDataApi,
@@ -38,33 +43,25 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         .doc(orderId)
         .get();
 
-      // Get corresponding booking from Firestore
-      const bookingRef = await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.BOOKINGS)
-        .doc(orderId)
-        .get();
-
       // Get the information for the `Payment Success` event properties
       const order = orderRef.data() as IOrder;
-      const booking = bookingRef.data() as IBooking;
 
-      // Couldn't find order or booking
-      if (!order?.userId || !booking?.userId) {
+      // Couldn't find order
+      if (!order?.userId) {
         await reportInternalError({
           code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
           message:
-            '`Payment Success` event failed to fire. Could not find the corresponding order or booking.',
+            '`Payment Success` event failed to fire. Could not find the corresponding order.',
           timestamp: Date.now(),
           shouldAlert: true,
           originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
-          properties: { ...order, ...booking },
+          properties: { ...order },
         });
 
         response.json({
           success: false,
           data: null,
-          error: 'Could not find the corresponding order or booking.',
+          error: 'Could not find the corresponding order.',
         });
         return;
       }
@@ -81,7 +78,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
           timestamp: Date.now(),
           shouldAlert: true,
           originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
-          properties: { ...order, ...booking },
+          properties: { ...order },
         });
 
         response.json({
@@ -91,6 +88,48 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         });
         return;
       }
+
+      const restaurantDataApi = new RestaurantDataApi(
+        firebaseAdmin,
+        order.deal.restaurant.id,
+      );
+
+      const restaurantDetails = await restaurantDataApi.getRestaurantField(
+        RestaurantData.DETAILS,
+      );
+
+      const eaterName = `${userDetails.firstName} ${userDetails.lastName}`;
+
+      // Update user data
+      // Add to bookings
+      const booking: IBooking = {
+        userId: order.userId,
+        restaurant: restaurantDetails as IRestaurant,
+        restaurantId: order.deal.restaurant.id,
+        orderId: order.id,
+        userFacingBookingId: generateUserFacingId(),
+        eaterName,
+        eaterEmail: userDetails.email as string,
+        eaterMobile: userDetails.mobile as string,
+        dealName: order.deal.name,
+        heads: order.heads,
+        price: order.price,
+        paidAt: Date.now(),
+        bookingDate: null,
+        hasBooked: false,
+        hasArrived: false,
+        hasCancelled: false,
+        cancelledAt: null,
+        confirmationCode: generateConfirmationCode(),
+        isConfirmationCodeVerified: false,
+        isTest: process.env.NODE_ENV === 'development',
+      };
+
+      await firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.BOOKINGS)
+        .doc(order.id)
+        .set(booking);
 
       // Update order payment card
       await firebaseAdmin
