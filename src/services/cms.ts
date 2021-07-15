@@ -61,12 +61,14 @@ export class CmsApi {
       include: 10,
     });
 
+    dlog('cms ➡️ entries:', entries);
+
     if (entries?.items?.length > 0) {
-      const blogPosts = entries.items
+      const posts = entries.items
         .map(entry => this.convertPost(entry))
         .filter(post => Boolean(post)) as IPost[];
 
-      return { posts: blogPosts, total: entries.total };
+      return { posts, total: entries.total };
     }
 
     return { posts: [], total: 0 } as IFetchPostsReturn;
@@ -315,16 +317,16 @@ export class CmsApi {
   };
 
   public convertImage = (rawImage: any): IFigureImage | undefined => {
-    const imageUrl = rawImage?.file?.url?.replace('//', 'https://');
+    const url = rawImage?.file?.url?.replace('//', 'https://');
     const description = rawImage?.description ?? '';
     const title = rawImage?.title ?? '';
 
-    if (!rawImage || !imageUrl) {
+    if (!rawImage || !url) {
       return;
     }
 
     return {
-      imageUrl,
+      url,
       description,
       title,
     };
@@ -489,6 +491,25 @@ export class CmsApi {
       !abstractDivider ||
       !offerDivider
     ) {
+      dlog('cms ➡️ id:', id);
+      dlog('cms ➡️ title:', title);
+      dlog('cms ➡️ description:', description);
+      dlog('cms ➡️ body:', body);
+      dlog('cms ➡️ author:', author);
+      dlog('cms ➡️ date:', date);
+      dlog('cms ➡️ city:', city);
+      dlog('cms ➡️ dishName:', dishName);
+      dlog('cms ➡️ video:', video);
+      dlog('cms ➡️ cuisine:', cuisine);
+      dlog('cms ➡️ deal:', deal);
+      dlog('cms ➡️ restaurant:', restaurant);
+      dlog('cms ➡️ featureImage:', featureImage);
+      dlog('cms ➡️ tags:', tags);
+      dlog('cms ➡️ slug:', slug);
+      dlog('cms ➡️ titleDivider:', titleDivider);
+      dlog('cms ➡️ abstractDivider:', abstractDivider);
+      dlog('cms ➡️ offerDivider:', offerDivider);
+
       return;
     }
 
