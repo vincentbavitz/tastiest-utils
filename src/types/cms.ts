@@ -11,9 +11,6 @@ export type IAuthor = {
   position: string | null;
 };
 
-export type ValidHead = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-export const valdHeads: ValidHead[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 export type IFigureImage = {
   title: string | null;
   description: string | null;
@@ -24,11 +21,15 @@ export type IFigureImage = {
 export interface IDeal {
   id: string;
   name: string;
-  tagline: string; // Experience the best porterhouse steak in London
-  includes: Array<string>; // ['300g Porterhouse', 'Fries', ...]
-  pricePerHeadGBP: number; // 25 (25 pounds)s
-  restaurant: IRestaurant;
+  dishName: string; // Appears in the "Do you know a better ..." section
   image: IFigureImage;
+  restaurant: IRestaurant;
+  includes: Array<string>; // ['300g Porterhouse', 'Fries', ...]
+  tagline: string; // Experience the best porterhouse steak in London
+  allowedHeads: number[]; // eg [2,4,6] for Date Night
+  pricePerHeadGBP: number; // eg 29.95
+  additionalInfo: Document | null; // eg; PLUS 1 Mocktail each. In sidebar.
+  dynamicImage: IFigureImage | null; // .mp4 VP9
 }
 
 export interface IContact {
@@ -45,6 +46,12 @@ export interface IOrganisation {
   contact: IContact;
   // Restaurant IDs
   restaurants: Array<string>;
+}
+
+export interface IPostMeta {
+  metaTitle: string;
+  metaDescription: string;
+  ogImage: IFigureImage;
 }
 
 export interface IRestaurant {
@@ -70,21 +77,30 @@ export interface IPost {
   id: string;
   title: string;
   description: string;
-  body: Document;
   author: IAuthor;
   date: string;
-  city: string;
-  dishName: string;
+
+  // Post abstract information
   video: string;
   cuisine: string;
+  city: string; // eg. London
+  displayLocation: string; // eg. East London
+
+  // Content
+  body: Document;
+  needToKnow: Document | null;
   deal: IDeal;
   restaurant: IRestaurant;
-  featureImage: IFigureImage;
-  tags: Array<string>;
-  slug: string;
   titleDivider: IFigureImage;
   abstractDivider: IFigureImage;
   offerDivider: IFigureImage;
+  menuImage: IFigureImage | null;
+  auxiliaryImage: IFigureImage | null;
+
+  // Descriptive
+  tags: Array<string>;
+  slug: string;
+  meta: IPostMeta;
 }
 
 export type BodyDocument = {

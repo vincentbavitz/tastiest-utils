@@ -4,30 +4,60 @@ import { CmsApi } from '../..';
 dotenv.config({ path: '.env.local' });
 
 describe('CMS Servcice', () => {
-  test('Get posts', async () => {
+  test('Convert Posts', async () => {
     const cms = new CmsApi();
+    const { posts } = await cms.getPosts(5);
 
-    const posts = await cms.getPosts(12);
-    console.log('cms.test ➡️ posts:', posts);
+    expect(posts).toBeDefined();
 
-    const post = posts.posts[0];
-    console.log('cms.test ➡️ post:', post);
+    posts.forEach(post => {
+      expect(post).toBeDefined();
+      expect(post).toHaveProperty('id');
+      expect(post).toHaveProperty('date');
+      expect(post).toHaveProperty('body');
+      expect(post).toHaveProperty('tags');
+      expect(post).toHaveProperty('slug');
+      expect(post).toHaveProperty('meta');
+      expect(post).toHaveProperty('city');
+      expect(post).toHaveProperty('deal');
+      expect(post).toHaveProperty('title');
+      expect(post).toHaveProperty('video');
+      expect(post).toHaveProperty('author');
+      expect(post).toHaveProperty('cuisine');
+      expect(post).toHaveProperty('menuImage');
+      expect(post).toHaveProperty('needToKnow');
+      expect(post).toHaveProperty('restaurant');
+      expect(post).toHaveProperty('description');
+      expect(post).toHaveProperty('titleDivider');
+      expect(post).toHaveProperty('offerDivider');
+      expect(post).toHaveProperty('auxiliaryImage');
+      expect(post).toHaveProperty('displayLocation');
+      expect(post).toHaveProperty('abstractDivider');
+    });
+  });
+  test('Convert Deal', async () => {
+    const cms = new CmsApi();
+    const deal = await cms.getDeal('5OEoxkYWz8KYAg0rMwVBNi');
 
-    expect(true).toBeDefined();
+    expect(deal).toBeDefined();
+    expect(deal).toHaveProperty('id');
+    expect(deal).toHaveProperty('name');
+    expect(deal).toHaveProperty('image');
+    expect(deal).toHaveProperty('restaurant');
+    expect(deal).toHaveProperty('includes');
+    expect(deal).toHaveProperty('tagline');
+    expect(deal).toHaveProperty('allowedHeads');
+    expect(deal).toHaveProperty('pricePerHeadGBP');
+    expect(deal).toHaveProperty('additionalInfo');
+    expect(deal).toHaveProperty('dynamicImage');
   });
 
-  // it('Convert post', async () => {
-  //   const cms = new CmsApi();
+  test('Get Post By Deal ID', async () => {
+    const cmsApi = new CmsApi();
+    const post = await cmsApi.getPostByDealId('v5WWg3Sr573AleBLH9LmH');
 
-  //   const { posts } = await cms.getPosts();
-  //   // console.log(
-  //   //   'cms.test ➡️ posts:',
-  //   //   posts.map(p => p.slug),
-  //   // );
-  //   // dlog('cms.test ➡️ posts:', posts);
-
-  //   expect(true).toBeDefined();
-  // });
+    expect(post).toBeDefined();
+  });
 
   // it('Get promo', async () => {
   //   const cms = new CmsApi();

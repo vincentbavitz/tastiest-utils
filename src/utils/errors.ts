@@ -8,7 +8,10 @@ export enum TastiestInternalErrorCode {
   STRIPE_SETUP_INTENT = 'STRIPE_SETUP_INTENT',
   INTERNAL_ERROR_REPORTING = 'INTERNAL_ERROR_REPORTING_ERROR', // When there's an error in the error reporting.
   FUNCTIONS_ERROR = 'FUNCTIONS_ERROR', // An error originating from Firebase Functions
+  CMS_CONVERSION = 'CMS_CONVERSION', // CMS convertXYZ has failed.
 }
+
+export type ErrorSeverity = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
 
 /** The rrror reporting schema for the Tastiest Admin Panel.
  *   `code`: TastiestInternalErrorCode;
@@ -28,6 +31,7 @@ export interface TastiestInternalError {
   shouldAlert: boolean;
   properties: any;
   raw?: string;
+  severity: ErrorSeverity;
 }
 
 export function reportInternalError(params: TastiestInternalError) {

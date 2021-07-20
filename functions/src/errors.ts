@@ -12,17 +12,29 @@ import { firebaseAdmin } from './admin';
 /**
  * Report an internal error to the Tastiest Admin Panel
  * Required the following parameters in the body in JSON;
- *      `code`: TastiestInternalErrorCode;
- *      `message`: string         | the message as seen in the Tastiest Admin Panel
- *      `timestamp`: number       | in milliseconds
- *      `originFile`: string      | the originating file
- *      `properties`: any         | Any properties related to the error. Eg. userId, orderId.
- *      `shouldAlert`: boolean    | Should this error trigger an email alert?
- *      `raw`: string (optional)  | the error as reported by a try/catch block, for example.
- *
+ * ```
+ *      code: TastiestInternalErrorCode
+ *      // the message as seen in the Tastiest Admin Panel
+ *      message: string
+ *      // in milliseconds
+ *      timestamp: number
+ *      // the originating file
+ *      originFile: string
+ *      // any properties related to the error. Eg. userId, orderId.
+ *      properties: any
+ *      // should this error trigger an email alert?
+ *      shouldAlert: boolean
+ *      // severity of the error; CRITICAL | HIGH | NORMAL | LOW
+ *      severity: ErrorSeverity
+ *      // the error as reported by a try/catch block, for example.
+ *      raw: string | undefined
+ * ```
  */
 export const reportInternalError = functions.https.onRequest(
   async (request: any, response: functions.Response<FunctionsResponse>) => {
+    // Allow from origin;
+    response.set('Access-Control-Allow-Origin', '*');
+
     // Get event type. Given the event type, send data to Firestore or otherwise act on the data.
     const body = request.body;
 
@@ -41,6 +53,7 @@ export const reportInternalError = functions.https.onRequest(
       originFile,
       properties,
       shouldAlert,
+      severity,
       raw,
     } = params ?? {};
 
@@ -86,6 +99,7 @@ export const reportInternalError = functions.https.onRequest(
 
             Time: ${moment(timestamp ?? Date.now()).format('Do MMMM YYYY')}
             Originating File: ${originFile ?? '---'}
+            Severity: ${severity}
             Properties: ${propertiesStringified ?? '---'}
             Raw Error: ${raw ?? '---'}
         `,
@@ -104,6 +118,7 @@ export const reportInternalError = functions.https.onRequest(
             message: 'Email failed to send from reportInternalError',
             timestamp: Date.now(),
             originFile: 'functions/src/errors.ts',
+            severity: 'HIGH',
             properties: {
               code: code ?? null,
               message: message ?? null,
@@ -147,6 +162,7 @@ export const reportInternalError = functions.https.onRequest(
             originFile: originFile ?? null,
             properties: properties ?? null,
             raw: raw ?? null,
+            severity,
           },
         });
 
@@ -163,6 +179,7 @@ export const reportInternalError = functions.https.onRequest(
         message,
         timestamp,
         originFile,
+        severity,
         properties: properties ?? null,
       });
 

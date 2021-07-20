@@ -59,6 +59,7 @@ export const onUserCreated = functions.firestore
         timestamp: Date.now(),
         shouldAlert: true,
         originFile: 'functions/src/user.ts:onUserCreated',
+        severity: 'HIGH',
         properties: { userId: context.params.userId, ...userRecord },
         raw: String(error),
       });
@@ -123,6 +124,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
         ...userRecord.toJSON(),
       },
       originFile: 'functions/src/user.ts:onDelete',
+      severity: 'HIGH',
       timestamp: Date.now(),
       shouldAlert: false,
       raw: String(error),
@@ -170,11 +172,12 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     await reportInternalError({
       code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
       message: "Failed to archive user's orders",
+      timestamp: Date.now(),
+      originFile: 'functions/src/user.ts:onDelete',
+      severity: 'HIGH',
       properties: {
         ...userRecord.toJSON(),
       },
-      originFile: 'functions/src/user.ts:onDelete',
-      timestamp: Date.now(),
       shouldAlert: false,
       raw: String(error),
     });
@@ -222,11 +225,12 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     await reportInternalError({
       code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
       message: "Failed to archive user's bookings",
+      timestamp: Date.now(),
+      originFile: 'functions/src/user.ts:onDelete',
+      severity: 'HIGH',
       properties: {
         ...userRecord.toJSON(),
       },
-      originFile: 'functions/src/user.ts:onDelete',
-      timestamp: Date.now(),
       shouldAlert: false,
       raw: String(error),
     });
@@ -250,11 +254,12 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     await reportInternalError({
       code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
       message: 'Failed to archive user',
+      timestamp: Date.now(),
+      originFile: 'functions/src/user.ts:onDelete',
+      severity: 'HIGH',
       properties: {
         ...userRecord.toJSON(),
       },
-      originFile: 'functions/src/user.ts:onDelete',
-      timestamp: Date.now(),
       shouldAlert: false,
       raw: String(error),
     });

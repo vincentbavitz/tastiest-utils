@@ -1,8 +1,15 @@
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
-import { dlog } from '..';
+import { dlog, reportInternalError, TastiestInternalErrorCode } from '..';
 import CMS from '../constants/cms';
-import { IAuthor, IDeal, IFigureImage, IPost, IRestaurant } from '../types/cms';
+import {
+  IAuthor,
+  IDeal,
+  IFigureImage,
+  IPost,
+  IPostMeta,
+  IRestaurant,
+} from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { IAddress } from '../types/geography';
 import { DiscountAmount, IPromo } from '../types/payments';
@@ -53,15 +60,13 @@ export class CmsApi {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
-      // '[near]'
+      // '[near]' // for location searching
       limit: quantity,
       skip: (page - 1) * quantity,
       // Allows us to go N layers deep in nested JSON
       // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
       include: 10,
     });
-
-    dlog('cms ➡️ entries:', entries);
 
     if (entries?.items?.length > 0) {
       const posts = entries.items
@@ -183,6 +188,22 @@ export class CmsApi {
     }
 
     return { posts: [], total: 0 } as IFetchPostsReturn;
+  }
+
+  public async getPostByDealId(dealId: string): Promise<IPost | undefined> {
+    const entries = await this.client.getEntries({
+      content_type: 'post',
+      limit: 1,
+      include: 10,
+      'fields.deal.sys.contentType.sys.id': 'deal',
+      'fields.deal.sys.id[in]': dealId,
+    });
+
+    if (entries?.items?.length > 0) {
+      return this.convertPost(entries.items[0]);
+    }
+
+    return;
   }
 
   public async getRestaurants(
@@ -347,27 +368,60 @@ export class CmsApi {
   };
 
   public convertDeal = (rawDeal: any): IDeal | undefined => {
-    const id = rawDeal.sys.id;
-    const name = rawDeal?.fields?.name;
-    const restaurant = this.convertRestaurant(rawDeal?.fields?.restaurant);
-    const tagline = rawDeal?.fields?.tagline;
-    const includes = rawDeal?.fields?.includes ?? [];
-    const pricePerHeadGBP = rawDeal?.fields?.price;
-    const image = this.convertImage(rawDeal?.fields?.image?.fields);
+    const convertAllowedHeads = (rawAllowedHeads: string) => {
+      try {
+        return JSON.parse(rawAllowedHeads);
+      } catch {
+        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      }
+    };
 
-    if (
-      !id ||
-      !name ||
-      !restaurant ||
-      !tagline ||
-      !includes ||
-      !pricePerHeadGBP ||
-      !image
-    ) {
+    try {
+      const deal: Partial<IDeal> = {
+        id: rawDeal.sys.id,
+        name: rawDeal?.fields?.name,
+        dishName: rawDeal?.fields?.dishName,
+        restaurant: this.convertRestaurant(rawDeal?.fields?.restaurant),
+        tagline: rawDeal?.fields?.tagline,
+        includes: rawDeal?.fields?.includes ?? [],
+        pricePerHeadGBP: rawDeal?.fields?.price,
+        additionalInfo: rawDeal?.fields?.additionalInfo ?? null,
+        allowedHeads: convertAllowedHeads(rawDeal?.fields?.allowedHeads),
+        image: this.convertImage(rawDeal?.fields?.image?.fields),
+        dynamicImage:
+          this.convertImage(rawDeal?.fields?.dynamicImage?.fields) ?? null,
+      };
+
+      if (
+        !deal.id ||
+        !deal.name ||
+        !deal.dishName ||
+        !deal.restaurant ||
+        !deal.tagline ||
+        !deal.includes ||
+        !deal.pricePerHeadGBP ||
+        !deal.image
+      ) {
+        reportInternalError({
+          code: TastiestInternalErrorCode.CMS_CONVERSION,
+          message: '',
+          timestamp: Date.now(),
+          originFile: '/src/services/cms.ts:convertDeal',
+          shouldAlert: false,
+          severity: 'HIGH',
+          properties: {
+            ...deal,
+          },
+        });
+
+        return;
+      }
+
+      return deal as IDeal;
+    } catch (error) {
+      dlog('cms ➡️ error:', error);
       return;
     }
-
-    return { id, name, restaurant, tagline, includes, pricePerHeadGBP, image };
   };
 
   public convertLocation = (rawLocation: any): IAddress | undefined => {
@@ -445,94 +499,108 @@ export class CmsApi {
 
   public convertPost = (rawData: any): IPost | undefined => {
     const rawPost = rawData?.fields;
-    const rawFeatureImage = rawPost?.featureImage?.fields;
     const rawAbstractDivider = rawPost?.abstractDivider?.fields;
     const rawTitleDivider = rawPost?.titleDivider?.fields;
     const rawOfferDivider = rawPost?.offerDivider?.fields;
     const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
 
-    const id = rawData?.sys?.id;
-    const title = rawPost?.title;
-    const description = rawPost?.description;
-    const body = rawPost?.body;
-    const author = this.convertAuthor(rawAuthor);
-    const date = moment(rawPost.date).format('DD MMMM YYYY');
-    const city = rawPost?.city;
-    const dishName = rawPost?.dishName;
-    const video = rawPost?.video;
-    const cuisine = CuisineSymbol[rawCuisine];
-    const deal = this.convertDeal(rawPost?.deal);
-    const restaurant = this.convertRestaurant(rawPost?.restaurant);
-    const featureImage = this.convertImage(rawFeatureImage);
-    const tags = rawPost?.tags ?? []; //?.map(t => t?.fields?.label) ?? [];
-    const slug = rawPost?.slug;
-    const titleDivider = this.convertImage(rawTitleDivider);
-    const abstractDivider = this.convertImage(rawAbstractDivider);
-    const offerDivider = this.convertImage(rawOfferDivider);
+    const convertMeta = (rawPost: any): IPostMeta | undefined => {
+      const metaTitle = rawPost?.metaTitle ?? null;
+      const metaDescription = rawPost?.metaDescription ?? null;
+      const ogImage = this.convertDeal(rawPost?.deal)?.image ?? null;
+
+      if (!metaTitle || !metaDescription || !ogImage) {
+        return;
+      }
+
+      return {
+        metaTitle,
+        metaDescription,
+        ogImage,
+      };
+    };
+
+    const post: Partial<IPost> = {
+      id: rawData?.sys?.id,
+      title: rawPost?.title,
+      description: rawPost?.description,
+      body: rawPost?.body,
+      author: this.convertAuthor(rawAuthor),
+      date: moment(rawPost.date).format('DD MMMM YYYY'),
+      city: rawPost?.city,
+      video: rawPost?.video,
+      cuisine: CuisineSymbol[rawCuisine],
+      deal: this.convertDeal(rawPost?.deal),
+      restaurant: this.convertRestaurant(rawPost?.restaurant),
+      tags: rawPost?.tags ?? [],
+      slug: rawPost?.slug,
+      meta: convertMeta(rawPost),
+      titleDivider: this.convertImage(rawTitleDivider),
+      abstractDivider: this.convertImage(rawAbstractDivider),
+      offerDivider: this.convertImage(rawOfferDivider),
+      needToKnow: rawPost?.needToKnow ?? null,
+      displayLocation: rawPost?.displayLocation ?? null,
+      menuImage: this.convertImage(rawPost?.menuImage?.fields) ?? null,
+      auxiliaryImage:
+        this.convertImage(rawPost?.auxiliaryImage?.fields) ?? null,
+    };
 
     if (
-      !id ||
-      !title ||
-      !description ||
-      !body ||
-      !author ||
-      !date ||
-      !city ||
-      !dishName ||
-      !video ||
-      !cuisine ||
-      !deal ||
-      !restaurant ||
-      !featureImage ||
-      !tags ||
-      !slug ||
-      !titleDivider ||
-      !abstractDivider ||
-      !offerDivider
+      !post.id ||
+      !post.tags ||
+      !post.slug ||
+      !post.meta ||
+      !post.body ||
+      !post.date ||
+      !post.city ||
+      !post.deal ||
+      !post.title ||
+      !post.video ||
+      !post.author ||
+      !post.cuisine ||
+      !post.restaurant ||
+      !post.description ||
+      !post.titleDivider ||
+      !post.offerDivider ||
+      !post.displayLocation ||
+      !post.abstractDivider
     ) {
-      dlog('cms ➡️ id:', id);
-      dlog('cms ➡️ title:', title);
-      dlog('cms ➡️ description:', description);
-      dlog('cms ➡️ body:', body);
-      dlog('cms ➡️ author:', author);
-      dlog('cms ➡️ date:', date);
-      dlog('cms ➡️ city:', city);
-      dlog('cms ➡️ dishName:', dishName);
-      dlog('cms ➡️ video:', video);
-      dlog('cms ➡️ cuisine:', cuisine);
-      dlog('cms ➡️ deal:', deal);
-      dlog('cms ➡️ restaurant:', restaurant);
-      dlog('cms ➡️ featureImage:', featureImage);
-      dlog('cms ➡️ tags:', tags);
-      dlog('cms ➡️ slug:', slug);
-      dlog('cms ➡️ titleDivider:', titleDivider);
-      dlog('cms ➡️ abstractDivider:', abstractDivider);
-      dlog('cms ➡️ offerDivider:', offerDivider);
+      dlog('cms ➡️ post.abstractDivider:', post.abstractDivider);
+      dlog('cms ➡️ post.displayLocation:', post.displayLocation);
+      dlog('cms ➡️ post.offerDivider:', post.offerDivider);
+      dlog('cms ➡️ post.titleDivider:', post.titleDivider);
+      dlog('cms ➡️ post.description:', post.description);
+      dlog('cms ➡️ post.restaurant:', post.restaurant);
+      dlog('cms ➡️ post.cuisine:', post.cuisine);
+      dlog('cms ➡️ post.author:', post.author);
+      dlog('cms ➡️ post.video:', post.video);
+      dlog('cms ➡️ post.title:', post.title);
+      dlog('cms ➡️ post.deal:', post.deal);
+      dlog('cms ➡️ post.city:', post.city);
+      dlog('cms ➡️ post.date:', post.date);
+      dlog('cms ➡️ post.body:', post.body);
+      dlog('cms ➡️ post.meta:', post.meta);
+      dlog('cms ➡️ post.slug:', post.slug);
+      dlog('cms ➡️ post.tags:', post.tags);
+      dlog('cms ➡️ post.id:', post.id);
+
+      reportInternalError({
+        code: TastiestInternalErrorCode.CMS_CONVERSION,
+        message: '',
+        timestamp: Date.now(),
+        originFile: '/src/services/cms.ts:convertPost',
+        shouldAlert: false,
+        severity: 'HIGH',
+        properties: {
+          ...post,
+        },
+      });
 
       return;
     }
 
-    return {
-      id,
-      title,
-      description,
-      body,
-      author,
-      date,
-      city,
-      dishName,
-      video,
-      cuisine,
-      deal,
-      restaurant,
-      featureImage,
-      tags,
-      slug,
-      titleDivider,
-      abstractDivider,
-      offerDivider,
-    };
+    return post as IPost;
   };
 
   public convertPromo = (rawPromo: any): IPromo | undefined => {

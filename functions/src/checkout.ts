@@ -1,14 +1,9 @@
 import {
   FirestoreCollection,
   FunctionsResponse,
-  generateConfirmationCode,
-  generateUserFacingId,
   IBooking,
   IOrder,
-  IRestaurant,
   reportInternalError,
-  RestaurantData,
-  RestaurantDataApi,
   TastiestInternalErrorCode,
   UserData,
   UserDataApi,
@@ -55,6 +50,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
           timestamp: Date.now(),
           shouldAlert: true,
           originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+          severity: 'CRITICAL',
           properties: { ...order },
         });
 
@@ -78,6 +74,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
           timestamp: Date.now(),
           shouldAlert: true,
           originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+          severity: 'CRITICAL',
           properties: { ...order },
         });
 
@@ -89,59 +86,14 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         return;
       }
 
-      const restaurantDataApi = new RestaurantDataApi(
-        firebaseAdmin,
-        order.deal.restaurant.id,
-      );
-
-      const restaurantDetails = await restaurantDataApi.getRestaurantField(
-        RestaurantData.DETAILS,
-      );
-
-      const eaterName = `${userDetails.firstName} ${userDetails.lastName}`;
-
-      // Update user data
-      // Add to bookings
-      const booking: IBooking = {
-        userId: order.userId,
-        restaurant: restaurantDetails as IRestaurant,
-        restaurantId: order.deal.restaurant.id,
-        orderId: order.id,
-        userFacingBookingId: generateUserFacingId(),
-        eaterName,
-        eaterEmail: userDetails.email as string,
-        eaterMobile: userDetails.mobile as string,
-        dealName: order.deal.name,
-        heads: order.heads,
-        price: order.price,
-        paidAt: Date.now(),
-        bookingDate: null,
-        hasBooked: false,
-        hasArrived: false,
-        hasCancelled: false,
-        cancelledAt: null,
-        confirmationCode: generateConfirmationCode(),
-        isConfirmationCodeVerified: false,
-        isTest: process.env.NODE_ENV === 'development',
-      };
-
-      await firebaseAdmin
+      // Get the corresponding booking
+      const bookingSnapshot = await firebaseAdmin
         .firestore()
         .collection(FirestoreCollection.BOOKINGS)
-        .doc(order.id)
-        .set(booking);
+        .doc(orderId)
+        .get();
 
-      // Update order payment card
-      await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ORDERS)
-        .doc(order.id)
-        .set(
-          {
-            paymentCard,
-          },
-          { merge: true },
-        );
+      const booking = bookingSnapshot.data() as IBooking;
 
       // Calculate the portions of Tastiest and the restaurant, respectively.
       const tastiestPortion = order.price.final * 0.25; // TODO ---> Account for promo codes!
@@ -171,6 +123,18 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         timestamp: new Date(),
       });
 
+      // Update order payment card
+      await firebaseAdmin
+        .firestore()
+        .collection(FirestoreCollection.ORDERS)
+        .doc(orderId)
+        .set(
+          {
+            paymentCard,
+          },
+          { merge: true },
+        );
+
       // Update chargeId on order in Firestore
       // ch_00000000000000
 
@@ -194,7 +158,9 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         timestamp: Date.now(),
         shouldAlert: true,
         originFile: 'functions/src/checkout.ts:onPaymentSuccessWebhook',
+        severity: 'CRITICAL',
         properties: { ...request.body },
+        raw: String(error),
       });
 
       response.json({ success: false, data: null, error: String(error) });
