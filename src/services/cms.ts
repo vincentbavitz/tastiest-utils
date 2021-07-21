@@ -31,7 +31,7 @@ export const unslugify = (slug: string) =>
 
 interface IGetPostsOptions {
   // Order results cloests to
-  near: IAddress;
+  near: Omit<IAddress, 'address'>;
 }
 
 export class CmsApi {
@@ -53,19 +53,24 @@ export class CmsApi {
   public async getPosts(
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-    options: Partial<IGetPostsOptions> = {},
+    options?: Partial<IGetPostsOptions>,
   ): Promise<IFetchPostsReturn> {
-    options;
+    dlog('cms ➡️ options:', options);
+    const latLon = `${options?.near?.lat},${options?.near?.lon}`;
+    dlog('cms ➡️ latLon:', latLon);
 
     const entries = await this.client.getEntries({
       content_type: 'post',
-      order: '-fields.date',
-      // '[near]' // for location searching
       limit: quantity,
       skip: (page - 1) * quantity,
+      order: options?.near ? undefined : '-fields.date',
       // Allows us to go N layers deep in nested JSON
       // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
       include: 10,
+      'fields.restaurant.sys.contentType.sys.id': 'restaurant',
+      'fields.restaurant.fields.location[near]': options?.near
+        ? `${options?.near?.lat},${options?.near?.lon}`
+        : undefined,
     });
 
     if (entries?.items?.length > 0) {
@@ -250,20 +255,18 @@ export class CmsApi {
 
   /**
    * Gets the restaurant from their uri name.
-   * Eg. /london/bite-me-burger returns
+   * Eg. `bite-me-burger` returns
    * the Bite Me Burger restaurant file from Contentful.
    */
-  public getRestaurantFromUriName = async (city: string, uriName: string) => {
+  public getRestaurantFromUriName = async (uriName: string) => {
     try {
       const entries = await this.client.getEntries({
         content_type: 'restaurant',
         'fields.uriName[in]': uriName,
-        'fields.city[in]': city,
         limit: 1,
         include: 10,
       });
 
-      city;
       if (entries?.items?.length > 0) {
         const restaurant = this.convertRestaurant(entries.items[0]);
         return restaurant;

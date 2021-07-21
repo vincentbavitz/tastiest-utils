@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { CmsApi } from '../..';
+import { CmsApi, dlog } from '../..';
 
 dotenv.config({ path: '.env.local' });
 
@@ -66,17 +66,27 @@ describe('CMS Servcice', () => {
   //   // console.log('promo', promo);
   // });
 
-  // it('Get Restaurant from URI Name', async () => {
-  //   const cms = new CmsApi();
-  //   const restaurant = await cms.getRestaurantFromUriName(
-  //     'london',
-  //     'bite-me-burger',
-  //   );
+  it('Get Restaurant from URI Name', async () => {
+    const cms = new CmsApi();
+    const restaurant = await cms.getRestaurantFromUriName('bite-me-burger');
 
-  //   dlog('cms.test ➡️ restaurant:', restaurant);
+    expect(restaurant).toBeDefined();
+  });
 
-  //   expect(true).toBeDefined();
-  // });
+  it('Get nearby Posts', async () => {
+    const cms = new CmsApi();
+    const nearSpongebobPosts = await cms.getPosts(5, 1, {
+      near: { lat: 25, lon: -92 },
+    });
+
+    nearSpongebobPosts.posts.map(post => {
+      dlog('cms.test ➡️ .restaurant.name:', post.restaurant.name);
+      dlog(
+        'cms.test ➡️ .restaurant.name:',
+        post.restaurant.location.lat + ',' + post.restaurant.location.lon,
+      );
+    });
+  });
 
   // it('Get Restaurant Posts', async () => {
   //   const cms = new CmsApi();
