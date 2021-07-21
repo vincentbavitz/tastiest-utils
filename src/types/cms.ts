@@ -29,7 +29,7 @@ export interface IDeal {
   allowedHeads: number[]; // eg [2,4,6] for Date Night
   pricePerHeadGBP: number; // eg 29.95
   additionalInfo: Document | null; // eg; PLUS 1 Mocktail each. In sidebar.
-  dynamicImage: IFigureImage | null; // .mp4 VP9
+  dynamicImage: IFigureImage | null; // .mp4 VP9 600x600, webm fallback.
 }
 
 export interface IContact {
