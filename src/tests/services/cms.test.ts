@@ -59,6 +59,13 @@ describe('CMS Servcice', () => {
     expect(post).toBeDefined();
   });
 
+  test('Get Tastiest Dishes', async () => {
+    const cmsApi = new CmsApi();
+    const { dishes } = await cmsApi.getTastiestDishes(3);
+
+    dlog('cms.test ➡️ dishes:', dishes);
+  });
+
   // it('Get promo', async () => {
   //   const cms = new CmsApi();
 
@@ -79,13 +86,10 @@ describe('CMS Servcice', () => {
       near: { lat: 25, lon: -92 },
     });
 
-    nearSpongebobPosts.posts.map(post => {
-      dlog('cms.test ➡️ .restaurant.name:', post.restaurant.name);
-      dlog(
-        'cms.test ➡️ .restaurant.name:',
-        post.restaurant.location.lat + ',' + post.restaurant.location.lon,
-      );
-    });
+    nearSpongebobPosts;
+
+    // nearSpongebobPosts.posts.map(post => {
+    // });
   });
 
   // it('Get Restaurant Posts', async () => {

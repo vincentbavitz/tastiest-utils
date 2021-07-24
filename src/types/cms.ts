@@ -32,6 +32,14 @@ export interface IDeal {
   dynamicImage: IFigureImage | null; // .mp4 VP9 600x600, webm fallback.
 }
 
+export interface ITastiestDish {
+  id: string;
+  name: string;
+  image: IFigureImage;
+  dynamicImage: IFigureImage;
+  restaurant: IRestaurant;
+}
+
 export interface IContact {
   firstName: string;
   lastName: string;

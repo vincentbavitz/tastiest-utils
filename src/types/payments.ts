@@ -33,6 +33,7 @@ export interface IOrderRequest {
   fromSlug?: string;
   timestamp?: number;
   promoCode?: string;
+  userAgent?: string;
 }
 
 export interface IOrder {

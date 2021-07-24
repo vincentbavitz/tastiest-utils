@@ -9,6 +9,7 @@ import {
   IPost,
   IPostMeta,
   IRestaurant,
+  ITastiestDish,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { IAddress } from '../types/geography';
@@ -16,6 +17,11 @@ import { DiscountAmount, IPromo } from '../types/payments';
 
 interface IFetchPostsReturn {
   posts: Array<IPost>;
+  total: number;
+}
+
+interface IFetchDishesReturn {
+  dishes: Array<ITastiestDish>;
   total: number;
 }
 
@@ -209,6 +215,32 @@ export class CmsApi {
     }
 
     return;
+  }
+
+  public async getTastiestDishes(
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchDishesReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'tastiestDish',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      // Allows us to go N layers deep in nested JSON
+      // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
+      include: 10,
+    });
+
+    dlog('cms ➡️ entries:', entries);
+
+    if (entries?.items?.length > 0) {
+      const dishes = entries.items
+        .map(entry => this.convertTastiestDish(entry))
+        .filter(dish => Boolean(dish)) as ITastiestDish[];
+
+      return { dishes, total: entries.total };
+    }
+
+    return { dishes: [], total: 0 } as IFetchDishesReturn;
   }
 
   public async getRestaurants(
@@ -569,25 +601,6 @@ export class CmsApi {
       !post.displayLocation ||
       !post.abstractDivider
     ) {
-      dlog('cms ➡️ post.abstractDivider:', post.abstractDivider);
-      dlog('cms ➡️ post.displayLocation:', post.displayLocation);
-      dlog('cms ➡️ post.offerDivider:', post.offerDivider);
-      dlog('cms ➡️ post.titleDivider:', post.titleDivider);
-      dlog('cms ➡️ post.description:', post.description);
-      dlog('cms ➡️ post.restaurant:', post.restaurant);
-      dlog('cms ➡️ post.cuisine:', post.cuisine);
-      dlog('cms ➡️ post.author:', post.author);
-      dlog('cms ➡️ post.video:', post.video);
-      dlog('cms ➡️ post.title:', post.title);
-      dlog('cms ➡️ post.deal:', post.deal);
-      dlog('cms ➡️ post.city:', post.city);
-      dlog('cms ➡️ post.date:', post.date);
-      dlog('cms ➡️ post.body:', post.body);
-      dlog('cms ➡️ post.meta:', post.meta);
-      dlog('cms ➡️ post.slug:', post.slug);
-      dlog('cms ➡️ post.tags:', post.tags);
-      dlog('cms ➡️ post.id:', post.id);
-
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
         message: '',
@@ -604,6 +617,46 @@ export class CmsApi {
     }
 
     return post as IPost;
+  };
+
+  public convertTastiestDish = (
+    rawTastiestDish: any,
+  ): ITastiestDish | undefined => {
+    const tastiestDish: Partial<ITastiestDish> = {
+      id: rawTastiestDish?.sys?.id,
+      name: rawTastiestDish?.fields?.name,
+      image: this.convertImage(rawTastiestDish?.fields?.staticImage?.fields),
+      restaurant: this.convertRestaurant(rawTastiestDish?.fields?.restaurant),
+      dynamicImage: this.convertImage(
+        rawTastiestDish?.fields?.dynamicImage?.fields,
+      ),
+    };
+
+    dlog('cms ➡️ tastiestDish:', tastiestDish);
+
+    if (
+      !tastiestDish.id ||
+      !tastiestDish.name ||
+      !tastiestDish.image ||
+      !tastiestDish.dynamicImage ||
+      !tastiestDish.restaurant
+    ) {
+      reportInternalError({
+        code: TastiestInternalErrorCode.CMS_CONVERSION,
+        message: 'Failed to convert TastiestDish',
+        timestamp: Date.now(),
+        originFile: '/src/services/cms.ts:convertTastiestDish',
+        shouldAlert: false,
+        severity: 'HIGH',
+        properties: {
+          ...tastiestDish,
+        },
+      });
+
+      return undefined;
+    }
+
+    return tastiestDish as ITastiestDish;
   };
 
   public convertPromo = (rawPromo: any): IPromo | undefined => {
