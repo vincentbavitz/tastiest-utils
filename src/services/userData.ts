@@ -1,5 +1,6 @@
 import { FirestoreCollection, TUserData, UserData } from '..';
 import { FunctionsResponse } from '../types';
+import { adb } from '../utils/firebase';
 
 // Intended for server-side use ONLY!
 export class UserDataApi {
@@ -39,9 +40,7 @@ export class UserDataApi {
     }
 
     try {
-      const doc = await this.admin
-        .firestore()
-        .collection(FirestoreCollection.USERS)
+      const doc = await adb(this.admin, FirestoreCollection.USERS)
         .doc(this.userId)
         .get();
 
@@ -63,9 +62,7 @@ export class UserDataApi {
     }
 
     try {
-      await this.admin
-        .firestore()
-        .collection(FirestoreCollection.USERS)
+      await adb(this.admin, FirestoreCollection.USERS)
         .doc(this.userId)
         .set(
           {

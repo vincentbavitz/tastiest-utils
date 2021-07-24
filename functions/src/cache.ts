@@ -1,4 +1,6 @@
+import { FirestoreCollection } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
+import { db } from './admin';
 
 // Cache scheduler which keeps track of Tastiest's internal metrics. Updated hourly.
 export const scheduledTastiestCache = functions.pubsub
@@ -6,8 +8,10 @@ export const scheduledTastiestCache = functions.pubsub
   .onRun(context => {
     console.log('This will be run every hour!');
 
-    const syncTastiestMetrics = () => {
+    const syncTastiestMetrics = async () => {
       // totalOrders
+      const totalOrders = await db(FirestoreCollection.ORDERS);
+
       // totalRevnue
       // totalProfit
       // totalPayouts

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { CmsApi, dlog } from '../..';
+import { CmsApi } from '../..';
 
 dotenv.config({ path: '.env.local' });
 
@@ -63,7 +63,8 @@ describe('CMS Servcice', () => {
     const cmsApi = new CmsApi();
     const { dishes } = await cmsApi.getTastiestDishes(3);
 
-    dlog('cms.test ➡️ dishes:', dishes);
+    expect(dishes).toBeDefined();
+    expect(dishes).toHaveLength(3);
   });
 
   // it('Get promo', async () => {

@@ -39,7 +39,6 @@ export const syncShopifyTracking = functions.https.onRequest(
     // ];
 
     // Refeed event back into Segment
-    // await firebaseAdmin.firestore().collection('tracking').add({ body });
 
     const EVENTS_TO_IGNORE = [
       'Product Removed',

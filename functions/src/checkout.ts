@@ -11,7 +11,7 @@ import {
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
 import moment from 'moment';
-import { firebaseAdmin } from './admin';
+import { db, firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const AnalyticsNode = require('analytics-node');
@@ -32,11 +32,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       };
 
       // Get corresponding order from Firestore
-      const orderRef = await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ORDERS)
-        .doc(orderId)
-        .get();
+      const orderRef = await db(FirestoreCollection.ORDERS).doc(orderId).get();
 
       // Get the information for the `Payment Success` event properties
       const order = orderRef.data() as IOrder;
@@ -87,9 +83,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       }
 
       // Get the corresponding booking
-      const bookingSnapshot = await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.BOOKINGS)
+      const bookingSnapshot = await db(FirestoreCollection.BOOKINGS)
         .doc(orderId)
         .get();
 
@@ -124,16 +118,12 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       });
 
       // Update order payment card
-      await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ORDERS)
-        .doc(orderId)
-        .set(
-          {
-            paymentCard,
-          },
-          { merge: true },
-        );
+      await db(FirestoreCollection.ORDERS).doc(orderId).set(
+        {
+          paymentCard,
+        },
+        { merge: true },
+      );
 
       // Update chargeId on order in Firestore
       // ch_00000000000000

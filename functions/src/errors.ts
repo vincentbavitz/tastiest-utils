@@ -7,7 +7,7 @@ import {
 import * as functions from 'firebase-functions';
 import moment from 'moment';
 import nodemailer from 'nodemailer';
-import { firebaseAdmin } from './admin';
+import { db } from './admin';
 
 /**
  * Report an internal error to the Tastiest Admin Panel
@@ -110,24 +110,21 @@ export const reportInternalError = functions.https.onRequest(
         }
       } catch (error) {
         // Report email failed to send
-        await firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.ERRORS)
-          .add({
-            code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
-            message: 'Email failed to send from reportInternalError',
-            timestamp: Date.now(),
-            originFile: 'functions/src/errors.ts',
-            severity: 'HIGH',
-            properties: {
-              code: code ?? null,
-              message: message ?? null,
-              timestamp: timestamp ?? null,
-              originFile: originFile ?? null,
-              properties: properties ?? null,
-              raw: String(error),
-            },
-          });
+        await db(FirestoreCollection.ERRORS).add({
+          code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
+          message: 'Email failed to send from reportInternalError',
+          timestamp: Date.now(),
+          originFile: 'functions/src/errors.ts',
+          severity: 'HIGH',
+          properties: {
+            code: code ?? null,
+            message: message ?? null,
+            timestamp: timestamp ?? null,
+            originFile: originFile ?? null,
+            properties: properties ?? null,
+            raw: String(error),
+          },
+        });
 
         response.status(200).json({
           success: false,
@@ -146,42 +143,36 @@ export const reportInternalError = functions.https.onRequest(
       !originFile?.length
     ) {
       // Report an invalid error (how meta is that?)
-      await firebaseAdmin
-        .firestore()
-        .collection(FirestoreCollection.ERRORS)
-        .add({
-          code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
-          message:
-            'There was an error processing an error report using reportInternalError',
-          timestamp: Date.now(),
-          originFile: 'functions/src/errors.ts',
-          properties: {
-            code: code ?? null,
-            message: message ?? null,
-            timestamp: timestamp ?? null,
-            originFile: originFile ?? null,
-            properties: properties ?? null,
-            raw: raw ?? null,
-            severity,
-          },
-        });
+      await db(FirestoreCollection.ERRORS).add({
+        code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
+        message:
+          'There was an error processing an error report using reportInternalError',
+        timestamp: Date.now(),
+        originFile: 'functions/src/errors.ts',
+        properties: {
+          code: code ?? null,
+          message: message ?? null,
+          timestamp: timestamp ?? null,
+          originFile: originFile ?? null,
+          properties: properties ?? null,
+          raw: raw ?? null,
+          severity,
+        },
+      });
 
       response.status(406).end();
       return;
     }
 
     // Error format is fine - report error to Firestore
-    await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.ERRORS)
-      .add({
-        code,
-        message,
-        timestamp,
-        originFile,
-        severity,
-        properties: properties ?? null,
-      });
+    await db(FirestoreCollection.ERRORS).add({
+      code,
+      message,
+      timestamp,
+      originFile,
+      severity,
+      properties: properties ?? null,
+    });
 
     response.status(200).end();
     return;

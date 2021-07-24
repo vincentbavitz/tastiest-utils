@@ -632,8 +632,6 @@ export class CmsApi {
       ),
     };
 
-    dlog('cms ➡️ tastiestDish:', tastiestDish);
-
     if (
       !tastiestDish.id ||
       !tastiestDish.name ||

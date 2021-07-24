@@ -11,7 +11,7 @@ import {
 } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
 import Stripe from 'stripe';
-import { firebaseAdmin } from './admin';
+import { db, firebaseAdmin } from './admin';
 
 /** Manage the creation of a new user */
 export const onUserCreated = functions.firestore
@@ -74,9 +74,7 @@ export const onUserCreated = functions.firestore
       restaurantsVisited: [],
     };
 
-    await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.USERS)
+    await db(FirestoreCollection.USERS)
       .doc(userId)
       .set(
         {
@@ -93,9 +91,7 @@ export const onUserCreated = functions.firestore
  * When a user deletes their account, clean up after them
  */
 export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
-  const userSnapshot = await firebaseAdmin
-    .firestore()
-    .collection(FirestoreCollection.USERS)
+  const userSnapshot = await db(FirestoreCollection.USERS)
     .doc(userRecord.uid)
     .get();
 
@@ -136,9 +132,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
   // //////////////////////////////////////////////////////////// //
   try {
     const batch = firebaseAdmin.firestore().batch();
-    const userOrdersSnapshotDocs = await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.ORDERS)
+    const userOrdersSnapshotDocs = await db(FirestoreCollection.ORDERS)
       .where('userId', '==', userRecord.uid)
       .get();
 
@@ -146,10 +140,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     if (!userOrdersSnapshotDocs.empty) {
       userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
         const order = orderSnapshot.data() as IOrder;
-        const orderRef = firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.ORDERS_ARCHIVE)
-          .doc(order.id);
+        const orderRef = db(FirestoreCollection.ORDERS_ARCHIVE).doc(order.id);
 
         batch.set(orderRef, order);
       });
@@ -159,10 +150,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
       // Remove user's orders from original orders collection
       userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
         const order = orderSnapshot.data() as IOrder;
-        const orderRef = firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.ORDERS)
-          .doc(order.id);
+        const orderRef = db(FirestoreCollection.ORDERS).doc(order.id);
 
         batch.delete(orderRef);
       });
@@ -188,9 +176,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
   // //////////////////////////////////////////////////////////// //
   try {
     const batch = firebaseAdmin.firestore().batch();
-    const userBookingsSnapshotDocs = await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.BOOKINGS)
+    const userBookingsSnapshotDocs = await db(FirestoreCollection.BOOKINGS)
       .where('userId', '==', userRecord.uid)
       .get();
 
@@ -198,10 +184,9 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     if (!userBookingsSnapshotDocs.empty) {
       userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
         const booking = bookingSnapshot.data() as IBooking;
-        const bookingRef = firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.BOOKINGS_ARCHIVE)
-          .doc(booking.orderId);
+        const bookingRef = db(FirestoreCollection.BOOKINGS_ARCHIVE).doc(
+          booking.orderId,
+        );
 
         batch.set(bookingRef, booking);
       });
@@ -211,10 +196,9 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
       // Remove user's bookings from original bookings collection
       userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
         const booking = bookingSnapshot.data() as IBooking;
-        const bookingRef = firebaseAdmin
-          .firestore()
-          .collection(FirestoreCollection.BOOKINGS)
-          .doc(booking.orderId);
+        const bookingRef = db(FirestoreCollection.BOOKINGS).doc(
+          booking.orderId,
+        );
 
         batch.delete(bookingRef);
       });
@@ -240,16 +224,8 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
   // //                Archive user from USERS.                // //
   // //////////////////////////////////////////////////////////// //
   try {
-    await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.USERS_ARCHIVE)
-      .add(userDataFull);
-
-    await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.USERS)
-      .doc(userRecord.uid)
-      .delete();
+    await db(FirestoreCollection.USERS_ARCHIVE).add(userDataFull);
+    await db(FirestoreCollection.USERS).doc(userRecord.uid).delete();
   } catch (error) {
     await reportInternalError({
       code: TastiestInternalErrorCode.FUNCTIONS_ERROR,

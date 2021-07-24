@@ -5,7 +5,7 @@ import {
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
-import { firebaseAdmin } from './admin';
+import { db, firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const analytics = new Analytics(functions.config().segment.write_key);
@@ -37,18 +37,15 @@ export const onBookingCreated = functions.firestore
     const booking = snap.data() as IBooking;
 
     // Get corresponding order
-    const orderRef = await firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.ORDERS)
+    const orderRef = await db(FirestoreCollection.ORDERS)
       .doc(booking.orderId)
       .get();
 
     const order = orderRef.data() as IOrder;
 
-    const userMetricsRef = firebaseAdmin
-      .firestore()
-      .collection(FirestoreCollection.USERS)
-      .doc(`${booking.userId}`);
+    const userMetricsRef = db(FirestoreCollection.USERS).doc(
+      `${booking.userId}`,
+    );
 
     // Update user metrics
     await userMetricsRef.update({

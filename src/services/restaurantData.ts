@@ -4,6 +4,7 @@ import {
   RestaurantData,
   TRestaurantData,
 } from '..';
+import { adb } from '../utils/firebase';
 
 // Intended for server-side use ONLY!
 export class RestaurantDataApi {
@@ -43,9 +44,7 @@ export class RestaurantDataApi {
     }
 
     try {
-      const doc = await this.admin
-        .firestore()
-        .collection(FirestoreCollection.RESTAURANTS)
+      const doc = await adb(this.admin, FirestoreCollection.RESTAURANTS)
         .doc(this.restaurantId)
         .get();
 
@@ -64,9 +63,7 @@ export class RestaurantDataApi {
     }
 
     try {
-      const doc = await this.admin
-        .firestore()
-        .collection(FirestoreCollection.RESTAURANTS)
+      const doc = await adb(this.admin, FirestoreCollection.RESTAURANTS)
         .doc(this.restaurantId)
         .get();
 
@@ -88,9 +85,7 @@ export class RestaurantDataApi {
     }
 
     try {
-      await this.admin
-        .firestore()
-        .collection(FirestoreCollection.RESTAURANTS)
+      await adb(this.admin, FirestoreCollection.RESTAURANTS)
         .doc(this.restaurantId)
         .set(
           {

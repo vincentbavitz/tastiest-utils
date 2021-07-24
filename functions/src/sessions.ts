@@ -49,9 +49,7 @@ export const sessionHandler = functions.https.onRequest(
     // try {
     //   if (body?.type === 'track') {
     //     // Sync event to current session
-    //     const userSessionsDoc = await firebaseAdmin
-    //       .firestore()
-    //       .collection(FirestoreCollection.SESSIONS)
+    //     const userSessionsDoc = await db(FirestoreCollection.SESSIONS)
     //       .doc(body.userId ?? body.anonymousId)
     //       .get();
 
@@ -97,39 +95,13 @@ export const sessionHandler = functions.https.onRequest(
     //       };
     //     }
 
-    //     await firebaseAdmin
-    //       .firestore()
-    //       .collection(FirestoreCollection.SESSIONS)
+    //     await db(FirestoreCollection.SESSIONS)
     //       .doc(body.userId ?? body.anonymousId)
     //       .set({ [session.sessionStartTimestamp]: session });
 
     //     response.json({ success: true, error: null, data: session });
     //     return;
     //   }
-
-    //   // Page Views
-    //   if (body?.type === 'page') {
-    //     null;
-    //     // await firebaseAdmin
-    //     //   .firestore()
-    //     //   .collection('page')
-    //     //   .add({ body: JSON.stringify(body) });
-
-    //     // analytics.page(
-    //     //   {
-    //     //     anonymousId,
-    //     //     userId: body.userId ?? null,
-    //     //     context: body.context ?? null,
-    //     //     properties: body.properties ?? {},
-    //     //   },
-    //     //   () => {
-    //     //     response.send({
-    //     //       success: true,
-    //     //       error: null,
-    //     //       data: null,
-    //     //     });
-    //     //   },
-    //     // );
 
     //     response.json({ success: true, error: null, data: null });
     //     return;
@@ -139,11 +111,6 @@ export const sessionHandler = functions.https.onRequest(
     //   return;
     // } catch (error) {
     //   //   const errorMessage = 'Tracking Forwarding Error';
-
-    //   await firebaseAdmin
-    //     .firestore()
-    //     .collection('errors')
-    //     .add({ error: String(error) });
 
     //   response.json({ success: false, error, data: null });
     //   return;
