@@ -243,6 +243,31 @@ export class CmsApi {
     return { dishes: [], total: 0 } as IFetchDishesReturn;
   }
 
+  public async getTastiestDishesOfRestaurant(
+    restaurantUriName: string,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchDishesReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'tastiestDish',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      'fields.restaurant.sys.contentType.sys.id': 'restaurant',
+      'fields.restaurant.fields.uriName[in]': restaurantUriName,
+    });
+
+    if (entries?.items?.length > 0) {
+      const dishes = entries.items
+        .map(entry => this.convertTastiestDish(entry))
+        .filter(dish => Boolean(dish)) as ITastiestDish[];
+
+      return { dishes, total: entries.total };
+    }
+
+    return { dishes: [], total: 0 } as IFetchDishesReturn;
+  }
+
   public async getRestaurants(
     quantity = 100,
     page = 1,

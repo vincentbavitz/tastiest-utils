@@ -60,9 +60,13 @@ describe('CMS Servcice', () => {
     expect(post).toBeDefined();
   });
 
-  test('Get Tastiest Dishes', async () => {
+  test('Get Tastiest Dishes of Restaurant', async () => {
     const cmsApi = new CmsApi();
-    const { dishes } = await cmsApi.getTastiestDishes(3);
+    const { dishes } = await cmsApi.getTastiestDishesOfRestaurant(
+      'bite-me-burger',
+    );
+
+    dlog('cms.test ➡️ dishes:', dishes);
 
     expect(dishes).toBeDefined();
     expect(dishes).toHaveLength(3);
