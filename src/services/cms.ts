@@ -500,18 +500,22 @@ export class CmsApi {
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
+    const heroIllustration = this.convertImage(
+      rawRestaurant?.fields?.heroIllustration?.fields,
+    );
 
     if (
       !id ||
       !name ||
-      !website ||
       !city ||
-      !businessType ||
+      !uriName ||
+      !website ||
       !location ||
       !cuisines ||
-      !publicPhoneNumber ||
+      !businessType ||
       !profilePicture ||
-      !uriName
+      !publicPhoneNumber ||
+      !heroIllustration
       // bookingSystemSite is optional
     ) {
       return;
@@ -529,6 +533,7 @@ export class CmsApi {
       publicPhoneNumber,
       profilePicture,
       bookingSystemSite,
+      heroIllustration,
     };
   };
 

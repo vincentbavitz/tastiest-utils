@@ -79,6 +79,7 @@ export interface IRestaurant {
 
   // This is the name as it appears in the URL. Eg. tastiest.io/london/bite-be-burger
   uriName: string;
+  heroIllustration: IFigureImage;
 }
 
 export interface IPost {

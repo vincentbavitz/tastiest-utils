@@ -8,7 +8,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "repository": "git://github.com:tastiest-io/tastiest-utils",
-  "version": "0.171.0",
+  "version": "0.173.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
