@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { CmsApi } from '../..';
+import { dlog } from '../../utils';
 
 dotenv.config({ path: '.env.local' });
 
@@ -77,6 +78,8 @@ describe('CMS Servcice', () => {
   it('Get Restaurant from URI Name', async () => {
     const cms = new CmsApi();
     const restaurant = await cms.getRestaurantFromUriName('bite-me-burger');
+
+    dlog('cms.test ➡️ restaurant:', restaurant);
 
     expect(restaurant).toBeDefined();
   });

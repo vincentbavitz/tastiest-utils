@@ -460,15 +460,20 @@ export class CmsApi {
   };
 
   public convertLocation = (rawLocation: any): IAddress | undefined => {
-    const address = rawLocation?.fields?.address;
     const lat = rawLocation?.fields?.coordinates.lat ?? null;
     const lon = rawLocation?.fields?.coordinates.lon ?? null;
+    const address = rawLocation?.fields?.address;
+    const displayLocation = rawLocation?.fields?.displayLocation;
 
     if (!address || !lat || !lon) {
       return;
     }
 
-    return { address, lat, lon };
+    if (displayLocation) {
+      return { lat, lon, address, displayLocation };
+    } else {
+      return { address, lat, lon };
+    }
   };
 
   public convertCuisines = (rawCuisines: any): CuisineSymbol[] => {
@@ -488,18 +493,22 @@ export class CmsApi {
 
   public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
     const id = rawRestaurant?.fields?.id;
+    const city = rawRestaurant?.fields?.city;
     const name = rawRestaurant?.fields?.name;
     const uriName = rawRestaurant?.fields?.uriName;
-    const city = rawRestaurant?.fields?.city;
     const website = rawRestaurant?.fields?.website;
-    const businessType = rawRestaurant?.fields?.businessType;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
+    const businessType = rawRestaurant?.fields?.businessType;
     const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
     const bookingSystemSite = rawRestaurant?.fields?.bookingSystemSite ?? null;
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
+
+    // Restaurant page properties
+    const description = rawRestaurant?.fields.description ?? null;
+    const video = rawRestaurant?.fields.video ?? null;
     const heroIllustration = this.convertImage(
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
@@ -515,7 +524,9 @@ export class CmsApi {
       !businessType ||
       !profilePicture ||
       !publicPhoneNumber ||
-      !heroIllustration
+      !heroIllustration ||
+      !description ||
+      !video
       // bookingSystemSite is optional
     ) {
       return;
@@ -524,16 +535,18 @@ export class CmsApi {
     return {
       id,
       name,
+      city,
       uriName,
       website,
-      city,
-      businessType,
       location,
       cuisines,
-      publicPhoneNumber,
+      businessType,
       profilePicture,
+      publicPhoneNumber,
       bookingSystemSite,
       heroIllustration,
+      description,
+      video,
     };
   };
 

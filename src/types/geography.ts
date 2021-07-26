@@ -1,9 +1,11 @@
 import { Currency } from '.';
 
 export interface IAddress {
-  address: string;
   lat: number;
   lon: number;
+  address: string;
+  // The location as displayed in the LocationIndicator.
+  displayLocation?: string;
 }
 
 // //////////////////////////////////// //
