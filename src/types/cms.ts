@@ -82,8 +82,10 @@ export interface IRestaurant {
 
   // Properties that appear on the restaurant's page at /[city]/[cuisine]/[restaurant]
   heroIllustration: IFigureImage;
+  tradingHoursText: Document;
   description: Document;
   video: string;
+  // tradingHours:
 }
 
 export interface IPost {
