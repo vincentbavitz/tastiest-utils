@@ -268,6 +268,33 @@ export class CmsApi {
     return { dishes: [], total: 0 } as IFetchDishesReturn;
   }
 
+  public async getTastiestDishesOfCuisine(
+    cuisine: CuisineSymbol,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchDishesReturn> {
+    const cuisineToMatch = cuisine.toLowerCase();
+
+    const entries = await this.client.getEntries({
+      content_type: 'tastiestDish',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      'fields.cuisine.sys.contentType.sys.id': 'cuisine',
+      'fields.cuisine.fields.name[in]': cuisineToMatch,
+    });
+
+    if (entries?.items?.length > 0) {
+      const dishes = entries.items
+        .map(entry => this.convertTastiestDish(entry))
+        .filter(dish => Boolean(dish)) as ITastiestDish[];
+
+      return { dishes, total: entries.total };
+    }
+
+    return { dishes: [], total: 0 } as IFetchDishesReturn;
+  }
+
   public async getRestaurants(
     quantity = 100,
     page = 1,
@@ -501,19 +528,14 @@ export class CmsApi {
     }
   };
 
-  public convertCuisines = (rawCuisines: any): CuisineSymbol[] => {
-    if (!rawCuisines) {
-      return [];
+  public convertCuisine = (rawCuisine: any): CuisineSymbol | undefined => {
+    if (!rawCuisine) {
+      return;
     }
 
-    const cuisines: CuisineSymbol[] = rawCuisines
-      .map?.(
-        (cuisine: any) =>
-          CuisineSymbol[cuisine?.fields?.name?.toUpperCase() as CuisineSymbol],
-      )
-      .filter((cuisine: CuisineSymbol) => Boolean(cuisine));
-
-    return cuisines;
+    return CuisineSymbol[
+      rawCuisine?.fields?.name?.toUpperCase() as CuisineSymbol
+    ];
   };
 
   public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
@@ -521,9 +543,9 @@ export class CmsApi {
     const city = rawRestaurant?.fields?.city;
     const name = rawRestaurant?.fields?.name;
     const uriName = rawRestaurant?.fields?.uriName;
+    const cuisine = this.convertCuisine(rawRestaurant?.fields?.cuisine);
     const website = rawRestaurant?.fields?.website;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
-    const cuisines = this.convertCuisines(rawRestaurant?.fields?.cuisines);
     const businessType = rawRestaurant?.fields?.businessType;
     const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
     const bookingSystemSite = rawRestaurant?.fields?.bookingSystemSite ?? null;
@@ -543,10 +565,10 @@ export class CmsApi {
       !id ||
       !name ||
       !city ||
+      !cuisine ||
       !uriName ||
       !website ||
       !location ||
-      !cuisines ||
       !businessType ||
       !profilePicture ||
       !publicPhoneNumber ||
@@ -563,10 +585,10 @@ export class CmsApi {
       id,
       name,
       city,
+      cuisine,
       uriName,
       website,
       location,
-      cuisines,
       businessType,
       profilePicture,
       publicPhoneNumber,

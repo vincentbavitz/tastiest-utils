@@ -65,17 +65,17 @@ export interface IPostMeta {
 export interface IRestaurant {
   id: string;
   name: string;
-  website: string;
-  businessType: 'restaurant' | 'take-away' | 'cafe';
   city: string;
+  website: string;
+  cuisine: CuisineSymbol;
   location: IAddress;
-  cuisines: CuisineSymbol[];
   publicPhoneNumber: string;
   // Contentful has a contact, but we don't want to
   // share that with the user.
   contact?: IContact;
   profilePicture: IFigureImage;
   bookingSystemSite: string;
+  businessType: 'restaurant' | 'take-away' | 'cafe';
 
   // This is the name as it appears in the URL. Eg. tastiest.io/london/bite-be-burger
   uriName: string;

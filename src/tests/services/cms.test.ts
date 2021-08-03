@@ -67,9 +67,7 @@ describe('CMS Servcice', () => {
     );
 
     dlog('cms.test ➡️ dishes:', dishes);
-
     expect(dishes).toBeDefined();
-    expect(dishes).toHaveLength(3);
   });
 
   // it('Get promo', async () => {
