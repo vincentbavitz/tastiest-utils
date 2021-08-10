@@ -36,9 +36,18 @@ export const onOrderCreated = functions.firestore
     const tasksClient = new CloudTasksClient();
     const queuePath: string = tasksClient.queuePath(project, location, queue);
 
+    // Testing
+    await db(FirestoreCollection.SESSIONS).add({
+      project,
+      location,
+      queue,
+      queuePath,
+    });
+
     const url = `https://${location}-${project}.cloudfunctions.net/abandonedCartCallback`;
     const docPath = snapshot.ref.path;
 
+    // Build payload
     const payload: AbandonedCartTaskPayload = { orderId, docPath };
 
     const task = {

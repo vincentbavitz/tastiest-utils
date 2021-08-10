@@ -9,6 +9,7 @@ export enum TastiestInternalErrorCode {
   INTERNAL_ERROR_REPORTING = 'INTERNAL_ERROR_REPORTING_ERROR', // When there's an error in the error reporting.
   FUNCTIONS_ERROR = 'FUNCTIONS_ERROR', // An error originating from Firebase Functions
   CMS_CONVERSION = 'CMS_CONVERSION', // CMS convertXYZ has failed.
+  CLOUD_TASK = 'CLOUD_TASK', // Google Cloud Task failure.
 }
 
 export type ErrorSeverity = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
