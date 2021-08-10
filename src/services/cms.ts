@@ -554,7 +554,7 @@ export class CmsApi {
     );
 
     // Restaurant page properties
-    const description = rawRestaurant?.fields.description ?? null;
+    const description = rawRestaurant?.fields?.description ?? null;
     const tradingHoursText = rawRestaurant?.fields.tradingHoursText ?? null;
     const video = rawRestaurant?.fields.video ?? null;
     const heroIllustration = this.convertImage(

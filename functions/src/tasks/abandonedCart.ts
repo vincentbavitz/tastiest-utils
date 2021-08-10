@@ -1,8 +1,14 @@
-import { FirestoreCollection, IOrder } from '@tastiest-io/tastiest-utils';
+import {
+  FirestoreCollection,
+  IOrder,
+  reportInternalError,
+  TastiestInternalErrorCode,
+} from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
 import { GoogleCloudTaskQueue } from '.';
-import { db } from '../admin';
+import { DEFAULT_REGION } from '..';
+import { db, firebaseAdmin } from '../admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { CloudTasksClient } = require('@google-cloud/tasks');
@@ -19,10 +25,10 @@ const ABANDONED_CART_EXPIRY_SECONDS = 5; //60 * 20;
 
 /**
  * Abandoned cart flow.
- * If `paidAt` is nullish after ABANDONED_CART_EXPIRY for the order,
+ * If `paidAt` is nullish after ABANDONED_CART_EXPIRY_SECONDS for the order,
  * we'll trigger Segment's Abandoned Cart event to send them an email.
  */
-export const onOrderCreated = functions.firestore
+export const onCheckoutInitiated = functions.firestore
   .document(`/${FirestoreCollection.ORDERS}/{orderId}`)
   .onCreate(async snapshot => {
     const data = snapshot.data() as IOrder;
@@ -30,19 +36,14 @@ export const onOrderCreated = functions.firestore
 
     // Get the project ID from the FIREBASE_CONFIG env var
     const project = JSON.parse(process.env.FIREBASE_CONFIG as string).projectId;
-    const location = 'us-central1';
     const queue = GoogleCloudTaskQueue.ORDER;
 
     const tasksClient = new CloudTasksClient();
-    const queuePath: string = tasksClient.queuePath(project, location, queue);
-
-    // Testing
-    await db(FirestoreCollection.SESSIONS).add({
+    const queuePath: string = tasksClient.queuePath(
       project,
-      location,
+      DEFAULT_REGION,
       queue,
-      queuePath,
-    });
+    );
 
     const url = `https://${location}-${project}.cloudfunctions.net/abandonedCartCallback`;
     const docPath = snapshot.ref.path;
@@ -59,36 +60,61 @@ export const onOrderCreated = functions.firestore
           'Content-Type': 'application/json',
         },
       },
-      scheduleTime: {
-        seconds: ABANDONED_CART_EXPIRY_SECONDS,
-      },
+      // scheduleTime: {
+      //   seconds: ABANDONED_CART_EXPIRY_SECONDS,
+      // },
     };
 
-    await tasksClient.createTask({ parent: queuePath, task });
+    try {
+      const taskInfo = await tasksClient.createTask({
+        parent: queuePath,
+        task,
+      });
+
+      await firebaseAdmin.firestore().collection('task-test').add({
+        taskInfo,
+      });
+    } catch (error) {
+      await reportInternalError({
+        code: TastiestInternalErrorCode.CLOUD_TASK,
+        message: 'Abandoned Cart task failure',
+        properties: {
+          orderId,
+          raw: String(error),
+        },
+        originFile: 'functions/src/tasks/abandonedCart.ts:onCheckoutInitiated',
+        severity: 'HIGH',
+        timestamp: Date.now(),
+        shouldAlert: false,
+        raw: String(error),
+      });
+    }
   });
 
 export const abandonedCartCallback = functions.https.onRequest(
   async (req, res) => {
     const payload = req.body as AbandonedCartTaskPayload;
 
+    const snapshot = await db(FirestoreCollection.ORDERS)
+      .doc(payload.orderId)
+      .get();
+
+    const order = snapshot.data() as IOrder;
+
+    // Order was paid, no worries.
+    if (order.paidAt) {
+      res.send(200);
+      return;
+    }
+
     try {
-      const snapshot = await db(FirestoreCollection.ORDERS)
-        .doc(payload.orderId)
-        .get();
-
-      const order = snapshot.data() as IOrder;
-
-      // Order was paid, no worries.
-      if (order.paidAt) {
-        return;
-      }
-
       // Has the user paid for any orders in the intervening period?
       // Get recent orders from user
       const lastPeriodMs = Date.now() - ABANDONED_CART_EXPIRY_SECONDS * 1000;
       const recentOrdersSnapshot = await db(FirestoreCollection.ORDERS)
         .where('userId', '==', order.userId)
-        .where('createdAt', '>=', lastPeriodMs)
+        .orderBy('createdAt', 'desc')
+        .limit(10)
         .get();
 
       const recentOrders = recentOrdersSnapshot.docs.map(recentOrder =>
@@ -96,8 +122,12 @@ export const abandonedCartCallback = functions.https.onRequest(
       );
 
       // If they've paid for any order in the intervening period, ignore.
-      const hasPaid = recentOrders.some(recentOrder => recentOrder.paidAt);
+      const hasPaid = recentOrders.some(recentOrder => {
+        return recentOrder.paidAt && recentOrder.createdAt > lastPeriodMs;
+      });
+
       if (hasPaid) {
+        res.send(200);
         return;
       }
 
@@ -114,6 +144,20 @@ export const abandonedCartCallback = functions.https.onRequest(
       res.send(200);
     } catch (error) {
       console.error(error);
+      await reportInternalError({
+        code: TastiestInternalErrorCode.FUNCTIONS_ERROR,
+        message: 'Abandoned Cart event failure',
+        properties: {
+          ...order,
+        },
+        originFile:
+          'functions/src/tasks/abandonedCart.ts:abandonedCartCallback',
+        severity: 'HIGH',
+        timestamp: Date.now(),
+        shouldAlert: false,
+        raw: String(error),
+      });
+
       res.status(500).send(error);
     }
   },
