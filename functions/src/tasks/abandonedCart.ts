@@ -3,11 +3,13 @@ import {
   IOrder,
   reportInternalError,
   TastiestInternalErrorCode,
+  UserData,
+  UserDataApi,
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
 import { GoogleCloudTaskQueue } from '.';
-import { DEFAULT_REGION } from '..';
+import { DEFAULT_REGION, FUNCTIONS_REGION, PROJECT_ID } from '..';
 import { db, firebaseAdmin } from '../admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -21,7 +23,7 @@ interface AbandonedCartTaskPayload {
   docPath: string;
 }
 
-const ABANDONED_CART_EXPIRY_SECONDS = 5; //60 * 20;
+const ABANDONED_CART_EXPIRY_SECONDS = 60 * 20;
 
 /**
  * Abandoned cart flow.
@@ -34,18 +36,16 @@ export const onCheckoutInitiated = functions.firestore
     const data = snapshot.data() as IOrder;
     const { id: orderId } = data;
 
-    // Get the project ID from the FIREBASE_CONFIG env var
-    const project = JSON.parse(process.env.FIREBASE_CONFIG as string).projectId;
-    const queue = GoogleCloudTaskQueue.ORDER;
-
     const tasksClient = new CloudTasksClient();
+
+    const queue = GoogleCloudTaskQueue.ORDER;
     const queuePath: string = tasksClient.queuePath(
-      project,
+      PROJECT_ID,
       DEFAULT_REGION,
       queue,
     );
 
-    const url = `https://${location}-${project}.cloudfunctions.net/abandonedCartCallback`;
+    const url = `https://${FUNCTIONS_REGION}-${PROJECT_ID}.cloudfunctions.net/abandonedCartCallback`;
     const docPath = snapshot.ref.path;
 
     // Build payload
@@ -60,9 +60,9 @@ export const onCheckoutInitiated = functions.firestore
           'Content-Type': 'application/json',
         },
       },
-      // scheduleTime: {
-      //   seconds: ABANDONED_CART_EXPIRY_SECONDS,
-      // },
+      scheduleTime: {
+        seconds: ABANDONED_CART_EXPIRY_SECONDS,
+      },
     };
 
     try {
@@ -101,8 +101,8 @@ export const abandonedCartCallback = functions.https.onRequest(
 
     const order = snapshot.data() as IOrder;
 
-    // Order was paid, no worries.
-    if (order.paidAt) {
+    // Order was paid, or we don't have their email. No worries.
+    if (order.paidAt || !order.userId) {
       res.send(200);
       return;
     }
@@ -132,12 +132,16 @@ export const abandonedCartCallback = functions.https.onRequest(
       }
 
       // They've abandoned card --> fire off Abandoned Cart Event
+      const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
+      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
+
       await analytics.track({
         userId: order.userId,
         event: 'Abandoned Cart',
         timestamp: new Date(),
         properties: {
           ...order,
+          user: userDetails,
         },
       });
 
@@ -149,6 +153,7 @@ export const abandonedCartCallback = functions.https.onRequest(
         message: 'Abandoned Cart event failure',
         properties: {
           ...order,
+          raw: error,
         },
         originFile:
           'functions/src/tasks/abandonedCart.ts:abandonedCartCallback',
