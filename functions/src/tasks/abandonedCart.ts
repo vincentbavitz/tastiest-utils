@@ -61,7 +61,7 @@ export const onCheckoutInitiated = functions.firestore
         },
       },
       scheduleTime: {
-        seconds: ABANDONED_CART_EXPIRY_SECONDS,
+        seconds: Date.now() / 1000 + ABANDONED_CART_EXPIRY_SECONDS,
       },
     };
 
