@@ -389,6 +389,30 @@ export class CmsApi {
     return { posts: [], total: 0 } as IFetchPostsReturn;
   }
 
+  public async searchTastiestDishes(
+    query: string,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchDishesReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'tastiestDish',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      query: query.trim().toLowerCase(),
+    });
+
+    if (entries?.items?.length > 0) {
+      const dishes = entries.items
+        .map(entry => this.convertTastiestDish(entry))
+        .filter(post => Boolean(post)) as ITastiestDish[];
+
+      return { dishes, total: entries.total };
+    }
+
+    return { dishes: [], total: 0 } as IFetchDishesReturn;
+  }
+
   public async getTopPosts(limit?: number) {
     // For now this is just a wrapper around getPosts
     return this.getPosts(limit);

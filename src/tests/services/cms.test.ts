@@ -128,6 +128,13 @@ describe('Get Content from CMS', () => {
   //   expect(true).toBeDefined();
   // });
 
+  it('Global Search Tastiest Dishes', async () => {
+    const cms = new CmsApi();
+
+    const searchedPosts = await cms.searchTastiestDishes('jerk');
+    dlog('cms.test ➡️ searchedPosts:', searchedPosts);
+  });
+
   // it('Get Restaurant Data ID', async () => {
   //   firebaseAdmin.initializeApp({
   //     credential: firebaseAdmin.credential.cert({
