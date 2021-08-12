@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 import { CmsApi } from '../..';
+import { CuisineSymbol } from '../../types';
 import { dlog } from '../../utils';
 
 dotenv.config({ path: '.env.local' });
 
-describe('CMS Servcice', () => {
+describe('Convert Types from CMS', () => {
   test('Convert Posts', async () => {
     const cms = new CmsApi();
     const { posts } = await cms.getPosts(5);
@@ -52,7 +53,9 @@ describe('CMS Servcice', () => {
     expect(deal).toHaveProperty('additionalInfo');
     expect(deal).toHaveProperty('dynamicImage');
   });
+});
 
+describe('Get Content from CMS', () => {
   test('Get Post By Deal ID', async () => {
     const cmsApi = new CmsApi();
     const post = await cmsApi.getPostByDealId('v5WWg3Sr573AleBLH9LmH');
@@ -70,16 +73,15 @@ describe('CMS Servcice', () => {
     expect(dishes).toBeDefined();
   });
 
-  // it('Get promo', async () => {
-  //   const cms = new CmsApi();
-
-  //   const promo = await cms.getPromo('10OFF');
-  //   // console.log('promo', promo);
-  // });
+  it('Get promo', async () => {
+    const cms = new CmsApi();
+    const promo = await cms.getPromo('5OFF');
+    expect(promo).toBeDefined();
+  });
 
   it('Get Restaurant from URI Name', async () => {
     const cms = new CmsApi();
-    const restaurant = await cms.getRestaurantFromUriName('bite-me-burger');
+    const restaurant = await cms.getRestaurantFromUriName('back-a-yard-grill');
 
     dlog('cms.test ➡️ restaurant:', restaurant);
 
@@ -106,6 +108,15 @@ describe('CMS Servcice', () => {
 
   //   expect(true).toBeDefined();
   // });
+
+  it('Get Tastiest Dishes of Cuisine', async () => {
+    const cms = new CmsApi();
+    const posts = await cms.getTastiestDishesOfCuisine(CuisineSymbol.CARIBBEAN);
+
+    dlog('cms.test ➡️ of cuisine:', posts);
+
+    expect(true).toBeDefined();
+  });
 
   // it('Get restaurant by ID', async () => {
   //   const cms = new CmsApi();

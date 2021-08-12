@@ -1,7 +1,6 @@
 import { postFetch } from './api';
 
-export const ERROR_REPORTING_FUNCTION_ENDPOINT =
-  'https://us-central1-tastiest-dishes.cloudfunctions.net/reportInternalError';
+export const ERROR_REPORTING_FUNCTION_ENDPOINT = `https://us-central1-tastiest-dishes.cloudfunctions.net/reportInternalError`;
 
 export enum TastiestInternalErrorCode {
   PAYMENT_ERROR = 'PAYMENT_ERROR',

@@ -375,7 +375,7 @@ export class CmsApi {
       // Allows us to go N layers deep in nested JSON
       // https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/links
       include: 10,
-      'fields.title[match]': query.trim().toLowerCase(),
+      query: query.trim().toLowerCase(),
     });
 
     if (entries?.items?.length > 0) {
@@ -555,8 +555,8 @@ export class CmsApi {
 
     // Restaurant page properties
     const description = rawRestaurant?.fields?.description ?? null;
-    const tradingHoursText = rawRestaurant?.fields.tradingHoursText ?? null;
-    const video = rawRestaurant?.fields.video ?? null;
+    const tradingHoursText = rawRestaurant?.fields?.tradingHoursText ?? null;
+    const video = rawRestaurant?.fields?.video ?? null;
     const heroIllustration = this.convertImage(
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
@@ -695,6 +695,7 @@ export class CmsApi {
       name: rawTastiestDish?.fields?.name,
       image: this.convertImage(rawTastiestDish?.fields?.staticImage?.fields),
       restaurant: this.convertRestaurant(rawTastiestDish?.fields?.restaurant),
+      cuisine: this.convertCuisine(rawTastiestDish?.fields?.cuisine),
       dynamicImage: this.convertImage(
         rawTastiestDish?.fields?.dynamicImage?.fields,
       ),
@@ -705,7 +706,8 @@ export class CmsApi {
       !tastiestDish.name ||
       !tastiestDish.image ||
       !tastiestDish.dynamicImage ||
-      !tastiestDish.restaurant
+      !tastiestDish.restaurant ||
+      !tastiestDish.cuisine
     ) {
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,

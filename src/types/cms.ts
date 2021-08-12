@@ -38,6 +38,7 @@ export interface ITastiestDish {
   image: IFigureImage;
   dynamicImage: IFigureImage;
   restaurant: IRestaurant;
+  cuisine: CuisineSymbol;
 }
 
 export interface IContact {

@@ -66,13 +66,9 @@ export const onCheckoutInitiated = functions.firestore
     };
 
     try {
-      const taskInfo = await tasksClient.createTask({
+      await tasksClient.createTask({
         parent: queuePath,
         task,
-      });
-
-      await firebaseAdmin.firestore().collection('task-test').add({
-        taskInfo,
       });
     } catch (error) {
       await reportInternalError({
