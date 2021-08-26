@@ -43,6 +43,10 @@ export class RestaurantDataApi {
       throw new Error('RestaurantDataApi: Ensure you have initialized first.');
     }
 
+    if (!field) {
+      throw new Error('RestaurantDataApi: No field given.');
+    }
+
     try {
       const doc = await adb(this.admin, FirestoreCollection.RESTAURANTS)
         .doc(this.restaurantId)

@@ -1,11 +1,13 @@
 import { FirestoreCollection, TUserData, UserData } from '..';
 import { FunctionsResponse } from '../types';
-import { adb } from '../utils/firebase';
+import { adb, FirebaseAdmin } from '../utils/firebase';
 
 // Intended for server-side use ONLY!
+// If you want to use this client-side, use useUserData instead.
+
 export class UserDataApi {
   public userId: string | null;
-  public admin: any | null;
+  public admin: FirebaseAdmin;
 
   /*
    * Get context from getServerSideProps
@@ -27,6 +29,21 @@ export class UserDataApi {
       this.userId = token.uid;
       return { userId: token.uid, email: token.email };
     } catch (error) {
+      return { userId: null, email: null };
+    }
+  }
+
+  public async initFromEmail(email: string) {
+    try {
+      const user = await this.admin.auth().getUserByEmail(email);
+
+      if (!user) {
+        return null;
+      }
+
+      this.userId = user.uid;
+      return { userId: user.uid, email: user.email };
+    } catch {
       return { userId: null, email: null };
     }
   }

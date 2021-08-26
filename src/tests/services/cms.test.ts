@@ -128,11 +128,11 @@ describe('Get Content from CMS', () => {
   //   expect(true).toBeDefined();
   // });
 
-  it('Global Search Tastiest Dishes', async () => {
+  it('Global Search Restaurants', async () => {
     const cms = new CmsApi();
 
-    const searchedPosts = await cms.searchTastiestDishes('jerk');
-    dlog('cms.test ➡️ searchedPosts:', searchedPosts);
+    const searchedRestaurants = await cms.searchRestaurants('back');
+    dlog('cms.test ➡️ searchedRestaurants:', searchedRestaurants);
   });
 
   // it('Get Restaurant Data ID', async () => {

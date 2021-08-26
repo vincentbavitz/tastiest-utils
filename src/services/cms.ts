@@ -6,8 +6,8 @@ import {
   IAuthor,
   IDeal,
   IFigureImage,
+  IMeta,
   IPost,
-  IPostMeta,
   IRestaurant,
   ITastiestDish,
 } from '../types/cms';
@@ -405,12 +405,36 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
-        .filter(post => Boolean(post)) as ITastiestDish[];
+        .filter(dish => Boolean(dish)) as ITastiestDish[];
 
       return { dishes, total: entries.total };
     }
 
     return { dishes: [], total: 0 } as IFetchDishesReturn;
+  }
+
+  public async searchRestaurants(
+    query: string,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchRestaurantsReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'restaurant',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      query: query.trim().toLowerCase(),
+    });
+
+    if (entries?.items?.length > 0) {
+      const restaurants = entries.items
+        .map(entry => this.convertRestaurant(entry))
+        .filter(restaurant => Boolean(restaurant)) as IRestaurant[];
+
+      return { restaurants, total: entries.total };
+    }
+
+    return { restaurants: [], total: 0 } as IFetchRestaurantsReturn;
   }
 
   public async getTopPosts(limit?: number) {
@@ -585,6 +609,24 @@ export class CmsApi {
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
+    const convertMeta = (rawRestaurant: any): IMeta | undefined => {
+      const title = rawRestaurant?.metaTitle ?? null;
+      const description = rawRestaurant?.metaDescription ?? null;
+      const image = this.convertImage(rawRestaurant?.metaImage?.fields);
+
+      if (!title || !description || !image) {
+        return;
+      }
+
+      return {
+        title,
+        description,
+        image,
+      };
+    };
+
+    const meta = convertMeta(rawRestaurant);
+
     if (
       !id ||
       !name ||
@@ -599,8 +641,8 @@ export class CmsApi {
       !heroIllustration ||
       !tradingHoursText ||
       !description ||
-      !video
-      // bookingSystemSite is optional
+      !video ||
+      !meta
     ) {
       return;
     }
@@ -621,6 +663,7 @@ export class CmsApi {
       tradingHoursText,
       description,
       video,
+      meta,
     };
   };
 
@@ -632,19 +675,19 @@ export class CmsApi {
     const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
 
-    const convertMeta = (rawPost: any): IPostMeta | undefined => {
-      const metaTitle = rawPost?.metaTitle ?? null;
-      const metaDescription = rawPost?.metaDescription ?? null;
-      const ogImage = this.convertDeal(rawPost?.deal)?.image ?? null;
+    const convertMeta = (rawPost: any): IMeta | undefined => {
+      const title = rawPost?.metaTitle ?? null;
+      const description = rawPost?.metaDescription ?? null;
+      const image = this.convertImage(rawPost?.metaImage?.fields);
 
-      if (!metaTitle || !metaDescription || !ogImage) {
+      if (!title || !description || !image) {
         return;
       }
 
       return {
-        metaTitle,
-        metaDescription,
-        ogImage,
+        title,
+        description,
+        image,
       };
     };
 

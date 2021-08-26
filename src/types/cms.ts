@@ -57,10 +57,10 @@ export interface IOrganisation {
   restaurants: Array<string>;
 }
 
-export interface IPostMeta {
-  metaTitle: string;
-  metaDescription: string;
-  ogImage: IFigureImage;
+export interface IMeta {
+  title: string; // displayed in google search results
+  description: string; // displayed in google search results
+  image: IFigureImage; // og-image
 }
 
 export interface IRestaurant {
@@ -87,6 +87,8 @@ export interface IRestaurant {
   description: Document;
   video: string;
   // tradingHours:
+
+  meta: IMeta;
 }
 
 export interface IPost {
@@ -116,7 +118,7 @@ export interface IPost {
   // Descriptive
   tags: Array<string>;
   slug: string;
-  meta: IPostMeta;
+  meta: IMeta;
 }
 
 export type BodyDocument = {

@@ -9,6 +9,7 @@ export enum TastiestInternalErrorCode {
   FUNCTIONS_ERROR = 'FUNCTIONS_ERROR', // An error originating from Firebase Functions
   CMS_CONVERSION = 'CMS_CONVERSION', // CMS convertXYZ has failed.
   CLOUD_TASK = 'CLOUD_TASK', // Google Cloud Task failure.
+  PASSWORD_RESET = 'PASSWORD_RESET',
 }
 
 export type ErrorSeverity = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';

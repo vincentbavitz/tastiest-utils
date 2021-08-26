@@ -49,6 +49,7 @@ export enum UserData {
   PAYMENT_DETAILS = 'paymentDetails',
   PAYMENT_METHODS = 'paymentMethods',
   PREFERENCES = 'preferences',
+  PASSWORD_RESET_REQUESTS = 'passwordResetRequests',
 
   // Activity such as sessions, where they came from, etc.
   ACTIVITY = 'activity',
@@ -83,6 +84,14 @@ export interface IUserSession {
 export interface IRecentSearch {
   query: string;
   timestamp: number;
+}
+
+export interface IPasswordResetRequest {
+  token: string; // generated randomly
+  hasOpened: boolean; // has opened the link in their email?
+  hasConfirmed: boolean; // has password actually changed?
+  createdAt: number | null; // timestamp
+  confirmedAt: number | null; // timestamp
 }
 
 export type TFavouriteCuisine = {
@@ -143,6 +152,7 @@ export type TUserData<T extends UserData> =
     // User details and preferences
     T extends UserData.DETAILS ? Partial<IUserDetails> :
     T extends UserData.PREFERENCES ? Partial<IUserPreferences> :
+    T extends UserData.PASSWORD_RESET_REQUESTS ? IPasswordResetRequest[] :
 
     // Payment information from Stripe
     T extends UserData.PAYMENT_DETAILS ? Partial<IPaymentDetails> :
