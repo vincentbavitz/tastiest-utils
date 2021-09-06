@@ -610,9 +610,9 @@ export class CmsApi {
     );
 
     const convertMeta = (rawRestaurant: any): IMeta | undefined => {
-      const title = rawRestaurant?.metaTitle ?? null;
-      const description = rawRestaurant?.metaDescription ?? null;
-      const image = this.convertImage(rawRestaurant?.metaImage?.fields);
+      const title = rawRestaurant?.fields?.metaTitle ?? null;
+      const description = rawRestaurant?.fields?.metaDescription ?? null;
+      const image = this.convertImage(rawRestaurant?.fields?.metaImage?.fields);
 
       if (!title || !description || !image) {
         return;

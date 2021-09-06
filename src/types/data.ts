@@ -125,6 +125,8 @@ export interface IUserMetrics {
 
   // List of RestaurantIds
   restaurantsVisited: string[];
+  restaurantsFollowed: string[];
+  restaurantNotifications: string[];
 }
 
 interface PaymentMethods {
