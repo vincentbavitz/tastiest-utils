@@ -4,6 +4,7 @@ import { IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IAddress } from './geography';
 import { IPaymentDetails } from './payments';
+import { WeekTimeSlots } from './time';
 
 // Return type for async requests
 export interface IGenericAsyncReturnType {
@@ -119,14 +120,18 @@ export interface IUserPreferences {
     | null;
 }
 
+export type FollowedRestaurant = {
+  restaurantId: string;
+  notifications: boolean; // get updates for available bookings, etc
+};
+
 export interface IUserMetrics {
   totalBookings: number;
   totalSpent: { [currency: string]: number };
 
   // List of RestaurantIds
   restaurantsVisited: string[];
-  restaurantsFollowed: string[];
-  restaurantNotifications: string[];
+  restaurantsFollowed: FollowedRestaurant[];
 }
 
 interface PaymentMethods {
@@ -181,6 +186,7 @@ export enum RestaurantData {
   BOOKINGS = 'bookings',
   INVOICES = 'invoices',
   LEGAL = 'legal',
+  METRICS = 'metrics',
 }
 
 export interface IRestaurantFinancialDetails {
@@ -207,6 +213,19 @@ export interface IRestaurantLegal {
   hasAcceptedTerms: boolean;
 }
 
+export type RestaurantFollower = {
+  userId: string;
+  name: string;
+  email: string;
+};
+
+export interface IRestaurantMetrics {
+  // List of user IDs
+  followers: RestaurantFollower[];
+  quietTimes: WeekTimeSlots;
+  openTimes: WeekTimeSlots;
+}
+
 // prettier-ignore
 export type TRestaurantData<T extends RestaurantData> =
     T extends RestaurantData.ROLE ? UserRole.RESTAURANT :
@@ -218,6 +237,9 @@ export type TRestaurantData<T extends RestaurantData> =
     T extends RestaurantData.FINANCIAL ? Partial<IRestaurantFinancialDetails>:
     T extends RestaurantData.BOOKINGS ? IRestaurantBookingDetails :
     T extends RestaurantData.LEGAL ? IRestaurantLegal :
+
+    // Metrics recorded periodically
+    T extends RestaurantData.METRICS ? IRestaurantMetrics :
     
     never;
 

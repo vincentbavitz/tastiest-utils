@@ -15,7 +15,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@google-cloud/tasks": "^2.3.6",
-    "@tastiest-io/tastiest-utils": "^0.181.0",
+    "@tastiest-io/tastiest-utils": "^0.202.0",
     "@types/analytics-node": "^3.1.4",
     "@types/node-fetch": "^2.5.10",
     "analytics-node": "^4.0.1",

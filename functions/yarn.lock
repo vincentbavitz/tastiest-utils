@@ -291,16 +291,17 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
-"@tastiest-io/tastiest-utils@^0.181.0":
-  version "0.181.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.181.0/1961d260ccfe286922e326ac8800d3c4a04ffd305a42f088513ae63bed645119#1d76771e85a0c44c886acc3e1eb74b01d9be8a78"
-  integrity sha512-kk3DMe2ZtoF21YzBNHP3sSP14LP6QpjZHsmycCru0V1SLr5ZGLA2K+7/TKhXzEKvpQ+dY9gCmdDeJKaPFamQvg==
+"@tastiest-io/tastiest-utils@^0.202.0":
+  version "0.202.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.202.0/e320a43a801b81d971a74d31911ee7562caeb57418d5fcdf3ef8e55abc5a0474#7901ffb5ff4018bfbad0fb5d595bf03bcec84dd5"
+  integrity sha512-exDldjcZdwnqkj18sqDUOhKRmayQDmjsJPJOYXHEriCV8cgW0bhYNVXuCn/ifg6acDJ+vRcy9FGBZuKriRjzDQ==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
     "@shopify/shopify-api" "^1.4.0"
     "@stripe/stripe-js" "^1.13.2"
     "@types/react" "^17.0.3"
     contentful "^8.2.1"
+    crypto-hash "^1.3.0"
     firebase-admin "^9.6.0"
     moment "^2.29.1"
     stripe "^8.143.0"
@@ -847,6 +848,11 @@ crypt@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
   integrity sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs=
+
+crypto-hash@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/crypto-hash/-/crypto-hash-1.3.0.tgz#b402cb08f4529e9f4f09346c3e275942f845e247"
+  integrity sha512-lyAZ0EMyjDkVvz8WOeVnuCPvKVBXcMv1l5SVqO1yC7PzTwrD/pPje/BIRbWhMoPe436U+Y2nD7f5bFx0kt+Sbg==
 
 crypto-random-string@^2.0.0:
   version "2.0.0"

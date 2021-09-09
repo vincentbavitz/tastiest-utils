@@ -108,6 +108,10 @@ export const connectAccountCreated = functions.https.onRequest(
       stripeConnectedAccount: data,
     });
 
+    await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
+      followers: [],
+    });
+
     stripe;
 
     response.json({

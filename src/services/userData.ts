@@ -71,7 +71,7 @@ export class UserDataApi {
 
   public setUserData = async <T extends UserData>(
     field: T,
-    value: TUserData<T>,
+    value: Partial<TUserData<T>>,
   ): Promise<FunctionsResponse<TUserData<T>>> => {
     // Ensure we are initialized
     if (!this.userId) {
@@ -89,8 +89,8 @@ export class UserDataApi {
         );
 
       return { success: true, error: null, data: null };
-    } catch (error) {
-      return { success: false, error, data: null };
+    } catch (e) {
+      return { success: false, error: String(e), data: null };
     }
   };
 }

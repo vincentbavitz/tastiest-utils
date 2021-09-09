@@ -1,5 +1,6 @@
 import {
   FirestoreCollection,
+  FunctionsResponse,
   IRestaurantData,
   RestaurantData,
   TRestaurantData,
@@ -81,8 +82,8 @@ export class RestaurantDataApi {
 
   public setRestaurantData = async <T extends RestaurantData>(
     field: T,
-    value: TRestaurantData<T>,
-  ) => {
+    value: Partial<TRestaurantData<T>>,
+  ): Promise<FunctionsResponse<TRestaurantData<T>>> => {
     // Ensure we are initialized
     if (!this.restaurantId) {
       throw new Error('RestaurantDataApi: Ensure you have initialized first.');
@@ -98,9 +99,9 @@ export class RestaurantDataApi {
           { merge: true },
         );
 
-      return value;
+      return { success: true, data: null, error: null };
     } catch (e) {
-      return null;
+      return { success: false, data: null, error: String(e) };
     }
   };
 }
