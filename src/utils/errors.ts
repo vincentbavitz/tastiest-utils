@@ -10,6 +10,7 @@ export enum TastiestInternalErrorCode {
   CMS_CONVERSION = 'CMS_CONVERSION', // CMS convertXYZ has failed.
   CLOUD_TASK = 'CLOUD_TASK', // Google Cloud Task failure.
   PASSWORD_RESET = 'PASSWORD_RESET',
+  FOLLOWING_ERROR = 'FOLLOWING_ERROR', // Following cloud function
 }
 
 export type ErrorSeverity = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';

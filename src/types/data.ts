@@ -217,6 +217,8 @@ export type RestaurantFollower = {
   userId: string;
   name: string;
   email: string;
+  notifications: boolean;
+  followedAt: number;
 };
 
 export interface IRestaurantMetrics {

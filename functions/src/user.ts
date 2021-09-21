@@ -68,10 +68,11 @@ export const onUserCreated = functions.firestore
     // //////////////////////////////////////////////////////// //
     // /////////////     Create new user metrics     ////////// //
     // //////////////////////////////////////////////////////// //
-    const intialUserMetrics: IUserMetrics = {
+    const initialUserMetrics: IUserMetrics = {
       totalBookings: 0,
       totalSpent: { ['GBP']: 0 },
       restaurantsVisited: [],
+      restaurantsFollowed: [],
     };
 
     await db(FirestoreCollection.USERS)
@@ -81,7 +82,7 @@ export const onUserCreated = functions.firestore
           details: {
             email: userRecord.email,
           },
-          metrics: intialUserMetrics,
+          metrics: initialUserMetrics,
         },
         { merge: true },
       );
