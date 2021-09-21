@@ -1,22 +1,15 @@
 import {
   dlog,
   FirestoreCollection,
-  FollowedRestaurant,
   FunctionsResponse,
-  reportInternalError,
   RestaurantData,
   RestaurantDataApi,
-  RestaurantFollower,
-  TastiestInternalErrorCode,
-  UserData,
-  UserDataApi,
   UserRole,
 } from '@tastiest-io/tastiest-utils';
-import { response } from 'express';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import Stripe from 'stripe';
-import { db, firebaseAdmin } from './admin';
+import { firebaseAdmin } from './admin';
 
 const STRIPE_SECRET_KEY =
   process.env.NODE_ENV === 'production'
@@ -128,175 +121,3 @@ export const connectAccountCreated = functions.https.onRequest(
     });
   },
 );
-
-export const onUserUpdatedFollowStatus = functions.firestore
-  .document(
-    `/${FirestoreCollection.USERS}/{userId}/metrics/restaurantsFollowed/{item}`,
-  )
-  .onUpdate(async (snap, context) => {
-    const userId = context.params.userId;
-    const followedItem: FollowedRestaurant = context.params.item;
-
-    const before = snap.before.data() as FollowedRestaurant;
-    const after = snap.after.data() as FollowedRestaurant;
-
-    const startedFollowing = !before && after;
-    const stoppedFollowing = before && !after;
-    const notificationsOn =
-      before.restaurantId &&
-      after.restaurantId &&
-      !before.notifications &&
-      after.notifications;
-    const notificationsOff =
-      before.restaurantId &&
-      after.restaurantId &&
-      before.notifications &&
-      !after.notifications;
-
-    const followersDocReference = db(FirestoreCollection.RESTAURANTS).doc(
-      `/${followedItem.restaurantId}/metrics/followers`,
-    );
-
-    // Initialise values
-    const currentFollowersSnapshot = await followersDocReference.get();
-    const currentFollowers = currentFollowersSnapshot.data() as RestaurantFollower[];
-
-    const userDataApi = new UserDataApi(userId);
-    const userData = await userDataApi.getUserData(UserData.DETAILS);
-    const restaurantDataApi = new RestaurantDataApi(
-      firebaseAdmin,
-      after.restaurantId,
-    );
-
-    const restaurant = await restaurantDataApi.getRestaurantData();
-
-    if (startedFollowing) {
-      try {
-        const followers = currentFollowers.filter(r => r.userId !== userId);
-        followers.push({
-          userId,
-          name: userData?.firstName as string,
-          email: userData?.email as string,
-          notifications: after.notifications,
-          followedAt: Date.now(),
-        });
-
-        // Set restaurant followers
-        await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
-          followers,
-        });
-
-        response.json({
-          success: true,
-          data: { message: 'Started following' },
-          error: null,
-        });
-      } catch (error) {
-        await reportInternalError({
-          code: TastiestInternalErrorCode.FOLLOWING_ERROR,
-          message: `Failed to register new follower for ${restaurant?.details?.name}`,
-          timestamp: Date.now(),
-          shouldAlert: true,
-          originFile: 'functions/src/restaurants.ts:onUserUpdatedFollowStatus',
-          severity: 'HIGH',
-          raw: String(error),
-          properties: {
-            restaurant,
-            followDataBefore: before,
-            followDataAfter: after,
-          },
-        });
-
-        response.json({
-          success: true,
-          data: null,
-          error: 'Failed to register new follower',
-        });
-      }
-
-      return;
-    }
-
-    if (stoppedFollowing) {
-      try {
-        const followers = currentFollowers.filter(r => r.userId !== userId);
-        await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
-          followers,
-        });
-
-        response.json({
-          success: true,
-          data: { message: 'Stopped following' },
-          error: null,
-        });
-      } catch (error) {
-        await reportInternalError({
-          code: TastiestInternalErrorCode.FOLLOWING_ERROR,
-          message: `Failed to deregister follower for ${restaurant?.details?.name}`,
-          timestamp: Date.now(),
-          shouldAlert: true,
-          originFile: 'functions/src/restaurants.ts:onUserUpdatedFollowStatus',
-          severity: 'HIGH',
-          raw: String(error),
-          properties: {
-            restaurant,
-            followDataBefore: before,
-            followDataAfter: after,
-          },
-        });
-
-        response.json({
-          success: true,
-          data: null,
-          error: 'Failed to register new follower',
-        });
-      }
-
-      return;
-    }
-
-    if (notificationsOn || notificationsOff) {
-      try {
-        const followers = currentFollowers.map(r =>
-          r.userId === userId
-            ? { ...r, notifications: after.notifications }
-            : r,
-        );
-
-        await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
-          followers,
-        });
-
-        response.json({
-          success: true,
-          data: {
-            message: `Notifications ${after.notifications ? 'on' : 'off'}`,
-          },
-          error: null,
-        });
-      } catch (error) {
-        await reportInternalError({
-          code: TastiestInternalErrorCode.FOLLOWING_ERROR,
-          message: `Failed to register notification status ${restaurant?.details?.name}`,
-          timestamp: Date.now(),
-          shouldAlert: true,
-          originFile: 'functions/src/restaurants.ts:onUserUpdatedFollowStatus',
-          severity: 'HIGH',
-          raw: String(error),
-          properties: {
-            restaurant,
-            followDataBefore: before,
-            followDataAfter: after,
-          },
-        });
-
-        response.json({
-          success: true,
-          data: null,
-          error: 'Failed to register new follower',
-        });
-      }
-
-      return;
-    }
-  });

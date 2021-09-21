@@ -1,5 +1,5 @@
 import { FirestoreCollection, TUserData, UserData } from '..';
-import { FunctionsResponse } from '../types';
+import { FunctionsResponse, IUserData } from '../types';
 import { adb, FirebaseAdmin } from '../utils/firebase';
 
 // Intended for server-side use ONLY!
@@ -48,9 +48,27 @@ export class UserDataApi {
     }
   }
 
-  public getUserData = async <T extends UserData>(
+  public getUserField = async <T extends UserData>(
     field: T,
   ): Promise<TUserData<T> | null> => {
+    // Ensure we are initialized
+    if (!this.userId) {
+      throw new Error('UserDataApi: Ensure you have initialized first.');
+    }
+
+    try {
+      const doc = await adb(this.admin, FirestoreCollection.USERS)
+        .doc(`${this.userId}/${field}`)
+        .get();
+
+      const userField = (await doc.data()) as TUserData<T>;
+      return userField ?? null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  public getUserData = async (): Promise<IUserData | null> => {
     // Ensure we are initialized
     if (!this.userId) {
       throw new Error('UserDataApi: Ensure you have initialized first.');
@@ -61,9 +79,8 @@ export class UserDataApi {
         .doc(this.userId)
         .get();
 
-      const userData = await doc.data();
-
-      return (userData?.[field] as TUserData<T>) ?? null;
+      const userData = (await doc.data()) as IUserData;
+      return userData ?? null;
     } catch (error) {
       return null;
     }

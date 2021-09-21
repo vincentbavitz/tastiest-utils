@@ -36,7 +36,7 @@ export const sessionHandler = functions.https.onRequest(
       const userDataApi = new UserDataApi(firebaseAdmin, userId);
 
       // Does user even exist?
-      const details = await userDataApi.getUserData(UserData.DETAILS);
+      const details = await userDataApi.getUserField(UserData.DETAILS);
       if (!details || !details.email) {
         return;
       }

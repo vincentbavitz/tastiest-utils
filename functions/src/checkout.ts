@@ -59,7 +59,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       }
 
       const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
-      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
+      const userDetails = await userDataApi.getUserField(UserData.DETAILS);
 
       // User not found
       if (!userDetails) {

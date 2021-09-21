@@ -129,7 +129,7 @@ export const abandonedCartCallback = functions.https.onRequest(
 
       // They've abandoned card --> fire off Abandoned Cart Event
       const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
-      const userDetails = await userDataApi.getUserData(UserData.DETAILS);
+      const userDetails = await userDataApi.getUserField(UserData.DETAILS);
 
       await analytics.track({
         userId: order.userId,

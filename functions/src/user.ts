@@ -30,7 +30,7 @@ export const onUserCreated = functions.firestore
       apiVersion: '2020-08-27',
     });
 
-    // const userDetails = await userDataApi.getUserData(UserData.DETAILS);
+    // const userDetails = await userDataApi.getUserField(UserData.DETAILS);
 
     // //////////////////////////////////////////////////////// //
     // //////////////     Create Stripe customer     ////////// //
