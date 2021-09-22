@@ -291,10 +291,10 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
-"@tastiest-io/tastiest-utils@^0.210.0":
-  version "0.210.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.210.0/3914c007d30148e36e308386832699f9b4a33e426a04d134e453139144168720#4174d6b78ac078a9c4168f38102f1656b601b41e"
-  integrity sha512-nBsMeu5r5iI9eafnADufMk+sEKYybdxJK1zjE/FhBSMaA1OaHM5F3K/voRVDqcEDkd2q46AgJ9gNhkD0AvrmSg==
+"@tastiest-io/tastiest-utils@^0.211.0":
+  version "0.211.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/0.211.0/98d613950989946cc7728c36b882451f5e00672a84cc89945fe6575cf9bb1946#7015b3bead2dfc63f31a889be2f49a9e8b4f12b1"
+  integrity sha512-4zzPlrAgJwiUUvQ7Zn8abBW/df81Ofbc//PD941T1ndEMtinZ5cpbS2JIDoUOzDEF/jCQxD6O091Dfrv+HTx7g==
   dependencies:
     "@contentful/rich-text-types" "^14.1.2"
     "@shopify/shopify-api" "^1.4.0"
