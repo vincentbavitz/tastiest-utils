@@ -4,7 +4,7 @@ import { IRestaurant } from './cms';
 import { CuisineSymbol } from './cuisine';
 import { IAddress } from './geography';
 import { IPaymentDetails } from './payments';
-import { WeekTimeSlots } from './time';
+import { WeekOpenTimes, WeekQuietTimes } from './time';
 
 // Return type for async requests
 export interface IGenericAsyncReturnType {
@@ -187,6 +187,7 @@ export enum RestaurantData {
   INVOICES = 'invoices',
   LEGAL = 'legal',
   METRICS = 'metrics',
+  REALTIME = 'realtime',
 }
 
 export interface IRestaurantFinancialDetails {
@@ -222,10 +223,17 @@ export type RestaurantFollower = {
 };
 
 export interface IRestaurantMetrics {
-  // List of user IDs
   followers: RestaurantFollower[];
-  quietTimes: WeekTimeSlots;
-  openTimes: WeekTimeSlots;
+  quietTimes: WeekQuietTimes;
+  openTimes: WeekOpenTimes;
+
+  // How long is each sit-down considered to be?
+  seatingDuration: number;
+}
+
+export interface IRestaurantRealtime {
+  isOpen: boolean;
+  numEmptySeats: number;
 }
 
 // prettier-ignore
@@ -243,6 +251,9 @@ export type TRestaurantData<T extends RestaurantData> =
     // Metrics recorded periodically
     T extends RestaurantData.METRICS ? IRestaurantMetrics :
     
+    // Realtime statistics such as tables open, etc.
+    T extends RestaurantData.REALTIME ? IRestaurantRealtime :
+
     never;
 
 export type IRestaurantData = {
