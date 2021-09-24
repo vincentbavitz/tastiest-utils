@@ -65,7 +65,6 @@ describe('Get Content from CMS', () => {
       'bite-me-burger',
     );
 
-    dlog('cms.test ➡️ dishes:', dishes);
     expect(dishes).toBeDefined();
   });
 
@@ -81,7 +80,6 @@ describe('Get Content from CMS', () => {
       'AX6PG0tqBsh9LXw6Ca28iJtHL9n2',
     );
 
-    dlog('cms.test ➡️ restaurant:', restaurant);
     expect(restaurant).toBeDefined();
   });
 
@@ -89,7 +87,6 @@ describe('Get Content from CMS', () => {
     const cms = new CmsApi();
     const restaurant = await cms.getRestaurantFromUriName('back-a-yard-grill');
 
-    dlog('cms.test ➡️ restaurant:', restaurant);
     expect(restaurant).toBeDefined();
   });
 
@@ -110,7 +107,6 @@ describe('Get Content from CMS', () => {
     const posts = await cms.getPostsOfRestaurant('bite-me-burger');
 
     dlog('cms.test ➡️ posts:', posts);
-
     expect(true).toBeDefined();
   });
 
@@ -118,9 +114,7 @@ describe('Get Content from CMS', () => {
     const cms = new CmsApi();
     const posts = await cms.getTastiestDishesOfCuisine(CuisineSymbol.CARIBBEAN);
 
-    dlog('cms.test ➡️ of cuisine:', posts);
-
-    expect(true).toBeDefined();
+    expect(posts).toBeDefined();
   });
 
   test('Get restaurant by ID', async () => {
@@ -129,14 +123,13 @@ describe('Get Content from CMS', () => {
       '8OJeowHe84Z89u9epRA7sbMIayu1',
     );
 
-    restaurant;
-    expect(true).toBeDefined();
+    expect(restaurant).toBeDefined();
   });
 
   test('Global Search Restaurants', async () => {
     const cms = new CmsApi();
-
     const searchedRestaurants = await cms.searchRestaurants('back');
-    dlog('cms.test ➡️ searchedRestaurants:', searchedRestaurants);
+
+    expect(searchedRestaurants).toBeDefined();
   });
 });

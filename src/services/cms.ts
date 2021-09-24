@@ -736,6 +736,8 @@ export class CmsApi {
       !post.displayLocation ||
       !post.abstractDivider
     ) {
+      dlog('post', post);
+
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
         message: '',
