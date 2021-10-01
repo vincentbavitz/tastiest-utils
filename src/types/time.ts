@@ -1,11 +1,11 @@
 export enum DayOfWeek {
-  SUNDAY = 0,
-  MONDAY = 1,
-  TUESDAY = 2,
-  WEDNESDAY = 3,
-  THURSDAY = 4,
-  FRIDAY = 5,
-  SATURDAY = 6,
+  SUNDAY = 'SUNDAY',
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
 }
 
 // Minutes into day starting at 00:00. Example: 79 --> 01:19
@@ -43,3 +43,10 @@ export type WeekOpenTimes = {
   [DayOfWeek.FRIDAY]: OpenTimesMetricDay;
   [DayOfWeek.SATURDAY]: OpenTimesMetricDay;
 };
+
+// Realtime Bookings
+// export type RealtimeBooking = {
+//   date: Date; // used to identify day only
+//   range: TimeRange; // used to identify bookings open
+//   seatsAvailable: number | 'unlimited'; // seats available over this time
+// };

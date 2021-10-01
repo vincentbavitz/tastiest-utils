@@ -34,6 +34,7 @@ export interface IOrderRequest {
   timestamp?: number;
   promoCode?: string;
   userAgent?: string;
+  bookedForTimestamp?: number;
 }
 
 export interface IOrder {

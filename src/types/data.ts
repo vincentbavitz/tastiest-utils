@@ -227,13 +227,13 @@ export interface IRestaurantMetrics {
   quietTimes: WeekQuietTimes;
   openTimes: WeekOpenTimes;
 
-  // How long is each sit-down considered to be?
+  // How long is each sit-down considered to be? (minutes)
   seatingDuration: number;
 }
 
 export interface IRestaurantRealtime {
   isOpen: boolean;
-  numEmptySeats: number;
+  // bookings: RealtimeBooking[]; // can extract number of empty seats at any given time
 }
 
 // prettier-ignore
