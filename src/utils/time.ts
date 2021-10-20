@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { TIME } from '../constants';
 
 export const minsIntoHumanTime = (mins: number) => {
@@ -21,3 +22,9 @@ export const humanTimeIntoMins = (hours: number, mins: number) => {
  * Used for converting day numerals from Luxon to native Date.
  */
 export const toZeroIndexedDays = (day: number) => day % 7;
+
+/** Gets the number of minutes into the current day */
+export const getMinsIntoDay = () => {
+  const datetime = DateTime.now();
+  return datetime.hour * TIME.MINS_IN_HOUR + datetime.minute;
+};

@@ -1,4 +1,5 @@
 import {
+  DayOfWeek,
   dlog,
   FirestoreCollection,
   FunctionsResponse,
@@ -46,6 +47,57 @@ export const restaurantCreated = functions.firestore
       const restaurantDataApi = new RestaurantDataApi(admin, restaurantId);
       restaurantDataApi.setRestaurantData(RestaurantData.LEGAL, {
         hasAcceptedTerms: false,
+      });
+
+      await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
+        followers: [],
+        openTimes: {
+          [DayOfWeek.SUNDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.MONDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.TUESDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.WEDNESDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.THURSDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.FRIDAY]: { open: false, range: [0, 1440] },
+          [DayOfWeek.SATURDAY]: { open: false, range: [0, 1440] },
+        },
+        quietTimes: {
+          [DayOfWeek.SUNDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.MONDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.TUESDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.WEDNESDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.THURSDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.FRIDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+          [DayOfWeek.SATURDAY]: {
+            active: false,
+            coversRequired: 0,
+            range: [0, 1440],
+          },
+        },
+        seatingDuration: 0,
       });
 
       // Set custom user claim (user role) to `restaurant`
@@ -106,10 +158,6 @@ export const connectAccountCreated = functions.https.onRequest(
 
     await restaurantDataApi.setRestaurantData(RestaurantData.FINANCIAL, {
       stripeConnectedAccount: data,
-    });
-
-    await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
-      followers: [],
     });
 
     stripe;

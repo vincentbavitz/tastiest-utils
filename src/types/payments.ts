@@ -61,6 +61,7 @@ export interface IOrder {
   paidAt: null | number;
   createdAt: null | number;
   abandonedAt: null | number;
+  bookedForTimestamp: number;
 
   refund: null | {
     amountGBP: number;
@@ -85,11 +86,11 @@ export interface IBooking {
   heads: number;
   price: OrderPrice;
   paidAt: number;
-  bookingDate: number | null;
   hasBooked: boolean;
   hasArrived: boolean;
   hasCancelled: boolean;
   cancelledAt: number | null;
+  bookedForTimestamp: number;
 
   // Code required when customer enters restaurant
   confirmationCode: string;

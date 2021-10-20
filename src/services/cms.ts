@@ -603,7 +603,6 @@ export class CmsApi {
 
     // Restaurant page properties
     const description = rawRestaurant?.fields?.description ?? null;
-    const tradingHoursText = rawRestaurant?.fields?.tradingHoursText ?? null;
     const video = rawRestaurant?.fields?.video ?? null;
     const heroIllustration = this.convertImage(
       rawRestaurant?.fields?.heroIllustration?.fields,
@@ -639,7 +638,6 @@ export class CmsApi {
       !profilePicture ||
       !publicPhoneNumber ||
       !heroIllustration ||
-      !tradingHoursText ||
       !description ||
       !video ||
       !meta
@@ -660,7 +658,6 @@ export class CmsApi {
       publicPhoneNumber,
       bookingSystemSite,
       heroIllustration,
-      tradingHoursText,
       description,
       video,
       meta,

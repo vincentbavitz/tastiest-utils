@@ -5,7 +5,6 @@ import {
   IOrder,
   reportInternalError,
   TastiestInternalErrorCode,
-  UserData,
   UserDataApi,
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
@@ -59,7 +58,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       }
 
       const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
-      const userDetails = await userDataApi.getUserField(UserData.DETAILS);
+      const { details: userDetails } = await userDataApi.getUserData();
 
       // User not found
       if (!userDetails) {
@@ -97,9 +96,9 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         email: userDetails?.email,
         firstName: userDetails?.firstName,
         paidAtDate: moment(Date.now()).format('Do MMMM YYYY'),
-        paymentCard,
         ...order,
         ...booking,
+        paymentCard,
 
         user: {
           ...userDetails,

@@ -48,27 +48,7 @@ export class UserDataApi {
     }
   }
 
-  public getUserField = async <T extends UserData>(
-    field: T,
-  ): Promise<TUserData<T> | null> => {
-    // Ensure we are initialized
-    if (!this.userId) {
-      throw new Error('UserDataApi: Ensure you have initialized first.');
-    }
-
-    try {
-      const doc = await adb(this.admin, FirestoreCollection.USERS)
-        .doc(`${this.userId}/${field}`)
-        .get();
-
-      const userField = (await doc.data()) as TUserData<T>;
-      return userField ?? null;
-    } catch (error) {
-      return null;
-    }
-  };
-
-  public getUserData = async (): Promise<IUserData | null> => {
+  public getUserData = async (): Promise<IUserData> => {
     // Ensure we are initialized
     if (!this.userId) {
       throw new Error('UserDataApi: Ensure you have initialized first.');
@@ -82,7 +62,7 @@ export class UserDataApi {
       const userData = (await doc.data()) as IUserData;
       return userData ?? null;
     } catch (error) {
-      return null;
+      throw new Error('UserDataApi: Failed to getUserData.');
     }
   };
 

@@ -3,7 +3,6 @@ import {
   IOrder,
   reportInternalError,
   TastiestInternalErrorCode,
-  UserData,
   UserDataApi,
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
@@ -129,7 +128,7 @@ export const abandonedCartCallback = functions.https.onRequest(
 
       // They've abandoned card --> fire off Abandoned Cart Event
       const userDataApi = new UserDataApi(firebaseAdmin, order.userId);
-      const userDetails = await userDataApi.getUserField(UserData.DETAILS);
+      const { details: userDetails } = await userDataApi.getUserData();
 
       await analytics.track({
         userId: order.userId,
