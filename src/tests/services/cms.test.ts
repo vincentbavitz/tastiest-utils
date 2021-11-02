@@ -1,8 +1,14 @@
 import dotenv from 'dotenv';
-import { CmsApi, CuisineSymbol } from '../..';
-import { dlog } from '../../utils';
+import { CmsApi, CuisineSymbol, dlog, minsIntoHumanTime } from '../..';
 
 dotenv.config({ path: '.env.local' });
+
+describe('Test Luxon', () => {
+  test('Luxon', async () => {
+    const time = minsIntoHumanTime(564);
+    console.log('time', time);
+  });
+});
 
 describe('Convert Types from CMS', () => {
   test('Convert Posts', async () => {
@@ -77,7 +83,7 @@ describe('Get Content from CMS', () => {
   test('Get Restaurant from ID', async () => {
     const cms = new CmsApi();
     const restaurant = await cms.getRestaurantById(
-      'AX6PG0tqBsh9LXw6Ca28iJtHL9n2',
+      'YvN7B347c7bL58ZuQVqTBI6rPE53',
     );
 
     expect(restaurant).toBeDefined();
@@ -106,8 +112,7 @@ describe('Get Content from CMS', () => {
     const cms = new CmsApi();
     const posts = await cms.getPostsOfRestaurant('bite-me-burger');
 
-    dlog('cms.test ➡️ posts:', posts);
-    expect(true).toBeDefined();
+    expect(posts).toBeDefined();
   });
 
   test('Get Tastiest Dishes of Cuisine', async () => {
@@ -120,8 +125,10 @@ describe('Get Content from CMS', () => {
   test('Get restaurant by ID', async () => {
     const cms = new CmsApi();
     const restaurant = await cms.getRestaurantById(
-      '8OJeowHe84Z89u9epRA7sbMIayu1',
+      'zFekbQT8LNaQb5enmzKw5iLe46P2',
     );
+
+    dlog('cms.test ➡️ restaurant:', restaurant);
 
     expect(restaurant).toBeDefined();
   });

@@ -5,11 +5,12 @@ import CMS from '../constants/cms';
 import {
   IAuthor,
   IDeal,
-  IFigureImage,
   IMeta,
   IPost,
   IRestaurant,
   ITastiestDish,
+  Media,
+  YouTubeVideo,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { IAddress } from '../types/geography';
@@ -61,10 +62,6 @@ export class CmsApi {
     page = 1,
     options?: Partial<IGetPostsOptions>,
   ): Promise<IFetchPostsReturn> {
-    dlog('cms ➡️ options:', options);
-    const latLon = `${options?.near?.lat},${options?.near?.lon}`;
-    dlog('cms ➡️ latLon:', latLon);
-
     const entries = await this.client.getEntries({
       content_type: 'post',
       limit: quantity,
@@ -230,8 +227,6 @@ export class CmsApi {
       include: 10,
     });
 
-    dlog('cms ➡️ entries:', entries);
-
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
@@ -329,8 +324,11 @@ export class CmsApi {
       include: 10,
     });
 
+    dlog('cms ➡️ rawRestaurant:', entries?.items);
+
     if (entries?.items?.length > 0) {
       const restaurant = this.convertRestaurant(entries.items[0]);
+
       return restaurant;
     }
 
@@ -464,7 +462,6 @@ export class CmsApi {
     });
 
     if (entries?.items?.length > 0) {
-      dlog('cms ➡️ entries?.items[0];:', entries?.items[0]);
       const discount = this.convertPromo(entries.items[0]);
       return discount;
     }
@@ -472,7 +469,7 @@ export class CmsApi {
     return;
   };
 
-  public convertImage = (rawImage: any): IFigureImage | undefined => {
+  public convertImage = (rawImage: any): Media | undefined => {
     const url = rawImage?.file?.url?.replace('//', 'https://');
     const description = rawImage?.description ?? '';
     const title = rawImage?.title ?? '';
@@ -554,7 +551,6 @@ export class CmsApi {
 
       return deal as IDeal;
     } catch (error) {
-      dlog('cms ➡️ error:', error);
       return;
     }
   };
@@ -597,16 +593,44 @@ export class CmsApi {
     const businessType = rawRestaurant?.fields?.businessType;
     const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
     const bookingSystemSite = rawRestaurant?.fields?.bookingSystemSite ?? null;
+
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
 
+    const backdropVideo = this.convertImage(
+      rawRestaurant?.fields?.backdropVideo?.fields,
+    );
+
+    const backdropStillFrame = this.convertImage(
+      rawRestaurant?.fields?.backdropStillFrame?.fields,
+    );
+
     // Restaurant page properties
     const description = rawRestaurant?.fields?.description ?? null;
-    const video = rawRestaurant?.fields?.video ?? null;
     const heroIllustration = this.convertImage(
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
+
+    // Convert YouTube video
+    const convertYouTubeVideo = (
+      rawRestaurant: any,
+    ): YouTubeVideo | undefined => {
+      const videoReference = rawRestaurant?.fields?.video;
+      const url = videoReference?.fields?.url ?? null;
+      const displayTitle = videoReference?.fields?.displayTitle ?? null;
+      const description = videoReference?.fields?.description ?? null;
+
+      if (!url) {
+        return;
+      }
+
+      return {
+        url,
+        displayTitle,
+        description,
+      };
+    };
 
     const convertMeta = (rawRestaurant: any): IMeta | undefined => {
       const title = rawRestaurant?.fields?.metaTitle ?? null;
@@ -625,6 +649,7 @@ export class CmsApi {
     };
 
     const meta = convertMeta(rawRestaurant);
+    const video = convertYouTubeVideo(rawRestaurant);
 
     if (
       !id ||
@@ -637,6 +662,8 @@ export class CmsApi {
       !businessType ||
       !profilePicture ||
       !publicPhoneNumber ||
+      !backdropVideo ||
+      !backdropStillFrame ||
       !heroIllustration ||
       !description ||
       !video ||
@@ -656,6 +683,8 @@ export class CmsApi {
       businessType,
       profilePicture,
       publicPhoneNumber,
+      backdropVideo,
+      backdropStillFrame,
       bookingSystemSite,
       heroIllustration,
       description,
@@ -733,8 +762,6 @@ export class CmsApi {
       !post.displayLocation ||
       !post.abstractDivider
     ) {
-      dlog('post', post);
-
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
         message: '',

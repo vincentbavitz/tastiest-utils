@@ -6,15 +6,21 @@ export type IAuthor = {
   name: string;
   bio: string;
   email: string;
-  profileImage?: IFigureImage;
+  profileImage?: Media;
   // Eg. Marketing, Researcher
   position: string | null;
 };
 
-export type IFigureImage = {
+export type Media = {
   title: string | null;
   description: string | null;
   url: string;
+};
+
+export type YouTubeVideo = {
+  url: string;
+  displayTitle: string | null;
+  description: string | null;
 };
 
 // Articles link to IDeal
@@ -22,21 +28,21 @@ export interface IDeal {
   id: string;
   name: string;
   dishName: string; // Appears in the "Do you know a better ..." section
-  image: IFigureImage;
+  image: Media;
   restaurant: IRestaurant;
   includes: Array<string>; // ['300g Porterhouse', 'Fries', ...]
   tagline: string; // Experience the best porterhouse steak in London
   allowedHeads: number[]; // eg [2,4,6] for Date Night
   pricePerHeadGBP: number; // eg 29.95
   additionalInfo: Document | null; // eg; PLUS 1 Mocktail each. In sidebar.
-  dynamicImage: IFigureImage | null; // .mp4 VP9 600x600, webm fallback.
+  dynamicImage: Media | null; // .mp4 VP9 600x600, webm fallback.
 }
 
 export interface ITastiestDish {
   id: string;
   name: string;
-  image: IFigureImage;
-  dynamicImage: IFigureImage;
+  image: Media;
+  dynamicImage: Media;
   restaurant: IRestaurant;
   cuisine: CuisineSymbol;
 }
@@ -60,7 +66,7 @@ export interface IOrganisation {
 export interface IMeta {
   title: string; // displayed in google search results
   description: string; // displayed in google search results
-  image: IFigureImage; // og-image
+  image: Media; // og-image
 }
 
 export interface IRestaurant {
@@ -74,7 +80,11 @@ export interface IRestaurant {
   // Contentful has a contact, but we don't want to
   // share that with the user.
   contact?: IContact;
-  profilePicture: IFigureImage;
+
+  profilePicture: Media;
+  backdropVideo: Media;
+  backdropStillFrame: Media;
+
   bookingSystemSite: string;
   businessType: 'restaurant' | 'take-away' | 'cafe';
 
@@ -82,9 +92,9 @@ export interface IRestaurant {
   uriName: string;
 
   // Properties that appear on the restaurant's page at /[city]/[cuisine]/[restaurant]
-  heroIllustration: IFigureImage;
+  heroIllustration: Media;
   description: Document;
-  video: string;
+  video: YouTubeVideo;
 
   meta: IMeta;
 }
@@ -107,11 +117,11 @@ export interface IPost {
   needToKnow: Document | null;
   deal: IDeal;
   restaurant: IRestaurant;
-  titleDivider: IFigureImage;
-  abstractDivider: IFigureImage;
-  offerDivider: IFigureImage;
-  menuImage: IFigureImage | null;
-  auxiliaryImage: IFigureImage | null;
+  titleDivider: Media;
+  abstractDivider: Media;
+  offerDivider: Media;
+  menuImage: Media | null;
+  auxiliaryImage: Media | null;
 
   // Descriptive
   tags: Array<string>;

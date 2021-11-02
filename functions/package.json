@@ -15,7 +15,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@google-cloud/tasks": "^2.3.6",
-    "@tastiest-io/tastiest-utils": "^1.1.0",
+    "@tastiest-io/tastiest-utils": "^1.7.0",
     "@types/analytics-node": "^3.1.4",
     "@types/node-fetch": "^2.5.10",
     "analytics-node": "^4.0.1",
@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "eslint": "^7.23.0",
     "firebase-admin": "^9.2.0",
-    "firebase-functions": "^3.11.0",
+    "firebase-functions": "^3.15.7",
     "googleapis": "39",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",

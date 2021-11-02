@@ -42,7 +42,9 @@ export const syncFromContentful = functions.https.onRequest(
       return;
     }
 
-    const restaurantId = request.body?.fields?.id?.['en-US'];
+    const restaurantId =
+      request.body?.fields?.id?.['en-US'] ?? request.body?.fields?.id;
+
     const restaurant = await cmsApi.getRestaurantById(restaurantId);
 
     if (!restaurant) {
