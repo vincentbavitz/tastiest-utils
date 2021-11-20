@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { CmsApi, CuisineSymbol, dlog, minsIntoHumanTime } from '../..';
 
 dotenv.config({ path: '.env.local' });
+const cms = new CmsApi(undefined, undefined, 'production');
 
 describe('Test Luxon', () => {
   test('Luxon', async () => {
@@ -12,7 +13,6 @@ describe('Test Luxon', () => {
 
 describe('Convert Types from CMS', () => {
   test('Convert Posts', async () => {
-    const cms = new CmsApi();
     const { posts } = await cms.getPosts(5);
     expect(posts).toBeDefined();
     posts.forEach(post => {
@@ -33,41 +33,64 @@ describe('Convert Types from CMS', () => {
       expect(post).toHaveProperty('needToKnow');
       expect(post).toHaveProperty('restaurant');
       expect(post).toHaveProperty('description');
-      expect(post).toHaveProperty('titleDivider');
-      expect(post).toHaveProperty('offerDivider');
-      expect(post).toHaveProperty('auxiliaryImage');
       expect(post).toHaveProperty('displayLocation');
-      expect(post).toHaveProperty('abstractDivider');
     });
   });
   test('Convert Deal', async () => {
-    const cms = new CmsApi();
-    const deal = await cms.getDeal('5OEoxkYWz8KYAg0rMwVBNi');
-    expect(deal).toBeDefined();
-    expect(deal).toHaveProperty('id');
-    expect(deal).toHaveProperty('name');
-    expect(deal).toHaveProperty('image');
-    expect(deal).toHaveProperty('restaurant');
-    expect(deal).toHaveProperty('includes');
-    expect(deal).toHaveProperty('tagline');
-    expect(deal).toHaveProperty('allowedHeads');
-    expect(deal).toHaveProperty('pricePerHeadGBP');
-    expect(deal).toHaveProperty('additionalInfo');
-    expect(deal).toHaveProperty('dynamicImage');
+    const { posts } = await cms.getPosts();
+    posts
+      .map(p => p.deal)
+      .forEach(deal => {
+        expect(deal).toBeDefined();
+        expect(deal).toHaveProperty('id');
+        expect(deal).toHaveProperty('name');
+        expect(deal).toHaveProperty('image');
+        expect(deal).toHaveProperty('restaurant');
+        expect(deal).toHaveProperty('tagline');
+        expect(deal).toHaveProperty('allowedHeads');
+        expect(deal).toHaveProperty('pricePerHeadGBP');
+        expect(deal).toHaveProperty('additionalInfo');
+
+        expect(deal?.restaurant).toBeDefined();
+      });
   });
 });
 
 describe('Get Content from CMS', () => {
+  test('Get tastiest dishes of restaurant', async () => {
+    const { dishes } = await cms.getTastiestDishesOfRestaurant(
+      'numa-cafe-mill-hill',
+    );
+
+    dishes.forEach(r => dlog('cms.test ➡️ dishes:', [r.name, r.description]));
+    expect(dishes).toBeDefined();
+  });
+
+  test('Get all restaurants', async () => {
+    const { restaurants } = await cms.getRestaurants();
+
+    expect(restaurants).toBeDefined();
+  });
+
+  test('Get all posts', async () => {
+    const { posts } = await cms.getPosts();
+    expect(posts).toBeDefined();
+  });
+
   test('Get Post By Deal ID', async () => {
-    const cmsApi = new CmsApi();
-    const post = await cmsApi.getPostByDealId('v5WWg3Sr573AleBLH9LmH');
+    const post = await cms.getPostByDealId('v5WWg3Sr573AleBLH9LmH');
 
     expect(post).toBeDefined();
   });
 
+  test('Get Posts of Restaurant', async () => {
+    const { posts } = await cms.getPostsOfRestaurant('numa-cafe-mill-hill');
+
+    expect(posts).toBeDefined();
+  });
+
   test('Get Tastiest Dishes of Restaurant', async () => {
-    const cmsApi = new CmsApi();
-    const { dishes } = await cmsApi.getTastiestDishesOfRestaurant(
+    const { dishes } = await cms.getTastiestDishesOfRestaurant(
       'bite-me-burger',
     );
 
@@ -75,13 +98,11 @@ describe('Get Content from CMS', () => {
   });
 
   test('Get promo', async () => {
-    const cms = new CmsApi();
     const promo = await cms.getPromo('5OFF');
     expect(promo).toBeDefined();
   });
 
   test('Get Restaurant from ID', async () => {
-    const cms = new CmsApi();
     const restaurant = await cms.getRestaurantById(
       'YvN7B347c7bL58ZuQVqTBI6rPE53',
     );
@@ -90,14 +111,14 @@ describe('Get Content from CMS', () => {
   });
 
   test('Get Restaurant from URI Name', async () => {
-    const cms = new CmsApi();
-    const restaurant = await cms.getRestaurantFromUriName('back-a-yard-grill');
+    const restaurant = await cms.getRestaurantFromUriName(
+      'el-vaquero-mill-hill',
+    );
 
     expect(restaurant).toBeDefined();
   });
 
   test('Get nearby Posts', async () => {
-    const cms = new CmsApi();
     const nearSpongebobPosts = await cms.getPosts(5, 1, {
       near: { lat: 25, lon: -92 },
     });
@@ -109,32 +130,26 @@ describe('Get Content from CMS', () => {
   });
 
   test('Get Restaurant Posts', async () => {
-    const cms = new CmsApi();
     const posts = await cms.getPostsOfRestaurant('bite-me-burger');
 
     expect(posts).toBeDefined();
   });
 
   test('Get Tastiest Dishes of Cuisine', async () => {
-    const cms = new CmsApi();
     const posts = await cms.getTastiestDishesOfCuisine(CuisineSymbol.CARIBBEAN);
 
     expect(posts).toBeDefined();
   });
 
   test('Get restaurant by ID', async () => {
-    const cms = new CmsApi();
     const restaurant = await cms.getRestaurantById(
       'zFekbQT8LNaQb5enmzKw5iLe46P2',
     );
-
-    dlog('cms.test ➡️ restaurant:', restaurant);
 
     expect(restaurant).toBeDefined();
   });
 
   test('Global Search Restaurants', async () => {
-    const cms = new CmsApi();
     const searchedRestaurants = await cms.searchRestaurants('back');
 
     expect(searchedRestaurants).toBeDefined();

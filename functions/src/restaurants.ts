@@ -33,8 +33,6 @@ export const restaurantCreated = functions.firestore
   .onCreate(async (snap, context) => {
     const { restaurantId } = context.params ?? '';
 
-    dlog('restaurantOnboarding ➡️ restaurantId:', restaurantId);
-
     try {
       // Track restaurant onboarding
       analytics.track({

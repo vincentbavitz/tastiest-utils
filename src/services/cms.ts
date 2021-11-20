@@ -21,6 +21,11 @@ interface IFetchPostsReturn {
   total: number;
 }
 
+interface IFetchDealsReturn {
+  deals: Array<IDeal>;
+  total: number;
+}
+
 interface IFetchDishesReturn {
   dishes: Array<ITastiestDish>;
   total: number;
@@ -122,8 +127,6 @@ export class CmsApi {
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
   ): Promise<IFetchPostsReturn> {
-    console.log('cms ➡️ slugs:', slugs);
-
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -324,8 +327,6 @@ export class CmsApi {
       include: 10,
     });
 
-    dlog('cms ➡️ rawRestaurant:', entries?.items);
-
     if (entries?.items?.length > 0) {
       const restaurant = this.convertRestaurant(entries.items[0]);
 
@@ -454,6 +455,31 @@ export class CmsApi {
     }
   };
 
+  public async getDealsOfRestaurant(
+    restaurantUriName: string,
+    quantity = CMS.BLOG_RESULTS_PER_PAGE,
+    page = 1,
+  ): Promise<IFetchDealsReturn> {
+    const entries = await this.client.getEntries({
+      content_type: 'deal',
+      limit: quantity,
+      skip: (page - 1) * quantity,
+      include: 10,
+      'fields.restaurant.sys.contentType.sys.id': 'restaurant',
+      'fields.restaurant.fields.uriName[in]': restaurantUriName,
+    });
+
+    if (entries?.items?.length > 0) {
+      const deals = entries.items
+        .map(entry => this.convertDeal(entry))
+        .filter(deal => Boolean(deal)) as IDeal[];
+
+      return { deals, total: entries.total };
+    }
+
+    return { deals: [], total: 0 } as IFetchDealsReturn;
+  }
+
   public getPromo = async (code: string): Promise<IPromo | undefined> => {
     const entries = await this.client.getEntries({
       content_type: 'promo',
@@ -515,7 +541,6 @@ export class CmsApi {
         dishName: rawDeal?.fields?.dishName,
         restaurant: this.convertRestaurant(rawDeal?.fields?.restaurant),
         tagline: rawDeal?.fields?.tagline,
-        includes: rawDeal?.fields?.includes ?? [],
         pricePerHeadGBP: rawDeal?.fields?.price,
         additionalInfo: rawDeal?.fields?.additionalInfo ?? null,
         allowedHeads: convertAllowedHeads(rawDeal?.fields?.allowedHeads),
@@ -530,7 +555,6 @@ export class CmsApi {
         !deal.dishName ||
         !deal.restaurant ||
         !deal.tagline ||
-        !deal.includes ||
         !deal.pricePerHeadGBP ||
         !deal.image
       ) {
@@ -669,6 +693,23 @@ export class CmsApi {
       !video ||
       !meta
     ) {
+      dlog('cms ➡️ id:', id);
+      dlog('cms ➡️ name:', name);
+      dlog('cms ➡️ city:', city);
+      dlog('cms ➡️ cuisine:', cuisine);
+      dlog('cms ➡️ uriName:', uriName);
+      dlog('cms ➡️ website:', website);
+      dlog('cms ➡️ location:', location);
+      dlog('cms ➡️ businessType:', businessType);
+      dlog('cms ➡️ profilePicture:', profilePicture);
+      dlog('cms ➡️ publicPhoneNumber:', publicPhoneNumber);
+      dlog('cms ➡️ backdropVideo:', backdropVideo);
+      dlog('cms ➡️ backdropStillFrame:', backdropStillFrame);
+      dlog('cms ➡️ heroIllustration:', heroIllustration);
+      dlog('cms ➡️ description:', description);
+      dlog('cms ➡️ video:', video);
+      dlog('cms ➡️ meta:', meta);
+
       return;
     }
 
@@ -695,9 +736,7 @@ export class CmsApi {
 
   public convertPost = (rawData: any): IPost | undefined => {
     const rawPost = rawData?.fields;
-    const rawAbstractDivider = rawPost?.abstractDivider?.fields;
-    const rawTitleDivider = rawPost?.titleDivider?.fields;
-    const rawOfferDivider = rawPost?.offerDivider?.fields;
+    const rawPlate = rawPost?.plate?.fields;
     const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
 
@@ -732,9 +771,7 @@ export class CmsApi {
       tags: rawPost?.tags ?? [],
       slug: rawPost?.slug,
       meta: convertMeta(rawPost),
-      titleDivider: this.convertImage(rawTitleDivider),
-      abstractDivider: this.convertImage(rawAbstractDivider),
-      offerDivider: this.convertImage(rawOfferDivider),
+      plate: this.convertImage(rawPlate),
       needToKnow: rawPost?.needToKnow ?? null,
       displayLocation: rawPost?.displayLocation ?? null,
       menuImage: this.convertImage(rawPost?.menuImage?.fields) ?? null,
@@ -751,16 +788,14 @@ export class CmsApi {
       !post.date ||
       !post.city ||
       !post.deal ||
+      !post.plate ||
       !post.title ||
       !post.video ||
       !post.author ||
       !post.cuisine ||
       !post.restaurant ||
       !post.description ||
-      !post.titleDivider ||
-      !post.offerDivider ||
-      !post.displayLocation ||
-      !post.abstractDivider
+      !post.displayLocation
     ) {
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
@@ -786,6 +821,7 @@ export class CmsApi {
     const tastiestDish: Partial<ITastiestDish> = {
       id: rawTastiestDish?.sys?.id,
       name: rawTastiestDish?.fields?.name,
+      description: rawTastiestDish?.fields?.description,
       image: this.convertImage(rawTastiestDish?.fields?.staticImage?.fields),
       restaurant: this.convertRestaurant(rawTastiestDish?.fields?.restaurant),
       cuisine: this.convertCuisine(rawTastiestDish?.fields?.cuisine),
@@ -797,8 +833,9 @@ export class CmsApi {
     if (
       !tastiestDish.id ||
       !tastiestDish.name ||
+      !tastiestDish.description ||
       !tastiestDish.image ||
-      !tastiestDish.dynamicImage ||
+      // !tastiestDish.dynamicImage ||
       !tastiestDish.restaurant ||
       !tastiestDish.cuisine
     ) {

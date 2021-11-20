@@ -30,7 +30,6 @@ export interface IDeal {
   dishName: string; // Appears in the "Do you know a better ..." section
   image: Media;
   restaurant: IRestaurant;
-  includes: Array<string>; // ['300g Porterhouse', 'Fries', ...]
   tagline: string; // Experience the best porterhouse steak in London
   allowedHeads: number[]; // eg [2,4,6] for Date Night
   pricePerHeadGBP: number; // eg 29.95
@@ -41,10 +40,11 @@ export interface IDeal {
 export interface ITastiestDish {
   id: string;
   name: string;
+  description: string;
   image: Media;
-  dynamicImage: Media;
   restaurant: IRestaurant;
   cuisine: CuisineSymbol;
+  dynamicImage: Media;
 }
 
 export interface IContact {
@@ -103,8 +103,12 @@ export interface IPost {
   id: string;
   title: string;
   description: string;
-  author: IAuthor;
   date: string;
+
+  // Refs
+  author: IAuthor;
+  deal: IDeal;
+  restaurant: IRestaurant;
 
   // Post abstract information
   video: string;
@@ -115,11 +119,7 @@ export interface IPost {
   // Content
   body: Document;
   needToKnow: Document | null;
-  deal: IDeal;
-  restaurant: IRestaurant;
-  titleDivider: Media;
-  abstractDivider: Media;
-  offerDivider: Media;
+  plate: Media; // plate SVG
   menuImage: Media | null;
   auxiliaryImage: Media | null;
 

@@ -30,6 +30,7 @@ export enum FirestoreCollection {
   SUPPORT_RESTAURANTS = 'support-restaurants',
 
   // User sessions and activity
+  EVENTS = 'events',
   SESSIONS = 'sessions',
 
   // Internal error reporting
