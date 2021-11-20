@@ -199,6 +199,7 @@ export interface IRestaurantFinancialDetails {
 }
 
 export type EmailTemplate = {
+  id: string;
   name: string;
   html: string;
   design: any; // used for unlayer's loadDesign method
