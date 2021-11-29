@@ -1,6 +1,6 @@
 import {
   FirestoreCollection,
-  IOrder,
+  Order,
   reportInternalError,
   TastiestInternalErrorCode,
   UserDataApi,
@@ -32,7 +32,7 @@ const ABANDONED_CART_EXPIRY_SECONDS = 60 * 20;
 export const onCheckoutInitiated = functions.firestore
   .document(`/${FirestoreCollection.ORDERS}/{orderId}`)
   .onCreate(async snapshot => {
-    const data = snapshot.data() as IOrder;
+    const data = snapshot.data() as Order;
     const { id: orderId } = data;
 
     const tasksClient = new CloudTasksClient();
@@ -94,7 +94,7 @@ export const abandonedCartCallback = functions.https.onRequest(
       .doc(payload.orderId)
       .get();
 
-    const order = snapshot.data() as IOrder;
+    const order = snapshot.data() as Order;
 
     // Order was paid, or we don't have their email. No worries.
     if (order.paidAt || !order.userId) {

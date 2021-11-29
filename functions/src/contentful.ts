@@ -1,11 +1,15 @@
 import {
   CmsApi,
+  Contact,
   FunctionsResponse,
-  RestaurantData,
   RestaurantDataApi,
+  RestaurantDataKey,
+  RestaurantDetails,
+  RestaurantProfile,
 } from '@tastiest-io/tastiest-utils';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
+import lodash from 'lodash';
 
 // import Stripe from 'stripe';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -25,6 +29,7 @@ export const syncFromContentful = functions.https.onRequest(
     );
 
     const contentType = request.body?.sys?.contentType?.sys?.id;
+
     const entityId = request.body?.sys?.id;
 
     if (!entityId || !contentType) {
@@ -39,6 +44,11 @@ export const syncFromContentful = functions.https.onRequest(
 
     // For each content type, sync to Firestore
     if (contentType !== 'restaurant') {
+      response.json({
+        data: null,
+        success: false,
+        error: 'Not a restaurant',
+      });
       return;
     }
 
@@ -57,15 +67,73 @@ export const syncFromContentful = functions.https.onRequest(
       return;
     }
 
+    // Get the contact, as the cms API omits it for security.
+    const contactEntryId = request.body?.fields?.contact?.['en-US']?.sys?.id;
+    const contactEntry = await cmsApi.client.getEntry<Contact>(contactEntryId);
+    const contact = contactEntry.fields;
+
+    const restaurantDetails: Omit<
+      RestaurantDetails,
+      'isTest' | 'isDemo' | 'isArchived'
+    > = {
+      id: restaurant.id,
+      name: restaurant.name,
+      city: restaurant.city,
+      cuisine: restaurant.cuisine,
+      location: restaurant.location,
+      bookingSystem: restaurant.bookingSystem,
+      businessType: restaurant.businessType,
+      uriName: restaurant.id,
+      contact,
+    };
+
+    const restaurantProfile: RestaurantProfile = {
+      website: restaurant.website,
+      profilePicture: restaurant.profilePicture,
+      backdropVideo: restaurant.backdropVideo,
+      backdropStillFrame: restaurant.backdropStillFrame,
+      heroIllustration: restaurant.heroIllustration,
+      description: restaurant.description,
+      publicPhoneNumber: restaurant.publicPhoneNumber,
+      video: restaurant.video,
+      meta: restaurant.meta,
+    };
+
     try {
       const restaurantDataApi = new RestaurantDataApi(admin, restaurant.id);
-      await restaurantDataApi.setRestaurantData(
-        RestaurantData.DETAILS,
-        restaurant,
+
+      const detailsResponse = await restaurantDataApi.setRestaurantData(
+        RestaurantDataKey.DETAILS,
+        lodash.pickBy(
+          restaurantDetails,
+          (_, value) => !lodash.isUndefined(value),
+        ),
+      );
+
+      const profileResponse = await restaurantDataApi.setRestaurantData(
+        RestaurantDataKey.PROFILE,
+        lodash.pickBy(
+          restaurantProfile,
+          (_, value) => !lodash.isUndefined(value),
+        ),
       );
 
       response.json({
-        data: null,
+        data: {
+          detailsResponse,
+          profileResponse,
+          restaurant,
+          restaurantDetails,
+          restaurantProfile,
+          restaurantDetailsCleaned: lodash.pickBy(
+            restaurantDetails,
+            (_, value) => !lodash.isUndefined(value),
+          ),
+          restaurantProfileCleaned: lodash.pickBy(
+            restaurantProfile,
+            (_, value) => !lodash.isUndefined(value),
+          ),
+        },
         success: true,
         error: null,
       });

@@ -1,7 +1,7 @@
 import {
+  Booking,
   FirestoreCollection,
-  IBooking,
-  IOrder,
+  Order,
 } from '@tastiest-io/tastiest-utils';
 import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
@@ -14,8 +14,8 @@ const analytics = new Analytics(functions.config().segment.write_key);
 export const onBookingUpdated = functions.firestore
   .document(`/${FirestoreCollection.BOOKINGS}/{orderId}`)
   .onUpdate(async snap => {
-    const before = snap.before.data() as IBooking;
-    const after = snap.after.data() as IBooking;
+    const before = snap.before.data() as Booking;
+    const after = snap.after.data() as Booking;
 
     // Eater arrived!
     if (!before.hasArrived && after.hasArrived) {
@@ -34,14 +34,14 @@ export const onBookingUpdated = functions.firestore
 export const onBookingCreated = functions.firestore
   .document(`/${FirestoreCollection.BOOKINGS}/{orderId}`)
   .onCreate(async snap => {
-    const booking = snap.data() as IBooking;
+    const booking = snap.data() as Booking;
 
     // Get corresponding order
     const orderRef = await db(FirestoreCollection.ORDERS)
       .doc(booking.orderId)
       .get();
 
-    const order = orderRef.data() as IOrder;
+    const order = orderRef.data() as Order;
 
     const userMetricsRef = db(FirestoreCollection.USERS).doc(
       `${booking.userId}`,

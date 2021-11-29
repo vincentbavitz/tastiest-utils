@@ -1,6 +1,6 @@
 import { FirebaseAuthError } from '../types';
 
-export interface IFirestore {
+export interface Firestore {
   data: any;
 }
 

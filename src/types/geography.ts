@@ -1,6 +1,6 @@
 import { Currency } from '.';
 
-export interface IAddress {
+export interface Address {
   lat: number;
   lon: number;
   address: string;

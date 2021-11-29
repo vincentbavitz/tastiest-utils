@@ -1,8 +1,8 @@
 import { Document } from '@contentful/rich-text-types';
 import { CuisineSymbol } from './cuisine';
-import { IAddress } from './geography';
+import { RestaurantDetails, RestaurantProfile } from './restaurant';
 
-export type IAuthor = {
+export type Author = {
   name: string;
   bio: string;
   email: string;
@@ -23,92 +23,66 @@ export type YouTubeVideo = {
   description: string | null;
 };
 
-// Articles link to IDeal
-export interface IDeal {
+export type RestaurantContentful = Omit<
+  RestaurantDetails & RestaurantProfile,
+  'isTest' | 'isDemo' | 'isArchived'
+>;
+
+export interface ExperienceProduct {
   id: string;
   name: string;
   dishName: string; // Appears in the "Do you know a better ..." section
   image: Media;
-  restaurant: IRestaurant;
   tagline: string; // Experience the best porterhouse steak in London
   allowedHeads: number[]; // eg [2,4,6] for Date Night
   pricePerHeadGBP: number; // eg 29.95
   additionalInfo: Document | null; // eg; PLUS 1 Mocktail each. In sidebar.
   dynamicImage: Media | null; // .mp4 VP9 600x600, webm fallback.
+  restaurant: RestaurantContentful;
 }
 
-export interface ITastiestDish {
+export interface TastiestDish {
   id: string;
   name: string;
   description: string;
   image: Media;
-  restaurant: IRestaurant;
-  cuisine: CuisineSymbol;
   dynamicImage: Media;
+  cuisine: CuisineSymbol;
+  restaurant: RestaurantContentful;
 }
 
-export interface IContact {
+export interface Contact {
   firstName: string;
   lastName: string;
   email: string;
   mobile: string;
 }
 
-export interface IOrganisation {
+export interface Organisation {
   id: string;
   name: string;
   website: string;
-  contact: IContact;
+  contact: Contact;
   // Restaurant IDs
   restaurants: Array<string>;
 }
 
-export interface IMeta {
+export interface MetaDetails {
   title: string; // displayed in google search results
   description: string; // displayed in google search results
   image: Media; // og-image
 }
 
-export interface IRestaurant {
-  id: string;
-  name: string;
-  city: string;
-  website: string;
-  cuisine: CuisineSymbol;
-  location: IAddress;
-  publicPhoneNumber: string;
-  // Contentful has a contact, but we don't want to
-  // share that with the user.
-  contact?: IContact;
-
-  profilePicture: Media;
-  backdropVideo: Media;
-  backdropStillFrame: Media;
-
-  bookingSystemSite: string;
-  businessType: 'restaurant' | 'take-away' | 'cafe';
-
-  // This is the name as it appears in the URL. Eg. tastiest.io/london/bite-be-burger
-  uriName: string;
-
-  // Properties that appear on the restaurant's page at /[city]/[cuisine]/[restaurant]
-  heroIllustration: Media;
-  description: Document;
-  video: YouTubeVideo;
-
-  meta: IMeta;
-}
-
-export interface IPost {
+export interface ExperiencePost {
   id: string;
   title: string;
   description: string;
   date: string;
 
   // Refs
-  author: IAuthor;
-  deal: IDeal;
-  restaurant: IRestaurant;
+  author: Author;
+  deal: ExperienceProduct;
+  restaurant: RestaurantContentful;
 
   // Post abstract information
   video: string;
@@ -126,7 +100,7 @@ export interface IPost {
   // Descriptive
   tags: Array<string>;
   slug: string;
-  meta: IMeta;
+  meta: MetaDetails;
 }
 
 export type BodyDocument = {

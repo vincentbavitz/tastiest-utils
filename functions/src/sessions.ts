@@ -1,7 +1,7 @@
 import {
   FunctionsResponse,
-  UserData,
   UserDataApi,
+  UserDataKey,
 } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
 import { firebaseAdmin } from './admin';
@@ -41,7 +41,7 @@ export const sessionHandler = functions.https.onRequest(
         return;
       }
 
-      await userDataApi.setUserData(UserData.DETAILS, {
+      await userDataApi.setUserData(UserDataKey.DETAILS, {
         lastActive: Date.now(),
       });
     }
@@ -54,7 +54,7 @@ export const sessionHandler = functions.https.onRequest(
     //       .get();
 
     //     const userSessions = ((await userSessionsDoc.data()) ??
-    //       []) as IUserSession[];
+    //       []) as UserSession[];
 
     //     const event: EventTrigger = {
     //       event: body.event ?? '',
@@ -66,8 +66,8 @@ export const sessionHandler = functions.https.onRequest(
     //     };
 
     //     // Get or create current session
-    //     let session: IUserSession;
-    //     const currentSession: IUserSession | undefined = userSessions.find(
+    //     let session: UserSession;
+    //     const currentSession: UserSession | undefined = userSessions.find(
     //       session => session.sessionStartTimestamp > Date.now() - MS_IN_DAY,
     //     );
 
@@ -120,8 +120,8 @@ export const sessionHandler = functions.https.onRequest(
 
 /** Merge sessions saved in Firestore to its respective owner's userId */
 // const mergeSessions = (
-//   originalSessionList: IUserSession[] = [],
-//   anonymousSessionList: IUserSession[] = [],
+//   originalSessionList: UserSession[] = [],
+//   anonymousSessionList: UserSession[] = [],
 // ) => {
 //   // Does a original session already exist within the last 24hrs?
 //   const currentOriginalSession = originalSessionList.find(

@@ -1,31 +1,34 @@
 import { StripeErrorType } from '@stripe/stripe-js';
 import Stripe from 'stripe';
-import { IDeal, IRestaurant } from './cms';
+import { RestaurantDetails } from '.';
+import { ExperienceProduct } from './cms';
 
 export type DiscountAmount = { value: number; unit: '%' | '£' };
 
 export type Currency = 'GBP' | 'USD' | 'EUR' | 'AUD';
 export type OrderPrice = {
-  gross: number;
-  final: number; // After discount and etc applied
+  subtotal: number;
+
+  /** After discount and etc applied */
+  final: number;
   currency: Currency;
 };
 
-export interface IPromo {
+export interface Promo {
   name: string;
   code: string;
-  discount: DiscountAmount;
   validTo: number;
+  discount: DiscountAmount;
   maximumUses: number | null;
   validForSlugs?: 'all' | string[];
   validForUsersIds?: 'all' | string[];
 }
 
 // Order type in the raw DB form
-// We don't want the IDeal etc stored here directly,
+// We don't want the ExperienceProduct etc stored here directly,
 // as the user generates this  information client side.
 // We get the actual deal informatiuon server-side from Contentful
-export interface IOrderRequest {
+export interface OrderRequest {
   dealId?: string;
   userId?: string;
   anonymousId?: string;
@@ -37,14 +40,14 @@ export interface IOrderRequest {
   bookedForTimestamp?: number;
 }
 
-export interface IOrder {
+export interface Order {
   id: string;
   // For emails and support
   userFacingOrderId: string;
 
   // To validate clientside before user logs in
   token: string;
-  deal: IDeal;
+  deal: ExperienceProduct;
   userId: string;
   heads: number;
   fromSlug: string;
@@ -71,12 +74,11 @@ export interface IOrder {
   isTest: boolean;
 }
 
-// This is what the restaurant sees after eater pays
-// Stored in firestore/bookings
-export interface IBooking {
+/** What the restaurant sees after eater pays */
+export interface Booking {
   orderId: string;
   userId: string;
-  restaurant: IRestaurant;
+  restaurant: RestaurantDetails;
   userFacingBookingId: string;
   restaurantId: string;
   eaterName: string;
@@ -92,14 +94,17 @@ export interface IBooking {
   cancelledAt: number | null;
   bookedForTimestamp: number;
 
-  // Code required when customer enters restaurant
+  /** Code required when customer enters restaurant */
   confirmationCode: string;
   isConfirmationCodeVerified: boolean;
+
+  /** Synced with restaurant's external booking system? */
+  isSyncedWithBookingSystem: boolean;
 
   isTest: boolean;
 }
 
-export interface IPaymentDetails {
+export interface PaymentDetails {
   // https://stripe.com/docs/payments/save-and-reuse#web-create-setup-intent
   stripeCustomerId: string;
   stripeSetupSecret: string;

@@ -3,8 +3,8 @@ import {
   dlog,
   FirestoreCollection,
   FunctionsResponse,
-  RestaurantData,
   RestaurantDataApi,
+  RestaurantDataKey,
   UserRole,
 } from '@tastiest-io/tastiest-utils';
 import * as admin from 'firebase-admin';
@@ -43,11 +43,11 @@ export const restaurantCreated = functions.firestore
 
       // Set TOS acceptance to false until they explicitly sign in
       const restaurantDataApi = new RestaurantDataApi(admin, restaurantId);
-      restaurantDataApi.setRestaurantData(RestaurantData.LEGAL, {
+      restaurantDataApi.setRestaurantData(RestaurantDataKey.LEGAL, {
         hasAcceptedTerms: false,
       });
 
-      await restaurantDataApi.setRestaurantData(RestaurantData.METRICS, {
+      await restaurantDataApi.setRestaurantData(RestaurantDataKey.METRICS, {
         followers: [],
         openTimes: {
           [DayOfWeek.SUNDAY]: { open: false, range: [0, 1440] },
@@ -154,7 +154,7 @@ export const connectAccountCreated = functions.https.onRequest(
       restaurantId,
     );
 
-    await restaurantDataApi.setRestaurantData(RestaurantData.FINANCIAL, {
+    await restaurantDataApi.setRestaurantData(RestaurantDataKey.FINANCIAL, {
       stripeConnectedAccount: data,
     });
 

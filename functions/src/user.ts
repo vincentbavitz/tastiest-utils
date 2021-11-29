@@ -1,13 +1,13 @@
 import {
+  Booking,
   FirestoreCollection,
-  IBooking,
-  IOrder,
-  IUserData,
-  IUserMetrics,
+  Order,
   reportInternalError,
   TastiestInternalErrorCode,
   UserData,
   UserDataApi,
+  UserDataKey,
+  UserMetrics,
 } from '@tastiest-io/tastiest-utils';
 import * as functions from 'firebase-functions';
 import Stripe from 'stripe';
@@ -45,7 +45,7 @@ export const onUserCreated = functions.firestore
       });
 
       // Set setup secret etc
-      userDataApi.setUserData(UserData.PAYMENT_DETAILS, {
+      userDataApi.setUserData(UserDataKey.PAYMENT_DETAILS, {
         stripeCustomerId: customer.id,
         stripeSetupSecret: intent.client_secret ?? undefined,
       });
@@ -66,11 +66,12 @@ export const onUserCreated = functions.firestore
     // //////////////////////////////////////////////////////// //
     // /////////////     Create new user metrics     ////////// //
     // //////////////////////////////////////////////////////// //
-    const initialUserMetrics: IUserMetrics = {
+    const initialUserMetrics: UserMetrics = {
       totalBookings: 0,
       totalSpent: { ['GBP']: 0 },
       restaurantsVisited: [],
       restaurantsFollowed: [],
+      recentSearches: [],
     };
 
     await db(FirestoreCollection.USERS)
@@ -94,7 +95,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     .doc(userRecord.uid)
     .get();
 
-  const userDataFull = userSnapshot.data() as Partial<IUserData>;
+  const userDataFull = userSnapshot.data() as Partial<UserData>;
 
   // //////////////////////////////////////////////////////////// //
   // //         Delete the customer's Stripe account.          // //
@@ -138,7 +139,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     // Add user's orders to archive collection
     if (!userOrdersSnapshotDocs.empty) {
       userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
-        const order = orderSnapshot.data() as IOrder;
+        const order = orderSnapshot.data() as Order;
         const orderRef = db(FirestoreCollection.ORDERS_ARCHIVE).doc(order.id);
 
         batch.set(orderRef, order);
@@ -148,7 +149,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
 
       // Remove user's orders from original orders collection
       userOrdersSnapshotDocs.docs.forEach(orderSnapshot => {
-        const order = orderSnapshot.data() as IOrder;
+        const order = orderSnapshot.data() as Order;
         const orderRef = db(FirestoreCollection.ORDERS).doc(order.id);
 
         batch.delete(orderRef);
@@ -182,7 +183,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
     // Add user's bookings to archive collection
     if (!userBookingsSnapshotDocs.empty) {
       userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
-        const booking = bookingSnapshot.data() as IBooking;
+        const booking = bookingSnapshot.data() as Booking;
         const bookingRef = db(FirestoreCollection.BOOKINGS_ARCHIVE).doc(
           booking.orderId,
         );
@@ -194,7 +195,7 @@ export const onDeleteUser = functions.auth.user().onDelete(async userRecord => {
 
       // Remove user's bookings from original bookings collection
       userBookingsSnapshotDocs.docs.forEach(bookingSnapshot => {
-        const booking = bookingSnapshot.data() as IBooking;
+        const booking = bookingSnapshot.data() as Booking;
         const bookingRef = db(FirestoreCollection.BOOKINGS).doc(
           booking.orderId,
         );

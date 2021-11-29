@@ -1,8 +1,8 @@
 import {
+  Booking,
   FirestoreCollection,
   FunctionsResponse,
-  IBooking,
-  IOrder,
+  Order,
   reportInternalError,
   TastiestInternalErrorCode,
   UserDataApi,
@@ -34,7 +34,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
       const orderRef = await db(FirestoreCollection.ORDERS).doc(orderId).get();
 
       // Get the information for the `Payment Success` event properties
-      const order = orderRef.data() as IOrder;
+      const order = orderRef.data() as Order;
 
       // Couldn't find order
       if (!order?.userId) {
@@ -86,7 +86,7 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         .doc(orderId)
         .get();
 
-      const booking = bookingSnapshot.data() as IBooking;
+      const booking = bookingSnapshot.data() as Booking;
 
       // Calculate the portions of Tastiest and the restaurant, respectively.
       const tastiestPortion = order.price.final * 0.25; // TODO ---> Account for promo codes!

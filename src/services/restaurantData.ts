@@ -1,10 +1,9 @@
+import { FirestoreCollection, FunctionsResponse } from '..';
 import {
-  FirestoreCollection,
-  FunctionsResponse,
-  IRestaurantData,
   RestaurantData,
+  RestaurantDataKey,
   TRestaurantData,
-} from '..';
+} from '../types/restaurant';
 import { adb } from '../utils/firebase';
 
 // Intended for server-side use ONLY!
@@ -36,7 +35,7 @@ export class RestaurantDataApi {
     }
   }
 
-  public getRestaurantField = async <T extends RestaurantData>(
+  public getRestaurantField = async <T extends RestaurantDataKey>(
     field?: T,
   ): Promise<TRestaurantData<T> | null> => {
     // Ensure we are initialized
@@ -61,7 +60,7 @@ export class RestaurantDataApi {
     }
   };
 
-  public getRestaurantData = async (): Promise<Partial<IRestaurantData> | null> => {
+  public getRestaurantData = async (): Promise<Partial<RestaurantData> | null> => {
     // Ensure we are initialized
     if (!this.restaurantId) {
       throw new Error('RestaurantDataApi: Ensure you have initialized first.');
@@ -80,7 +79,7 @@ export class RestaurantDataApi {
     }
   };
 
-  public setRestaurantData = async <T extends RestaurantData>(
+  public setRestaurantData = async <T extends RestaurantDataKey>(
     field: T,
     value: Partial<TRestaurantData<T>>,
   ): Promise<FunctionsResponse<TRestaurantData<T>>> => {

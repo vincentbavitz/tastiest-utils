@@ -1,38 +1,39 @@
+import { dlog } from '@tastiest-io/tastiest-utils';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
-import { dlog, reportInternalError, TastiestInternalErrorCode } from '..';
+import { reportInternalError, TastiestInternalErrorCode } from '..';
 import CMS from '../constants/cms';
 import {
-  IAuthor,
-  IDeal,
-  IMeta,
-  IPost,
-  IRestaurant,
-  ITastiestDish,
+  Author,
+  ExperiencePost,
+  ExperienceProduct,
   Media,
+  MetaDetails,
+  RestaurantContentful,
+  TastiestDish,
   YouTubeVideo,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
-import { IAddress } from '../types/geography';
-import { DiscountAmount, IPromo } from '../types/payments';
+import { Address } from '../types/geography';
+import { DiscountAmount, Promo } from '../types/payments';
 
-interface IFetchPostsReturn {
-  posts: Array<IPost>;
+interface FetchPostsReturn {
+  posts: Array<ExperiencePost>;
   total: number;
 }
 
-interface IFetchDealsReturn {
-  deals: Array<IDeal>;
+interface FetchDealsReturn {
+  deals: Array<ExperienceProduct>;
   total: number;
 }
 
-interface IFetchDishesReturn {
-  dishes: Array<ITastiestDish>;
+interface FetchDishesReturn {
+  dishes: Array<TastiestDish>;
   total: number;
 }
 
-interface IFetchRestaurantsReturn {
-  restaurants: Array<IRestaurant>;
+interface FetchRestaurantsReturn {
+  restaurants: Array<RestaurantContentful>;
   total: number;
 }
 
@@ -41,9 +42,9 @@ export const slugify = (id: string) => id?.replace(/_/g, '-').toLowerCase();
 export const unslugify = (slug: string) =>
   slug.replace(/-/g, '_').toUpperCase();
 
-interface IGetPostsOptions {
+interface GetPostsOptions {
   // Order results cloests to
-  near: Omit<IAddress, 'address'>;
+  near: Omit<Address, 'address'>;
 }
 
 export class CmsApi {
@@ -65,8 +66,8 @@ export class CmsApi {
   public async getPosts(
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-    options?: Partial<IGetPostsOptions>,
-  ): Promise<IFetchPostsReturn> {
+    options?: Partial<GetPostsOptions>,
+  ): Promise<FetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       limit: quantity,
@@ -84,19 +85,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
   public async getPostsByTag(
     tag: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchPostsReturn> {
+  ): Promise<FetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -109,15 +110,17 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
-  public async getPostBySlug(slug: string): Promise<IPost | undefined> {
+  public async getPostBySlug(
+    slug: string,
+  ): Promise<ExperiencePost | undefined> {
     const { posts } = await this.getPostsOfSlugs([slug], 1);
     return posts?.[0];
   }
@@ -126,7 +129,7 @@ export class CmsApi {
     slugs: Array<string>,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchPostsReturn> {
+  ): Promise<FetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -139,19 +142,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
   public async getPostsOfCuisine(
     cuisine: CuisineSymbol,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchPostsReturn> {
+  ): Promise<FetchPostsReturn> {
     const cuisineToMatch = cuisine.toLowerCase();
 
     const entries = await this.client.getEntries({
@@ -167,19 +170,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
   public async getPostsOfRestaurant(
     restaurantUriName: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchPostsReturn> {
+  ): Promise<FetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -193,15 +196,17 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
-  public async getPostByDealId(dealId: string): Promise<IPost | undefined> {
+  public async getPostByDealId(
+    dealId: string,
+  ): Promise<ExperiencePost | undefined> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       limit: 1,
@@ -220,7 +225,7 @@ export class CmsApi {
   public async getTastiestDishes(
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchDishesReturn> {
+  ): Promise<FetchDishesReturn> {
     const entries = await this.client.getEntries({
       content_type: 'tastiestDish',
       limit: quantity,
@@ -233,19 +238,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
-        .filter(dish => Boolean(dish)) as ITastiestDish[];
+        .filter(dish => Boolean(dish)) as TastiestDish[];
 
       return { dishes, total: entries.total };
     }
 
-    return { dishes: [], total: 0 } as IFetchDishesReturn;
+    return { dishes: [], total: 0 } as FetchDishesReturn;
   }
 
   public async getTastiestDishesOfRestaurant(
     restaurantUriName: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchDishesReturn> {
+  ): Promise<FetchDishesReturn> {
     const entries = await this.client.getEntries({
       content_type: 'tastiestDish',
       limit: quantity,
@@ -258,19 +263,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
-        .filter(dish => Boolean(dish)) as ITastiestDish[];
+        .filter(dish => Boolean(dish)) as TastiestDish[];
 
       return { dishes, total: entries.total };
     }
 
-    return { dishes: [], total: 0 } as IFetchDishesReturn;
+    return { dishes: [], total: 0 } as FetchDishesReturn;
   }
 
   public async getTastiestDishesOfCuisine(
     cuisine: CuisineSymbol,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchDishesReturn> {
+  ): Promise<FetchDishesReturn> {
     const cuisineToMatch = cuisine.toLowerCase();
 
     const entries = await this.client.getEntries({
@@ -285,18 +290,18 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
-        .filter(dish => Boolean(dish)) as ITastiestDish[];
+        .filter(dish => Boolean(dish)) as TastiestDish[];
 
       return { dishes, total: entries.total };
     }
 
-    return { dishes: [], total: 0 } as IFetchDishesReturn;
+    return { dishes: [], total: 0 } as FetchDishesReturn;
   }
 
   public async getRestaurants(
     quantity = 100,
     page = 1,
-  ): Promise<IFetchRestaurantsReturn> {
+  ): Promise<FetchRestaurantsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'restaurant',
       limit: quantity,
@@ -309,17 +314,17 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const restaurants = entries.items
         .map(entry => this.convertRestaurant(entry))
-        .filter(post => Boolean(post)) as IRestaurant[];
+        .filter(post => Boolean(post)) as RestaurantContentful[];
 
       return { restaurants, total: entries.total };
     }
 
-    return { restaurants: [], total: 0 } as IFetchRestaurantsReturn;
+    return { restaurants: [], total: 0 } as FetchRestaurantsReturn;
   }
 
   public async getRestaurantById(
     restaurantId: string,
-  ): Promise<IRestaurant | undefined> {
+  ): Promise<RestaurantContentful | undefined> {
     const entries = await this.client.getEntries({
       content_type: 'restaurant',
       'fields.id[in]': restaurantId,
@@ -365,7 +370,7 @@ export class CmsApi {
     query: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchPostsReturn> {
+  ): Promise<FetchPostsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       order: '-fields.date',
@@ -380,19 +385,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const blogPosts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as IPost[];
+        .filter(post => Boolean(post)) as ExperiencePost[];
 
       return { posts: blogPosts, total: entries.total };
     }
 
-    return { posts: [], total: 0 } as IFetchPostsReturn;
+    return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
   public async searchTastiestDishes(
     query: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchDishesReturn> {
+  ): Promise<FetchDishesReturn> {
     const entries = await this.client.getEntries({
       content_type: 'tastiestDish',
       limit: quantity,
@@ -404,19 +409,19 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const dishes = entries.items
         .map(entry => this.convertTastiestDish(entry))
-        .filter(dish => Boolean(dish)) as ITastiestDish[];
+        .filter(dish => Boolean(dish)) as TastiestDish[];
 
       return { dishes, total: entries.total };
     }
 
-    return { dishes: [], total: 0 } as IFetchDishesReturn;
+    return { dishes: [], total: 0 } as FetchDishesReturn;
   }
 
   public async searchRestaurants(
     query: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchRestaurantsReturn> {
+  ): Promise<FetchRestaurantsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'restaurant',
       limit: quantity,
@@ -428,12 +433,12 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const restaurants = entries.items
         .map(entry => this.convertRestaurant(entry))
-        .filter(restaurant => Boolean(restaurant)) as IRestaurant[];
+        .filter(restaurant => Boolean(restaurant)) as RestaurantContentful[];
 
       return { restaurants, total: entries.total };
     }
 
-    return { restaurants: [], total: 0 } as IFetchRestaurantsReturn;
+    return { restaurants: [], total: 0 } as FetchRestaurantsReturn;
   }
 
   public async getTopPosts(limit?: number) {
@@ -441,9 +446,11 @@ export class CmsApi {
     return this.getPosts(limit);
   }
 
-  public getDeal = async (dealId: string): Promise<IDeal | undefined> => {
+  public getDeal = async (
+    dealId: string,
+  ): Promise<ExperienceProduct | undefined> => {
     try {
-      const entry = await this.client.getEntry<IDeal>(dealId, {
+      const entry = await this.client.getEntry<ExperienceProduct>(dealId, {
         include: 10,
       });
 
@@ -459,7 +466,7 @@ export class CmsApi {
     restaurantUriName: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<IFetchDealsReturn> {
+  ): Promise<FetchDealsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'deal',
       limit: quantity,
@@ -472,15 +479,15 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const deals = entries.items
         .map(entry => this.convertDeal(entry))
-        .filter(deal => Boolean(deal)) as IDeal[];
+        .filter(deal => Boolean(deal)) as ExperienceProduct[];
 
       return { deals, total: entries.total };
     }
 
-    return { deals: [], total: 0 } as IFetchDealsReturn;
+    return { deals: [], total: 0 } as FetchDealsReturn;
   }
 
-  public getPromo = async (code: string): Promise<IPromo | undefined> => {
+  public getPromo = async (code: string): Promise<Promo | undefined> => {
     const entries = await this.client.getEntries({
       content_type: 'promo',
       'fields.code[in]': code,
@@ -511,7 +518,7 @@ export class CmsApi {
     };
   };
 
-  public convertAuthor = (rawAuthor: any): IAuthor | undefined => {
+  public convertAuthor = (rawAuthor: any): Author | undefined => {
     const name = rawAuthor?.name;
     const profileImage = this.convertImage(rawAuthor?.profileImage?.fields);
     const bio = rawAuthor?.bio;
@@ -525,7 +532,7 @@ export class CmsApi {
     return { name, profileImage, bio, position, email };
   };
 
-  public convertDeal = (rawDeal: any): IDeal | undefined => {
+  public convertDeal = (rawDeal: any): ExperienceProduct | undefined => {
     const convertAllowedHeads = (rawAllowedHeads: string) => {
       try {
         return JSON.parse(rawAllowedHeads);
@@ -535,7 +542,7 @@ export class CmsApi {
     };
 
     try {
-      const deal: Partial<IDeal> = {
+      const deal: Partial<ExperienceProduct> = {
         id: rawDeal.sys.id,
         name: rawDeal?.fields?.name,
         dishName: rawDeal?.fields?.dishName,
@@ -573,13 +580,13 @@ export class CmsApi {
         return;
       }
 
-      return deal as IDeal;
+      return deal as ExperienceProduct;
     } catch (error) {
       return;
     }
   };
 
-  public convertLocation = (rawLocation: any): IAddress | undefined => {
+  public convertLocation = (rawLocation: any): Address | undefined => {
     const lat = rawLocation?.fields?.coordinates.lat ?? null;
     const lon = rawLocation?.fields?.coordinates.lon ?? null;
     const address = rawLocation?.fields?.address;
@@ -606,7 +613,9 @@ export class CmsApi {
     ];
   };
 
-  public convertRestaurant = (rawRestaurant: any): IRestaurant | undefined => {
+  public convertRestaurant = (
+    rawRestaurant: any,
+  ): RestaurantContentful | undefined => {
     const id = rawRestaurant?.fields?.id;
     const city = rawRestaurant?.fields?.city;
     const name = rawRestaurant?.fields?.name;
@@ -616,7 +625,7 @@ export class CmsApi {
     const location = this.convertLocation(rawRestaurant?.fields?.location);
     const businessType = rawRestaurant?.fields?.businessType;
     const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
-    const bookingSystemSite = rawRestaurant?.fields?.bookingSystemSite ?? null;
+    const bookingSystem = rawRestaurant?.fields?.bookingSystem ?? null;
 
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
@@ -656,7 +665,7 @@ export class CmsApi {
       };
     };
 
-    const convertMeta = (rawRestaurant: any): IMeta | undefined => {
+    const convertMeta = (rawRestaurant: any): MetaDetails | undefined => {
       const title = rawRestaurant?.fields?.metaTitle ?? null;
       const description = rawRestaurant?.fields?.metaDescription ?? null;
       const image = this.convertImage(rawRestaurant?.fields?.metaImage?.fields);
@@ -693,23 +702,6 @@ export class CmsApi {
       !video ||
       !meta
     ) {
-      dlog('cms ➡️ id:', id);
-      dlog('cms ➡️ name:', name);
-      dlog('cms ➡️ city:', city);
-      dlog('cms ➡️ cuisine:', cuisine);
-      dlog('cms ➡️ uriName:', uriName);
-      dlog('cms ➡️ website:', website);
-      dlog('cms ➡️ location:', location);
-      dlog('cms ➡️ businessType:', businessType);
-      dlog('cms ➡️ profilePicture:', profilePicture);
-      dlog('cms ➡️ publicPhoneNumber:', publicPhoneNumber);
-      dlog('cms ➡️ backdropVideo:', backdropVideo);
-      dlog('cms ➡️ backdropStillFrame:', backdropStillFrame);
-      dlog('cms ➡️ heroIllustration:', heroIllustration);
-      dlog('cms ➡️ description:', description);
-      dlog('cms ➡️ video:', video);
-      dlog('cms ➡️ meta:', meta);
-
       return;
     }
 
@@ -726,7 +718,7 @@ export class CmsApi {
       publicPhoneNumber,
       backdropVideo,
       backdropStillFrame,
-      bookingSystemSite,
+      bookingSystem,
       heroIllustration,
       description,
       video,
@@ -734,13 +726,13 @@ export class CmsApi {
     };
   };
 
-  public convertPost = (rawData: any): IPost | undefined => {
+  public convertPost = (rawData: any): ExperiencePost | undefined => {
     const rawPost = rawData?.fields;
     const rawPlate = rawPost?.plate?.fields;
     const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
 
-    const convertMeta = (rawPost: any): IMeta | undefined => {
+    const convertMeta = (rawPost: any): MetaDetails | undefined => {
       const title = rawPost?.metaTitle ?? null;
       const description = rawPost?.metaDescription ?? null;
       const image = this.convertImage(rawPost?.metaImage?.fields);
@@ -756,7 +748,7 @@ export class CmsApi {
       };
     };
 
-    const post: Partial<IPost> = {
+    const post: Partial<ExperiencePost> = {
       id: rawData?.sys?.id,
       title: rawPost?.title,
       description: rawPost?.description,
@@ -812,13 +804,15 @@ export class CmsApi {
       return;
     }
 
-    return post as IPost;
+    return post as ExperiencePost;
   };
 
   public convertTastiestDish = (
     rawTastiestDish: any,
-  ): ITastiestDish | undefined => {
-    const tastiestDish: Partial<ITastiestDish> = {
+  ): TastiestDish | undefined => {
+    dlog('cms ➡️ rawTastiestDish:', rawTastiestDish);
+
+    const tastiestDish: Partial<TastiestDish> = {
       id: rawTastiestDish?.sys?.id,
       name: rawTastiestDish?.fields?.name,
       description: rawTastiestDish?.fields?.description,
@@ -854,10 +848,10 @@ export class CmsApi {
       return undefined;
     }
 
-    return tastiestDish as ITastiestDish;
+    return tastiestDish as TastiestDish;
   };
 
-  public convertPromo = (rawPromo: any): IPromo | undefined => {
+  public convertPromo = (rawPromo: any): Promo | undefined => {
     const amount = rawPromo?.fields?.amountOff ?? 0;
     const unit = (rawPromo?.fields?.discountUnit as '%' | '£') ?? '%';
 

@@ -62,7 +62,7 @@ describe('Get Content from CMS', () => {
       'numa-cafe-mill-hill',
     );
 
-    dishes.forEach(r => dlog('cms.test ➡️ dishes:', [r.name, r.description]));
+    // dishes.forEach(r => dlog('cms.test ➡️ dishes:', [r.name, r.description]));
     expect(dishes).toBeDefined();
   });
 
@@ -90,10 +90,9 @@ describe('Get Content from CMS', () => {
   });
 
   test('Get Tastiest Dishes of Restaurant', async () => {
-    const { dishes } = await cms.getTastiestDishesOfRestaurant(
-      'bite-me-burger',
-    );
+    const { dishes } = await cms.getTastiestDishes();
 
+    dlog('cms.test ➡️ dishes:', dishes);
     expect(dishes).toBeDefined();
   });
 
