@@ -1,6 +1,7 @@
 export * from './cms';
 export * from './cuisine';
 export * from './data';
+export * from './email';
 export * from './firebase';
 export * from './geography';
 export * from './payments';

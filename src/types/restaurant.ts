@@ -122,8 +122,11 @@ export interface RestaurantMetrics {
 }
 
 export interface RestaurantRealtime {
-  isServing: boolean;
+  // isServing: boolean;
   // bookings: RealtimeBooking[]; // can extract number of empty seats at any given time
+
+  /** An array of ISO Date strings */
+  availableBookingSlots: string[];
 }
 
 // prettier-ignore

@@ -11,6 +11,9 @@ export enum TastiestInternalErrorCode {
   CLOUD_TASK = 'CLOUD_TASK', // Google Cloud Task failure.
   PASSWORD_RESET = 'PASSWORD_RESET',
   FOLLOWING_ERROR = 'FOLLOWING_ERROR', // Following cloud function
+
+  /** Booking system sync error. */
+  BOOKING_SYSTEM_SYNC = 'BOOKING_SYSTEM_SYNC',
 }
 
 export type ErrorSeverity = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
