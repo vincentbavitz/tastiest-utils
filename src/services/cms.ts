@@ -819,9 +819,6 @@ export class CmsApi {
       image: this.convertImage(rawTastiestDish?.fields?.staticImage?.fields),
       restaurant: this.convertRestaurant(rawTastiestDish?.fields?.restaurant),
       cuisine: this.convertCuisine(rawTastiestDish?.fields?.cuisine),
-      dynamicImage: this.convertImage(
-        rawTastiestDish?.fields?.dynamicImage?.fields,
-      ),
     };
 
     if (
@@ -829,7 +826,6 @@ export class CmsApi {
       !tastiestDish.name ||
       !tastiestDish.description ||
       !tastiestDish.image ||
-      // !tastiestDish.dynamicImage ||
       !tastiestDish.restaurant ||
       !tastiestDish.cuisine
     ) {

@@ -127,6 +127,7 @@ export interface RestaurantRealtime {
 
   /** An array of ISO Date strings */
   availableBookingSlots: string[];
+  lastBookingSlotsSync: number; // timestamp
 }
 
 // prettier-ignore
