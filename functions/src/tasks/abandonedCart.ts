@@ -22,7 +22,7 @@ interface AbandonedCartTaskPayload {
   docPath: string;
 }
 
-const ABANDONED_CART_EXPIRY_SECONDS = 60 * 20;
+const ABANDONED_CART_EXPIRY_SECONDS = 60 * 60;
 
 /**
  * Abandoned cart flow.
