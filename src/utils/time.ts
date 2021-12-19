@@ -27,7 +27,7 @@ export const humanTimeIntoMins = (hours: number, mins: number) => {
 export const toZeroIndexedDays = (day: number) => day % 7;
 
 /** Gets the number of minutes into the current day */
-export const getMinsIntoDay = () => {
-  const datetime = DateTime.now();
+export const getMinsIntoDay = (timezone?: string) => {
+  const datetime = timezone ? DateTime.now().setZone(timezone) : DateTime.now();
   return datetime.hour * TIME.MINS_IN_HOUR + datetime.minute;
 };
