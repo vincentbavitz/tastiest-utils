@@ -93,6 +93,7 @@ export interface Booking {
   hasCancelled: boolean;
   cancelledAt: number | null;
   bookedForTimestamp: number;
+  bookedForHumanDate: string;
 
   /** Code required when customer enters restaurant */
   confirmationCode: string;
