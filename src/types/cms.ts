@@ -25,7 +25,7 @@ export type YouTubeVideo = {
 
 export type RestaurantContentful = Omit<
   RestaurantDetails & RestaurantProfile,
-  'isTest' | 'isDemo' | 'isArchived'
+  'mode' | 'isArchived'
 >;
 
 export interface ExperienceProduct {
