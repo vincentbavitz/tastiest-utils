@@ -34,6 +34,11 @@ export interface RestaurantProfile {
   meta: MetaDetails;
 }
 
+export enum RestaurantDataMode {
+  TEST = 'TEST',
+  DEMO = 'DEMO',
+  LIVE = 'LIVE',
+}
 export interface RestaurantDetails {
   id: string;
   name: string;
@@ -52,8 +57,7 @@ export interface RestaurantDetails {
   uriName: string;
 
   // Toggles
-  isTest: boolean;
-  isDemo: boolean;
+  mode: RestaurantDataMode;
   isArchived: boolean;
 }
 
