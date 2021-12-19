@@ -117,6 +117,15 @@ export interface RestaurantMetrics {
   quietTimes: WeekQuietTimes;
   openTimes: WeekOpenTimes;
 
+  /** If realtime data isn't available, should we fall-back to
+   *  all-open times as being available, or not?
+   *
+   *  The consequence is that if you do not fall-back and your
+   *  booking-system sync fails for some reason, no-one will
+   *  be able to book.
+   */
+  shouldFallbackToOpenTimes: boolean;
+
   // How long is each sit-down considered to be? (minutes)
   seatingDuration: number;
 }
