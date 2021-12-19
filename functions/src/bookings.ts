@@ -23,7 +23,11 @@ export const onBookingUpdated = functions.firestore
         userId: after.userId,
         event: 'Eater Arrived',
         timestamp: new Date(),
-        properties: after,
+        properties: {
+          ...after,
+          // Add hyphens for Slack notification links to work properly.
+          eaterMobile: after.eaterMobile.replace(/[\s]/g, '-'),
+        },
       });
     }
 
