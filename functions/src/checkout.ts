@@ -4,6 +4,7 @@ import {
   FunctionsResponse,
   Order,
   reportInternalError,
+  RestaurantDataApi,
   TastiestInternalErrorCode,
   UserDataApi,
 } from '@tastiest-io/tastiest-utils';
@@ -115,6 +116,25 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
           event: 'Payment Success',
           userId: order.userId,
           properties,
+          timestamp: new Date(),
+        });
+      }
+
+      const restaurantDataApi = new RestaurantDataApi(
+        firebaseAdmin,
+        order.deal.restaurant.id,
+      );
+
+      // Send out email to restaurant that a new booking has been made.
+      const restaurant = await restaurantDataApi.getRestaurantData();
+      if (restaurant?.settings?.shouldNotifyNewBookings ?? true) {
+        await analytics.track({
+          event: 'New Booking For Restaurant',
+          userId: order.deal.restaurant.id,
+          properties: {
+            ...properties,
+            email: restaurant?.details?.contact?.email ?? '',
+          },
           timestamp: new Date(),
         });
       }

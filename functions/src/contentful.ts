@@ -80,10 +80,7 @@ export const syncFromContentful = functions.https.onRequest(
     const contactEntry = await cmsApi.client.getEntry<Contact>(contactEntryId);
     const contact = contactEntry.fields;
 
-    const restaurantDetails: Omit<
-      RestaurantDetails,
-      'isTest' | 'isDemo' | 'isArchived'
-    > = {
+    const restaurantDetails: Omit<RestaurantDetails, 'mode' | 'isArchived'> = {
       id: restaurant.id,
       name: restaurant.name,
       city: restaurant.city,

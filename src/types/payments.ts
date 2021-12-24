@@ -71,6 +71,11 @@ export interface Order {
     timestamp: number;
   };
 
+  // Filled out after payment is complete.
+  tastiestCut: null | { amount: number; currency: Currency };
+  restaurantCut: null | { amount: number; currency: Currency };
+
+  isUserFollowing: boolean;
   isTest: boolean;
 }
 
@@ -102,11 +107,15 @@ export interface Booking {
   /** Synced with restaurant's external booking system? */
   isSyncedWithBookingSystem: boolean;
 
+  // Calculate cuts per booking, as default rates can change over time.
+  restaurantCut: { amount: number; currency: Currency };
+
+  isUserFollowing: boolean;
   isTest: boolean;
 }
 
 export interface PaymentDetails {
-  // https://stripe.com/docs/payments/save-and-reuse#web-create-setup-intent
+  // https://stripe.com/docs/payments/save-and-renuse#web-create-setup-intent
   stripeCustomerId: string;
   stripeSetupSecret: string;
   paymentMethods: string[];
