@@ -109,12 +109,15 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         restaurantPortion,
       };
 
-      await analytics.track({
-        event: 'Payment Success',
-        userId: order.userId,
-        properties,
-        timestamp: new Date(),
-      });
+      // Only send to Pixel etc if it's a legit event.
+      if (!order.isTest) {
+        await analytics.track({
+          event: 'Payment Success',
+          userId: order.userId,
+          properties,
+          timestamp: new Date(),
+        });
+      }
 
       // Update order payment card
       await db(FirestoreCollection.ORDERS).doc(orderId).set(

@@ -14,22 +14,16 @@ import lodash from 'lodash';
 // import Stripe from 'stripe';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
-// Syncs Contentful data to Firestore on publish
-// Includes restaurants, deals, etc.
+/**
+ * Syncs Contentful data to Firestore on publish
+ * Includes restaurants, deals, etc.
+ */
 export const syncFromContentful = functions.https.onRequest(
   async (request, response: functions.Response<FunctionsResponse>) => {
     // Our Contentful webhook gives us our entity type (eg, 'restaurant', etc)
     // and an entity ID.
-    // Currently (as of 15/04/2021), Contentful Webhooks don't give us linked
-    // assets in the response, so we must use these values to lookup the value
-    // from their regular API before sending it off to Firestore.
-    const cmsApi = new CmsApi(
-      functions.config().contentful.space_id,
-      functions.config().contentful.access_token,
-    );
 
     const contentType = request.body?.sys?.contentType?.sys?.id;
-
     const entityId = request.body?.sys?.id;
 
     if (!entityId || !contentType) {
@@ -54,6 +48,20 @@ export const syncFromContentful = functions.https.onRequest(
 
     const restaurantId =
       request.body?.fields?.id?.['en-US'] ?? request.body?.fields?.id;
+
+    const environment =
+      request.body?.sys?.environment?.sys?.id === 'development'
+        ? 'development'
+        : 'production';
+
+    // Currently (as of 15/04/2021), Contentful Webhooks don't give us linked
+    // assets in the response, so we must use these values to lookup the value
+    // from their regular API before sending it off to Firestore.
+    const cmsApi = new CmsApi(
+      functions.config().contentful.space_id,
+      functions.config().contentful.access_token,
+      environment,
+    );
 
     const restaurant = await cmsApi.getRestaurantById(restaurantId);
 

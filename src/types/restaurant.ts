@@ -72,6 +72,7 @@ export enum RestaurantDataKey {
   INVOICES = 'invoices',
   LEGAL = 'legal',
   METRICS = 'metrics',
+  SETTINGS = 'settings',
   REALTIME = 'realtime',
 }
 
@@ -121,6 +122,13 @@ export interface RestaurantMetrics {
   quietTimes: WeekQuietTimes;
   openTimes: WeekOpenTimes;
 
+  // How long is each sit-down considered to be? (minutes)
+  seatingDuration: number;
+}
+
+export interface RestaurantSettings {
+  shouldNotifyNewBookings: boolean;
+
   /** If realtime data isn't available, should we fall-back to
    *  all-open times as being available, or not?
    *
@@ -129,9 +137,6 @@ export interface RestaurantMetrics {
    *  be able to book.
    */
   shouldFallbackToOpenTimes: boolean;
-
-  // How long is each sit-down considered to be? (minutes)
-  seatingDuration: number;
 }
 
 export interface RestaurantRealtime {
@@ -157,6 +162,9 @@ export type TRestaurantData<T extends RestaurantDataKey> =
   
       // Metrics recorded periodically
       T extends RestaurantDataKey.METRICS ? RestaurantMetrics :
+
+      // Settings of restaurant.
+      T extends RestaurantDataKey.SETTINGS ? RestaurantSettings : 
       
       // Realtime statistics such as tables open, etc.
       T extends RestaurantDataKey.REALTIME ? RestaurantRealtime :

@@ -50,6 +50,7 @@ interface GetPostsOptions {
 export class CmsApi {
   [x: string]: any;
   client: ContentfulClientApi;
+  isDevelopment: boolean;
 
   constructor(
     space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
@@ -61,6 +62,8 @@ export class CmsApi {
       accessToken,
       environment,
     });
+
+    this.isDevelopment = environment === 'development';
   }
 
   public async getPosts(
