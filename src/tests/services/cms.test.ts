@@ -26,11 +26,8 @@ describe('Convert Types from CMS', () => {
       expect(post).toHaveProperty('city');
       expect(post).toHaveProperty('deal');
       expect(post).toHaveProperty('title');
-      expect(post).toHaveProperty('video');
-      expect(post).toHaveProperty('author');
       expect(post).toHaveProperty('cuisine');
       expect(post).toHaveProperty('menuImage');
-      expect(post).toHaveProperty('needToKnow');
       expect(post).toHaveProperty('restaurant');
       expect(post).toHaveProperty('description');
       expect(post).toHaveProperty('displayLocation');

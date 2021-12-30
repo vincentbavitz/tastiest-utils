@@ -4,7 +4,6 @@ import moment from 'moment';
 import { reportInternalError, TastiestInternalErrorCode } from '..';
 import CMS from '../constants/cms';
 import {
-  Author,
   ExperiencePost,
   ExperienceProduct,
   Media,
@@ -521,20 +520,6 @@ export class CmsApi {
     };
   };
 
-  public convertAuthor = (rawAuthor: any): Author | undefined => {
-    const name = rawAuthor?.name;
-    const profileImage = this.convertImage(rawAuthor?.profileImage?.fields);
-    const bio = rawAuthor?.bio;
-    const position = rawAuthor?.position;
-    const email = rawAuthor?.email;
-
-    if (!name || !bio || !position || !email) {
-      return undefined;
-    }
-
-    return { name, profileImage, bio, position, email };
-  };
-
   public convertDeal = (rawDeal: any): ExperienceProduct | undefined => {
     const convertAllowedHeads = (rawAllowedHeads: string) => {
       try {
@@ -732,7 +717,6 @@ export class CmsApi {
   public convertPost = (rawData: any): ExperiencePost | undefined => {
     const rawPost = rawData?.fields;
     const rawPlate = rawPost?.plate?.fields;
-    const rawAuthor = rawPost.author ? rawPost.author.fields : null;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
 
     const convertMeta = (rawPost: any): MetaDetails | undefined => {
@@ -756,10 +740,8 @@ export class CmsApi {
       title: rawPost?.title,
       description: rawPost?.description,
       body: rawPost?.body,
-      author: this.convertAuthor(rawAuthor),
       date: moment(rawPost.date).format('DD MMMM YYYY'),
       city: rawPost?.city,
-      video: rawPost?.video,
       cuisine: CuisineSymbol[rawCuisine],
       deal: this.convertDeal(rawPost?.deal),
       restaurant: this.convertRestaurant(rawPost?.restaurant),
@@ -767,7 +749,6 @@ export class CmsApi {
       slug: rawPost?.slug,
       meta: convertMeta(rawPost),
       plate: this.convertImage(rawPlate),
-      needToKnow: rawPost?.needToKnow ?? null,
       displayLocation: rawPost?.displayLocation ?? null,
       menuImage: this.convertImage(rawPost?.menuImage?.fields) ?? null,
       auxiliaryImage:
@@ -785,8 +766,6 @@ export class CmsApi {
       !post.deal ||
       !post.plate ||
       !post.title ||
-      !post.video ||
-      !post.author ||
       !post.cuisine ||
       !post.restaurant ||
       !post.description ||

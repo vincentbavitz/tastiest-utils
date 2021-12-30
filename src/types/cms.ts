@@ -2,15 +2,6 @@ import { Document } from '@contentful/rich-text-types';
 import { CuisineSymbol } from './cuisine';
 import { RestaurantDetails, RestaurantProfile } from './restaurant';
 
-export type Author = {
-  name: string;
-  bio: string;
-  email: string;
-  profileImage?: Media;
-  // Eg. Marketing, Researcher
-  position: string | null;
-};
-
 export type Media = {
   title: string | null;
   description: string | null;
@@ -80,19 +71,16 @@ export interface ExperiencePost {
   date: string;
 
   // Refs
-  author: Author;
   deal: ExperienceProduct;
   restaurant: RestaurantContentful;
 
   // Post abstract information
-  video: string;
   cuisine: string;
   city: string; // eg. London
   displayLocation: string; // eg. East London
 
   // Content
   body: Document;
-  needToKnow: Document | null;
   plate: Media; // plate SVG
   menuImage: Media | null;
   auxiliaryImage: Media | null;
