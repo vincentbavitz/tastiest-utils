@@ -1,5 +1,5 @@
 import nodeFetch from 'node-fetch';
-import { dlog, FunctionsResponse } from '..';
+import { FunctionsResponse } from '..';
 
 /**
  * Gets data from a POST request on our local API.
@@ -18,8 +18,6 @@ export const postFetch = async <Params = any, Response = any, TError = string>(
     // Accept: 'application/json',
     // }),
   };
-
-  dlog('api ➡️ endpoint:', endpoint);
 
   try {
     // Use server side fetch if necessary

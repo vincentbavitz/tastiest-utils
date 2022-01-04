@@ -1,4 +1,3 @@
-import { dlog } from '@tastiest-io/tastiest-utils';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
 import { reportInternalError, TastiestInternalErrorCode } from '..';
@@ -10,7 +9,6 @@ import {
   MetaDetails,
   RestaurantContentful,
   TastiestDish,
-  YouTubeVideo,
 } from '../types/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { Address } from '../types/geography';
@@ -533,7 +531,6 @@ export class CmsApi {
       const deal: Partial<ExperienceProduct> = {
         id: rawDeal.sys.id,
         name: rawDeal?.fields?.name,
-        dishName: rawDeal?.fields?.dishName,
         restaurant: this.convertRestaurant(rawDeal?.fields?.restaurant),
         tagline: rawDeal?.fields?.tagline,
         pricePerHeadGBP: rawDeal?.fields?.price,
@@ -547,7 +544,6 @@ export class CmsApi {
       if (
         !deal.id ||
         !deal.name ||
-        !deal.dishName ||
         !deal.restaurant ||
         !deal.tagline ||
         !deal.pricePerHeadGBP ||
@@ -633,26 +629,6 @@ export class CmsApi {
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
-    // Convert YouTube video
-    const convertYouTubeVideo = (
-      rawRestaurant: any,
-    ): YouTubeVideo | undefined => {
-      const videoReference = rawRestaurant?.fields?.video;
-      const url = videoReference?.fields?.url ?? null;
-      const displayTitle = videoReference?.fields?.displayTitle ?? null;
-      const description = videoReference?.fields?.description ?? null;
-
-      if (!url) {
-        return;
-      }
-
-      return {
-        url,
-        displayTitle,
-        description,
-      };
-    };
-
     const convertMeta = (rawRestaurant: any): MetaDetails | undefined => {
       const title = rawRestaurant?.fields?.metaTitle ?? null;
       const description = rawRestaurant?.fields?.metaDescription ?? null;
@@ -670,7 +646,6 @@ export class CmsApi {
     };
 
     const meta = convertMeta(rawRestaurant);
-    const video = convertYouTubeVideo(rawRestaurant);
 
     if (
       !id ||
@@ -687,7 +662,6 @@ export class CmsApi {
       !backdropStillFrame ||
       !heroIllustration ||
       !description ||
-      !video ||
       !meta
     ) {
       return;
@@ -709,7 +683,6 @@ export class CmsApi {
       bookingSystem,
       heroIllustration,
       description,
-      video,
       meta,
     };
   };
@@ -792,8 +765,6 @@ export class CmsApi {
   public convertTastiestDish = (
     rawTastiestDish: any,
   ): TastiestDish | undefined => {
-    dlog('cms ➡️ rawTastiestDish:', rawTastiestDish);
-
     const tastiestDish: Partial<TastiestDish> = {
       id: rawTastiestDish?.sys?.id,
       name: rawTastiestDish?.fields?.name,

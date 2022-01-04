@@ -7,7 +7,6 @@ import {
   MetaDetails,
   WeekOpenTimes,
   WeekQuietTimes,
-  YouTubeVideo,
 } from '.';
 import { Email, EmailTemplate } from './email';
 import { Address } from './geography';
@@ -29,7 +28,6 @@ export interface RestaurantProfile {
   // Properties that appear on the restaurant's page at /[city]/[cuisine]/[restaurant]
   heroIllustration: Media;
   description: Document;
-  video: YouTubeVideo;
   publicPhoneNumber: string;
   meta: MetaDetails;
 }

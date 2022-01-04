@@ -75,7 +75,8 @@ export interface Order {
   tastiestCut: null | { amount: number; currency: Currency };
   restaurantCut: null | { amount: number; currency: Currency };
 
-  isUserFollowing: boolean;
+  // Strictly boolean after payment.
+  isUserFollowing: null | boolean;
   isTest: boolean;
 }
 
