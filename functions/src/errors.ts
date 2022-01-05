@@ -4,10 +4,11 @@ import {
   TastiestInternalError,
   TastiestInternalErrorCode,
 } from '@tastiest-io/tastiest-utils';
+import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
-import moment from 'moment';
-import nodemailer from 'nodemailer';
 import { db } from './admin';
+
+const analytics = new Analytics(functions.config().segment.write_key);
 
 /**
  * Report an internal error to the Tastiest Admin Panel
@@ -59,80 +60,15 @@ export const reportInternalError = functions.https.onRequest(
 
     // This will notify the term internally via email
     if (shouldAlert) {
-      try {
-        const from = '"⚠️ Tastiest Error Reporter" <vincent@tastiest.io';
-        const to = 'developers@tastiest.io';
-        const serviceClient = functions.config().gmail.service_client;
-        const privateKey = functions.config().gmail.private_key;
-
-        // create reusable transporter object using the default SMTP transport
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
-          auth: {
-            type: 'OAuth2',
-            user: 'vincent@tastiest.io',
-            serviceClient,
-            privateKey,
-          },
-        });
-
-        // Stringfiy our properties to be email-friendly.
-        let propertiesStringified;
-        try {
-          propertiesStringified = JSON.stringify(properties);
-        } catch {
-          propertiesStringified = String(properties);
-        }
-
-        // send mail with defined transport object
-        const info = await transporter.sendMail({
-          from,
-          to,
-          subject: `${code ?? 'Internal Error Reporting Error'}${
-            message ? ' ' + message : ''
-          }`,
-          text: `
-            Error: ${code ?? 'Internal Error Reporting Error'}
-            Message: ${message ?? '---'}
-
-            Time: ${moment(timestamp ?? Date.now()).format('Do MMMM YYYY')}
-            Originating File: ${originFile ?? '---'}
-            Severity: ${severity}
-            Properties: ${propertiesStringified ?? '---'}
-            Raw Error: ${raw ?? '---'}
-        `,
-        });
-
-        // Report email not sent
-        if (!info.messageId) {
-        }
-      } catch (error) {
-        // Report email failed to send
-        await db(FirestoreCollection.ERRORS).add({
-          code: TastiestInternalErrorCode.INTERNAL_ERROR_REPORTING,
-          message: 'Email failed to send from reportInternalError',
-          timestamp: Date.now(),
-          originFile: 'functions/src/errors.ts',
-          severity: 'HIGH',
-          properties: {
-            code: code ?? null,
-            message: message ?? null,
-            timestamp: timestamp ?? null,
-            originFile: originFile ?? null,
-            properties: properties ?? null,
-            raw: String(error),
-          },
-        });
-
-        response.status(200).json({
-          success: false,
-          data: null,
-          error: String(error),
-        });
-        return;
-      }
+      // Send alert to Slack
+      await analytics.track({
+        userId: 'TASTIEST-BACKEND',
+        event: 'Internal Error',
+        timestamp: new Date(),
+        properties: {
+          ...params,
+        },
+      });
     }
 
     if (
