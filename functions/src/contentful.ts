@@ -69,7 +69,7 @@ export const syncFromContentful = functions.https.onRequest(
       response.json({
         data: null,
         success: false,
-        error: 'No restaurant found',
+        error: `No restaurant found with ID ${restaurantId}. Environment: ${environment}.`,
       });
 
       return;
@@ -100,7 +100,6 @@ export const syncFromContentful = functions.https.onRequest(
       heroIllustration: restaurant.heroIllustration,
       description: restaurant.description,
       publicPhoneNumber: restaurant.publicPhoneNumber,
-      video: restaurant.video,
       meta: restaurant.meta,
     };
 

@@ -723,6 +723,7 @@ export class CmsApi {
       meta: convertMeta(rawPost),
       plate: this.convertImage(rawPlate),
       displayLocation: rawPost?.displayLocation ?? null,
+      seeRestaurantButton: rawPost?.seeRestaurantButton ?? null,
       menuImage: this.convertImage(rawPost?.menuImage?.fields) ?? null,
       auxiliaryImage:
         this.convertImage(rawPost?.auxiliaryImage?.fields) ?? null,

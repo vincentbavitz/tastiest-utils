@@ -47,29 +47,20 @@ export const reportInternalError = functions.https.onRequest(
       params = body;
     }
 
-    const {
-      code,
-      message,
-      timestamp,
-      originFile,
-      properties,
-      shouldAlert,
-      severity,
-      raw,
-    } = params ?? {};
+    const { code, message, timestamp, originFile, properties, severity, raw } =
+      params ?? {};
 
-    // This will notify the term internally via email
-    if (shouldAlert) {
-      // Send alert to Slack
-      await analytics.track({
-        userId: 'TASTIEST-BACKEND',
-        event: 'Internal Error',
-        timestamp: new Date(),
-        properties: {
-          ...params,
-        },
-      });
-    }
+    // For now let's alert everything
+    // if (shouldAlert) {
+    // Send alert to Slack
+    await analytics.track({
+      userId: 'TASTIEST-BACKEND',
+      event: 'Internal Error',
+      timestamp: new Date(),
+      properties: {
+        ...params,
+      },
+    });
 
     if (
       !timestamp ||

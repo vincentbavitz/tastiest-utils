@@ -110,15 +110,12 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
         restaurantPortion,
       };
 
-      // Only send to Pixel etc if it's a legit event.
-      if (!order.isTest) {
-        await analytics.track({
-          event: 'Payment Success',
-          userId: order.userId,
-          properties,
-          timestamp: new Date(),
-        });
-      }
+      await analytics.track({
+        event: 'Payment Success',
+        userId: order.userId,
+        properties,
+        timestamp: new Date(),
+      });
 
       const restaurantDataApi = new RestaurantDataApi(
         firebaseAdmin,

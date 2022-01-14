@@ -84,6 +84,7 @@ export interface ExperiencePost {
   plate: Media; // plate SVG
   menuImage: Media | null;
   auxiliaryImage: Media | null;
+  seeRestaurantButton: string;
 
   // Descriptive
   tags: Array<string>;

@@ -106,7 +106,7 @@ describe('Get Content from CMS', () => {
   });
 
   test('Get Restaurant from URI Name', async () => {
-    const restaurapnt = await cms.getRestaurantFromUriName(
+    const restaurant = await cms.getRestaurantFromUriName(
       'el-vaquero-mill-hill',
     );
 
