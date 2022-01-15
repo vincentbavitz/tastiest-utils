@@ -124,7 +124,10 @@ export const onPaymentSuccessWebhook = functions.https.onRequest(
 
       // Send out email to restaurant that a new booking has been made.
       const restaurant = await restaurantDataApi.getRestaurantData();
-      if (restaurant?.settings?.shouldNotifyNewBookings ?? true) {
+      if (
+        !order.isTest &&
+        (restaurant?.settings?.shouldNotifyNewBookings ?? true)
+      ) {
         await analytics.track({
           event: 'New Booking For Restaurant',
           userId: order.deal.restaurant.id,
