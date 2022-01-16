@@ -97,6 +97,7 @@ export const syncFromContentful = functions.https.onRequest(
       profilePicture: restaurant.profilePicture,
       backdropVideo: restaurant.backdropVideo,
       backdropStillFrame: restaurant.backdropStillFrame,
+      displayPhotograph: restaurant.displayPhotograph,
       heroIllustration: restaurant.heroIllustration,
       description: restaurant.description,
       publicPhoneNumber: restaurant.publicPhoneNumber,

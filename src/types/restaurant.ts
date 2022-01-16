@@ -24,6 +24,7 @@ export interface RestaurantProfile {
   profilePicture: Media;
   backdropVideo: Media;
   backdropStillFrame: Media;
+  displayPhotograph: Media;
 
   // Properties that appear on the restaurant's page at /[city]/[cuisine]/[restaurant]
   heroIllustration: Media;

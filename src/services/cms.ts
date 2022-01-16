@@ -623,6 +623,10 @@ export class CmsApi {
       rawRestaurant?.fields?.backdropStillFrame?.fields,
     );
 
+    const displayPhotograph = this.convertImage(
+      rawRestaurant?.fields?.displayPhotograph?.fields,
+    );
+
     // Restaurant page properties
     const description = rawRestaurant?.fields?.description ?? null;
     const heroIllustration = this.convertImage(
@@ -660,6 +664,7 @@ export class CmsApi {
       !publicPhoneNumber ||
       !backdropVideo ||
       !backdropStillFrame ||
+      !displayPhotograph ||
       !heroIllustration ||
       !description ||
       !meta
@@ -680,6 +685,7 @@ export class CmsApi {
       publicPhoneNumber,
       backdropVideo,
       backdropStillFrame,
+      displayPhotograph,
       bookingSystem,
       heroIllustration,
       description,
