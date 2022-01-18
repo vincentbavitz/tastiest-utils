@@ -8,6 +8,7 @@ export type DiscountAmount = { value: number; unit: '%' | '£' };
 export type Currency = 'GBP' | 'USD' | 'EUR' | 'AUD';
 export type OrderPrice = {
   subtotal: number;
+  fees: number;
 
   /** After discount and etc applied */
   final: number;
