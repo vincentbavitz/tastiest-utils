@@ -3,36 +3,11 @@ import {
   FirestoreCollection,
   Order,
 } from '@tastiest-io/tastiest-utils';
-import Analytics from 'analytics-node';
 import * as functions from 'firebase-functions';
 import { db, firebaseAdmin } from './admin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const analytics = new Analytics(functions.config().segment.write_key);
-
-/** Events and management when a booking is updated */
-export const onBookingUpdated = functions.firestore
-  .document(`/${FirestoreCollection.BOOKINGS}/{orderId}`)
-  .onUpdate(async snap => {
-    const before = snap.before.data() as Booking;
-    const after = snap.after.data() as Booking;
-
-    // Eater arrived!
-    if (!before.hasArrived && after.hasArrived) {
-      await analytics.track({
-        userId: after.userId,
-        event: 'Eater Arrived',
-        timestamp: new Date(),
-        properties: {
-          ...after,
-          // Add hyphens for Slack notification links to work properly.
-          eaterMobile: after.eaterMobile.replace(/[\s]/g, '-'),
-        },
-      });
-    }
-
-    return;
-  });
+// const analytics = new Analytics(functions.config().segment.write_key);
 
 /** Booking created - sync user metrics */
 export const onBookingCreated = functions.firestore
