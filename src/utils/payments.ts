@@ -32,7 +32,7 @@ export const calculatePaymentFees = (price: number) => {
   const fees = price * PAYMENT_FEE_PERCENTAGE + PAYMENT_FEE_FLAT_RATE;
 
   return {
-    total: (price + fees).toFixed(2),
-    fees: fees.toFixed(2),
+    total: Number((price + fees).toFixed(2)),
+    fees: Number(fees.toFixed(2)),
   };
 };

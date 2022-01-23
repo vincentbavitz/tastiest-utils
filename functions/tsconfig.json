@@ -8,9 +8,10 @@
     "strict": true,
     "target": "es2017",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     // Avoid duplicate identifier issue
     "typeRoots": ["./node_modules/@types"]
   },
   "compileOnSave": true,
-  "include": ["src", "src/.ts"]
+  "include": ["src", "src/.ts"],
 }

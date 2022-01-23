@@ -1,7 +1,6 @@
-import firebase from 'firebase';
 import nodeFetch from 'node-fetch';
-import { useEffect, useMemo, useState } from 'react';
-import useSWR, { SWRConfiguration } from 'swr';
+import { useMemo } from 'react';
+import useSWR, { Fetcher, SWRConfiguration } from 'swr';
 import { dlog } from '..';
 
 type HorusResponse<T = any> = {
@@ -128,21 +127,19 @@ const fetcher = async (url: string, token: string) => {
 
 /**
  * Endpoint doesn't include the base path. Eg. do /admin/users.
+ * Token is the user token from firebase.auth().getIdToken()
  */
 export function useHorusSWR<T>(
   endpoint: string,
-  user: firebase.User,
+  token: string,
   configuration?: Partial<SWRConfiguration<T>>,
 ) {
-  const [token, setToken] = useState<string | null>(null);
-
-  // Set token immediately.
-  useEffect(() => {
-    user?.getIdToken().then(setToken);
-  }, [user, endpoint, configuration]);
-
   const path = useMemo(() => `${TASTIEST_BACKEND_URL}${endpoint}`, [endpoint]);
-  const response = useSWR<T>([path, token], fetcher, configuration);
+  const response = useSWR<T>(
+    [path, token],
+    (fetcher as never) as Fetcher<T>,
+    configuration,
+  );
 
   return response;
 }
