@@ -22,7 +22,7 @@ export type RestaurantContentful = Omit<
 export interface ExperienceProduct {
   id: string;
   name: string;
-  dishName: string; // Appears in the "Do you know a better ..." section
+  // dishName: string; // Appears in the "Do you know a better ..." section
   image: Media;
   tagline: string; // Experience the best porterhouse steak in London
   allowedHeads: number[]; // eg [2,4,6] for Date Night
