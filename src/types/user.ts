@@ -4,6 +4,7 @@ import {
   CuisineSymbol,
   DateObject,
   EventTrigger,
+  FollowerNotificationPreferences,
   PaymentDetails,
 } from '.';
 
@@ -103,7 +104,7 @@ export interface UserPreferences {
 
 export type FollowedRestaurant = {
   restaurantId: string;
-  notifications: boolean; // get updates for available bookings, etc
+  notifications: FollowerNotificationPreferences;
 };
 
 export interface UserMetrics {

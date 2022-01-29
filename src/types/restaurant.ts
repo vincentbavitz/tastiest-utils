@@ -12,6 +12,22 @@ import { Email, EmailTemplate } from './email';
 import { Address } from './geography';
 import { UserRole } from './user';
 
+export enum FOLLOWER_NOTIFICATION_TYPE {
+  LIMITED_TIME_DISHES = 'LIMITED_TIME_DISHES',
+  SPECIAL_EXPERIENCES = 'SPECIAL_EXPERIENCES',
+  LAST_MINUTE_TABLES = 'LAST_MINUTE_TABLES',
+  GENERAL_INFO = 'GENERAL_INFO',
+  NEW_MENU = 'NEW_MENU',
+}
+
+export type FollowerNotificationPreferences = {
+  [FOLLOWER_NOTIFICATION_TYPE.LIMITED_TIME_DISHES]: boolean;
+  [FOLLOWER_NOTIFICATION_TYPE.SPECIAL_EXPERIENCES]: boolean;
+  [FOLLOWER_NOTIFICATION_TYPE.LAST_MINUTE_TABLES]: boolean;
+  [FOLLOWER_NOTIFICATION_TYPE.GENERAL_INFO]: boolean;
+  [FOLLOWER_NOTIFICATION_TYPE.NEW_MENU]: boolean;
+};
+
 //
 ////////////////////////////////////////////////////////////////
 //                        RESTAURANT DATA                     //
@@ -112,8 +128,8 @@ export type RestaurantFollower = {
   userId: string;
   name: string;
   email: string;
-  notifications: boolean;
   followedAt: number;
+  notifications: FollowerNotificationPreferences;
 };
 
 export interface RestaurantMetrics {
