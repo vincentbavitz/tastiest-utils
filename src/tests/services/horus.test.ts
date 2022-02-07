@@ -1,5 +1,6 @@
-import { dlog } from '../..';
 import { Horus } from '../../services/horus';
+
+const TOKEN = `eyJhbGciOiJSUzI1NiIsImtpZCI6ImYyNGYzMTQ4MTk3ZWNlYTUyOTE3YzNmMTgzOGFiNWQ0ODg3ZWEwNzYiLCJ0eXAiOiJKV1QifQ.eyJlYXRlciI6dHJ1ZSwiaXNUZXN0QWNjb3VudCI6dHJ1ZSwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3Rhc3RpZXN0LWRpc2hlcyIsImF1ZCI6InRhc3RpZXN0LWRpc2hlcyIsImF1dGhfdGltZSI6MTY0NDI0ODY3OSwidXNlcl9pZCI6InVFbWtyRlNJRG9abUJhZGtJS1A3dXBNTWpVbzIiLCJzdWIiOiJ1RW1rckZTSURvWm1CYWRrSUtQN3VwTU1qVW8yIiwiaWF0IjoxNjQ0Mjc0NDI3LCJleHAiOjE2NDQyNzgwMjcsImVtYWlsIjoidmluY2VudEBiYXZpdHoub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidmluY2VudEBiYXZpdHoub3JnIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.ZeN1WrWRtzHLW4bZDtzO0I5J40wBfysK-xZJBIZHECBl6L7ejGmRXHkBHc_1TLVRzttlHCv6EMsqXP-rM1qSxsXJ4-F_0cBeSTjxnM9nWxmnV4DQ04NUU_LZXY_vmmhWKZgXP05A6LmVSZtgQHQGES4QVw6NhTfsW4TTi29aBU__8qXCvIE_0-Yn9akp-oeQRqdz1Jj8SEbf1YD-1fMQO0WLb0MnE145Reo8LZXnwqRiX2Fclhz7zp44a3EB8-chD8FvT_98CUI4L1HQqzR7hGAmIsyGKgFG002iKXTd0WePsObNTPUMae0CLXa9ytdvwkRXvpR35KSTJDIXu31mBQ`;
 
 describe('Test Horus', () => {
   // Remove window object in order to NodeFetch
@@ -12,30 +13,49 @@ describe('Test Horus', () => {
     delete global.window;
   });
 
-  test('Restaurant Support Get', async () => {
-    const token = `eyJhbGciOiJSUzI1NiIsImtpZCI6IjQwMTU0NmJkMWRhMzA0ZDc2NGNmZWUzYTJhZTVjZDBlNGY2ZjgyN2IiLCJ0eXAiOiJKV1QifQ.eyJyZXN0YXVyYW50Ijp0cnVlLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFzdGllc3QtZGlzaGVzIiwiYXVkIjoidGFzdGllc3QtZGlzaGVzIiwiYXV0aF90aW1lIjoxNjQyMjY4MjI2LCJ1c2VyX2lkIjoidUNwWWtvdkNGUlU4OGtxWFhtVng5eWxtbm04MyIsInN1YiI6InVDcFlrb3ZDRlJVODhrcVhYbVZ4OXlsbW5tODMiLCJpYXQiOjE2NDIyNzQ0MjYsImV4cCI6MTY0MjI3ODAyNiwiZW1haWwiOiJkZXZlbG9wZXJzQHRhc3RpZXN0LmlvIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImRldmVsb3BlcnNAdGFzdGllc3QuaW8iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.e_Ft6LkIXQsHNHm_xLDNSqzTMXyygJm2M3vUzzNIY6aNELqouwJJgadlH6Ckgnijyd1pDFtkMJQcy1ro0FbgtOtm90vsnIW9FOlX4hFr6Z17VedwWNHpbV-5nUrO0p5CEWphHKqIzai8N77fMJB6NSlu997ofzttrwr1JdJOrEFVErIpoidqFUXiquwesFQsZsdFBjY65VHKCT_gwo19AxWqxlgq0t3mzvWon0It3Jdi-q82pmSqXwGL43BfNi6P4ZzrrnuWSOX-z1GqK12KISNGWhcQOcfEYXk91PToGsi3ivKEeLuYpX1eb5qMHYIblC9ey5bYxJ1TTYSrTO0Qvg`;
-    const horus = new Horus(token);
+  // test('Restaurant Support Get', async () => {
+  //   const horus = new Horus(TOKEN);
 
-    const result = await horus.get(
-      `/support/restaurants/ticket/95285be1-0beb-47ea-849d-41437c4afb2c`,
-      { key: 14, bob: 'the-builder' },
-    );
+  //   const result = await horus.get(
+  //     `/support/restaurants/ticket/95285be1-0beb-47ea-849d-41437c4afb2c`,
+  //     { key: 14, bob: 'the-builder' },
+  //   );
 
-    dlog('horus.test ➡️ result:', result);
+  //   dlog('horus.test ➡️ result:', result);
 
-    expect(result.error).toBeNull();
-  });
+  //   expect(result.error).toBeNull();
+  // });
 
-  test('Restaurant Support Reply', async () => {
-    const token = `eyJhbGciOiJSUzI1NiIsImtpZCI6IjQwMTU0NmJkMWRhMzA0ZDc2NGNmZWUzYTJhZTVjZDBlNGY2ZjgyN2IiLCJ0eXAiOiJKV1QifQ.eyJyZXN0YXVyYW50Ijp0cnVlLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFzdGllc3QtZGlzaGVzIiwiYXVkIjoidGFzdGllc3QtZGlzaGVzIiwiYXV0aF90aW1lIjoxNjQyMjY4MjI2LCJ1c2VyX2lkIjoidUNwWWtvdkNGUlU4OGtxWFhtVng5eWxtbm04MyIsInN1YiI6InVDcFlrb3ZDRlJVODhrcVhYbVZ4OXlsbW5tODMiLCJpYXQiOjE2NDIyNzQ0MjYsImV4cCI6MTY0MjI3ODAyNiwiZW1haWwiOiJkZXZlbG9wZXJzQHRhc3RpZXN0LmlvIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImRldmVsb3BlcnNAdGFzdGllc3QuaW8iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.e_Ft6LkIXQsHNHm_xLDNSqzTMXyygJm2M3vUzzNIY6aNELqouwJJgadlH6Ckgnijyd1pDFtkMJQcy1ro0FbgtOtm90vsnIW9FOlX4hFr6Z17VedwWNHpbV-5nUrO0p5CEWphHKqIzai8N77fMJB6NSlu997ofzttrwr1JdJOrEFVErIpoidqFUXiquwesFQsZsdFBjY65VHKCT_gwo19AxWqxlgq0t3mzvWon0It3Jdi-q82pmSqXwGL43BfNi6P4ZzrrnuWSOX-z1GqK12KISNGWhcQOcfEYXk91PToGsi3ivKEeLuYpX1eb5qMHYIblC9ey5bYxJ1TTYSrTO0Qvg`;
-    const horus = new Horus(token);
+  // test('Restaurant Support Reply', async () => {
+  //   const horus = new Horus(TOKEN);
 
-    const result = await horus.post('/support/restaurants/reply', {
-      id: '95285be1-0beb-47ea-849d-41437c4afb2c',
-      name: 'Numaaan33',
-      message: 'Posting a reply again',
+  //   const result = await horus.post('/support/restaurants/reply', {
+  //     id: '95285be1-0beb-47ea-849d-41437c4afb2c',
+  //     name: 'Numaaan33',
+  //     message: 'Posting a reply again',
+  //   });
+
+  //   expect(result.error).toBeNull();
+  // });
+
+  test('Create New Order', async () => {
+    const horus = new Horus(TOKEN);
+    const { data, error } = await horus.post('/orders/new', {
+      heads: 45,
+      experienceId: 'v5WWg3Sr573AleBLH9LmH',
+      bookedForTimestamp: 1644274766748,
     });
 
-    expect(result.error).toBeNull();
+    console.log('horus.test ➡️ data:', data);
+    console.log('horus.test ➡️ error:', error);
+  });
+
+  test('Get User', async () => {
+    const horus = new Horus(TOKEN);
+
+    const { data, error } = await horus.get('/users/333333');
+
+    console.log('horus.test ➡️ data:', data);
+    console.log('horus.test ➡️ error:', error);
   });
 });

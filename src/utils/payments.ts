@@ -12,6 +12,7 @@ export function formatCurrency(value: number) {
 }
 
 /**
+ * DELETE ME - i'm on tastiest-backend
  * Calculate the payment processing fees to pass them onto the payer.
  * Fees taken from https://stripe.com/gb/pricing under non-European cards.
  *

@@ -1672,6 +1672,22 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
+"@tastiest-io/tastiest-utils@^1.58.0":
+  version "1.58.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-utils/1.58.0/d32e8847bd2d21b1aea653e28b63ee4db09157e62a19fdf30cf8a970a944b3e7#f7f43c4eadf3c36fdb8cfb2e332a58a07066b33a"
+  integrity sha512-Tt23+nejqCoiKQYMteXUWoDEeYn/o1wOwsLuMXQ6kN3Ale59YTvjOASV1E8yk+piZiH8IyALUit3bkdzkq48/g==
+  dependencies:
+    "@contentful/rich-text-types" "^14.1.2"
+    "@shopify/shopify-api" "^1.4.0"
+    "@stripe/stripe-js" "^1.13.2"
+    "@types/react" "^17.0.3"
+    contentful "^8.2.1"
+    crypto-hash "^1.3.0"
+    firebase-admin "^9.6.0"
+    luxon "^2.0.2"
+    moment "^2.29.1"
+    stripe "^8.143.0"
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"

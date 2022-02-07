@@ -52,16 +52,24 @@ export class Horus {
           ? await nodeFetch(url.toString(), options)
           : await fetch(url.toString(), options);
 
-      let data: ResponseType | null = null;
       if (response.ok) {
+        let data: ResponseType | null = null;
         try {
           data = await response.json();
         } catch {
           data = null;
         }
+
+        return { data, error: null };
       }
 
-      return { data, error: null };
+      // Response was not OK.
+      const errorText = await response.text();
+
+      return {
+        data: null,
+        error: `${response.statusText}: ${errorText}`,
+      };
     } catch (error) {
       return { data: null, error: String(error) };
     }
@@ -92,16 +100,24 @@ export class Horus {
           ? await nodeFetch(`${TASTIEST_BACKEND_URL}${endpoint}`, options)
           : await fetch(`${TASTIEST_BACKEND_URL}${endpoint}`, options);
 
-      let data: ResponseType | null = null;
       if (response.ok) {
+        let data: ResponseType | null = null;
         try {
           data = await response.json();
         } catch {
           data = null;
         }
+
+        return { data, error: null };
       }
 
-      return { data, error: null };
+      // Response was not OK.
+      const errorText = await response.text();
+
+      return {
+        data: null,
+        error: `${response.statusText}: ${errorText}`,
+      };
     } catch (error) {
       return { data: null, error: String(error) };
     }
