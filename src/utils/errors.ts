@@ -12,6 +12,9 @@ export enum TastiestInternalErrorCode {
   PASSWORD_RESET = 'PASSWORD_RESET',
   FOLLOWING_ERROR = 'FOLLOWING_ERROR', // Following cloud function
 
+  // From getStaticProps or getServerSideProps
+  PAGE_PREFETCH_ERROR = 'PAGE_PREFETCH_ERROR',
+
   /** Booking system sync error. */
   BOOKING_SYSTEM_SYNC = 'BOOKING_SYSTEM_SYNC',
 }

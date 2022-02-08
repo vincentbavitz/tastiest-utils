@@ -6,6 +6,21 @@ import { ExperienceProduct } from './cms';
 export type DiscountAmount = { value: number; unit: '%' | '£' };
 
 export type Currency = 'GBP' | 'USD' | 'EUR' | 'AUD';
+
+export type PaymentCardDetails = {
+  brand: string;
+  last4: string;
+};
+
+export type CurrencyValue = {
+  amount: number;
+  currency: Currency;
+};
+
+export type RefundDetails = CurrencyValue & {
+  refundedAt: number;
+};
+
 export type OrderPrice = {
   subtotal: number;
   fees: number;
