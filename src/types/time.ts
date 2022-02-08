@@ -51,10 +51,11 @@ export type WeekOpenTimes = {
 //   seatsAvailable: number | 'unlimited'; // seats available over this time
 // };
 
+/** Day from 1-31(ish), month from 1-12, year is positive int. */
 export interface DateObject {
-  day: TDay;
-  month: TMonth;
-  year: TYear;
+  day: number;
+  month: number;
+  year: number;
 }
 
 // prettier-ignore
