@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { CmsApi, CuisineSymbol, minsIntoHumanTime } from '../..';
+import { CmsApi, CuisineSymbol, dlog, minsIntoHumanTime } from '../..';
 
 dotenv.config({ path: '.env.local' });
 const cms = new CmsApi(undefined, undefined, 'production');
@@ -66,6 +66,7 @@ describe('Get Content from CMS', () => {
   test('Get all restaurants', async () => {
     const { restaurants } = await cms.getRestaurants();
 
+    dlog('cms.test ➡️ restaurants:', restaurants);
     expect(restaurants).toBeDefined();
   });
 

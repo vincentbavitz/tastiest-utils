@@ -73,7 +73,9 @@ export interface RestaurantDetails {
 
   // Toggles
   mode: RestaurantDataMode;
+
   isArchived: boolean;
+  isDemo: boolean;
 }
 
 // Corresponds to document fields in Firestore

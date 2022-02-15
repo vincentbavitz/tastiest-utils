@@ -301,6 +301,7 @@ export class CmsApi {
   public async getRestaurants(
     quantity = 100,
     page = 1,
+    getDemoRestaurants = false,
   ): Promise<FetchRestaurantsReturn> {
     const entries = await this.client.getEntries({
       content_type: 'restaurant',
@@ -314,7 +315,9 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const restaurants = entries.items
         .map(entry => this.convertRestaurant(entry))
-        .filter(post => Boolean(post)) as RestaurantContentful[];
+        .filter(
+          r => Boolean(r) && Boolean(r?.isDemo) === getDemoRestaurants,
+        ) as RestaurantContentful[];
 
       return { restaurants, total: entries.total };
     }
@@ -633,6 +636,8 @@ export class CmsApi {
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
+    const isDemo = rawRestaurant?.fields?.isDemo ?? false;
+
     const convertMeta = (rawRestaurant: any): MetaDetails | undefined => {
       const title = rawRestaurant?.fields?.metaTitle ?? null;
       const description = rawRestaurant?.fields?.metaDescription ?? null;
@@ -690,6 +695,7 @@ export class CmsApi {
       heroIllustration,
       description,
       meta,
+      isDemo,
     };
   };
 
