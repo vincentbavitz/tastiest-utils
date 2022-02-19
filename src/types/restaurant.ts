@@ -12,7 +12,7 @@ import { Email, EmailTemplate } from './email';
 import { Address } from './geography';
 import { UserRole } from './user';
 
-export enum FOLLOWER_NOTIFICATION_TYPE {
+export enum FollowerNotificationType {
   LIMITED_TIME_DISHES = 'LIMITED_TIME_DISHES',
   SPECIAL_EXPERIENCES = 'SPECIAL_EXPERIENCES',
   LAST_MINUTE_TABLES = 'LAST_MINUTE_TABLES',
@@ -21,11 +21,11 @@ export enum FOLLOWER_NOTIFICATION_TYPE {
 }
 
 export type FollowerNotificationPreferences = {
-  [FOLLOWER_NOTIFICATION_TYPE.LIMITED_TIME_DISHES]: boolean;
-  [FOLLOWER_NOTIFICATION_TYPE.SPECIAL_EXPERIENCES]: boolean;
-  [FOLLOWER_NOTIFICATION_TYPE.LAST_MINUTE_TABLES]: boolean;
-  [FOLLOWER_NOTIFICATION_TYPE.GENERAL_INFO]: boolean;
-  [FOLLOWER_NOTIFICATION_TYPE.NEW_MENU]: boolean;
+  [FollowerNotificationType.LIMITED_TIME_DISHES]: boolean;
+  [FollowerNotificationType.SPECIAL_EXPERIENCES]: boolean;
+  [FollowerNotificationType.LAST_MINUTE_TABLES]: boolean;
+  [FollowerNotificationType.GENERAL_INFO]: boolean;
+  [FollowerNotificationType.NEW_MENU]: boolean;
 };
 
 //
