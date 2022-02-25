@@ -54,6 +54,7 @@ export enum RestaurantDataMode {
   DEMO = 'DEMO',
   LIVE = 'LIVE',
 }
+
 export interface RestaurantDetails {
   id: string;
   name: string;
@@ -162,7 +163,7 @@ export interface RestaurantRealtime {
 
   /** An array of ISO Date strings */
   availableBookingSlots: string[];
-  lastBookingSlotsSync: number; // timestamp
+  lastBookingSlotsSync: Date;
 }
 
 // prettier-ignore
