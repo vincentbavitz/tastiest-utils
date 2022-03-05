@@ -48,11 +48,14 @@ export class CmsApi {
   [x: string]: any;
   client: ContentfulClientApi;
   isDevelopment: boolean;
+  isAdmin: boolean;
 
   constructor(
-    space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
-    accessToken: string = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ?? '',
+    space: string = process.env.CONTENTFUL_SPACE_ID ?? '',
+    accessToken: string = process.env.CONTENTFUL_ACCESS_TOKEN ?? '',
     environment: 'production' | 'development' = 'production',
+    /** Gives access to protected fields like restaurant.contact */
+    adminToken?: string,
   ) {
     this.client = createClient({
       space,
@@ -61,6 +64,7 @@ export class CmsApi {
     });
 
     this.isDevelopment = environment === 'development';
+    this.isAdmin = process.env.CONTENTFUL_ADMIN_TOKEN === adminToken;
   }
 
   public async getPosts(
@@ -614,6 +618,9 @@ export class CmsApi {
     const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
     const bookingSystem = rawRestaurant?.fields?.bookingSystem ?? null;
 
+    // Only admins can see contact information.
+    const contact = rawRestaurant?.fields?.contact ?? null;
+
     const profilePicture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
@@ -696,6 +703,7 @@ export class CmsApi {
       description,
       meta,
       isDemo,
+      contact: this.isAdmin ? contact : null,
     };
   };
 
