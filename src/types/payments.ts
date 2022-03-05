@@ -63,7 +63,7 @@ export interface Order {
 
   // To validate clientside before user logs in
   token: string;
-  deal: ExperienceProduct;
+  product: ExperienceProduct;
   userId: string;
   heads: number;
   fromSlug: string;
@@ -106,7 +106,7 @@ export interface Booking {
   eaterName: string;
   eaterMobile: string;
   eaterEmail: string;
-  dealName: string;
+  productName: string;
   heads: number;
   price: OrderPrice;
   paidAt: number;

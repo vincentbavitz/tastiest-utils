@@ -71,7 +71,7 @@ export interface ExperiencePost {
   date: string;
 
   // Refs
-  deal: ExperienceProduct;
+  product: ExperienceProduct;
   restaurant: RestaurantContentful;
 
   // Post abstract information

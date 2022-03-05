@@ -1,3 +1,4 @@
+import { dlog } from '@tastiest-io/tastiest-utils';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
 import { reportInternalError, TastiestInternalErrorCode } from '..';
@@ -19,8 +20,8 @@ interface FetchPostsReturn {
   total: number;
 }
 
-interface FetchDealsReturn {
-  deals: Array<ExperienceProduct>;
+interface FetchProductsReturn {
+  products: Array<ExperienceProduct>;
   total: number;
 }
 
@@ -208,15 +209,15 @@ export class CmsApi {
     return { posts: [], total: 0 } as FetchPostsReturn;
   }
 
-  public async getPostByDealId(
-    dealId: string,
+  public async getPostByProductId(
+    productId: string,
   ): Promise<ExperiencePost | undefined> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       limit: 1,
       include: 10,
-      'fields.deal.sys.contentType.sys.id': 'deal',
-      'fields.deal.sys.id[in]': dealId,
+      'fields.product.sys.contentType.sys.id': 'product',
+      'fields.product.sys.id[in]': productId,
     });
 
     if (entries?.items?.length > 0) {
@@ -453,29 +454,28 @@ export class CmsApi {
     return this.getPosts(limit);
   }
 
-  public getDeal = async (
-    dealId: string,
+  public getProduct = async (
+    productId: string,
   ): Promise<ExperienceProduct | undefined> => {
     try {
-      const entry = await this.client.getEntry<ExperienceProduct>(dealId, {
+      const entry = await this.client.getEntry<ExperienceProduct>(productId, {
         include: 10,
       });
 
-      const deal = this.convertDeal(entry);
-
-      return deal;
+      const product = this.convertProduct(entry);
+      return product;
     } catch {
       return;
     }
   };
 
-  public async getDealsOfRestaurant(
+  public async getProductsOfRestaurant(
     restaurantUriName: string,
     quantity = CMS.BLOG_RESULTS_PER_PAGE,
     page = 1,
-  ): Promise<FetchDealsReturn> {
+  ): Promise<FetchProductsReturn> {
     const entries = await this.client.getEntries({
-      content_type: 'deal',
+      content_type: 'product',
       limit: quantity,
       skip: (page - 1) * quantity,
       include: 10,
@@ -484,14 +484,14 @@ export class CmsApi {
     });
 
     if (entries?.items?.length > 0) {
-      const deals = entries.items
-        .map(entry => this.convertDeal(entry))
-        .filter(deal => Boolean(deal)) as ExperienceProduct[];
+      const products = entries.items
+        .map(entry => this.convertProduct(entry))
+        .filter(product => Boolean(product)) as ExperienceProduct[];
 
-      return { deals, total: entries.total };
+      return { products, total: entries.total };
     }
 
-    return { deals: [], total: 0 } as FetchDealsReturn;
+    return { products: [], total: 0 } as FetchProductsReturn;
   }
 
   public getPromo = async (code: string): Promise<Promo | undefined> => {
@@ -525,7 +525,7 @@ export class CmsApi {
     };
   };
 
-  public convertDeal = (rawDeal: any): ExperienceProduct | undefined => {
+  public convertProduct = (rawProduct: any): ExperienceProduct | undefined => {
     const convertAllowedHeads = (rawAllowedHeads: string) => {
       try {
         return JSON.parse(rawAllowedHeads);
@@ -535,43 +535,38 @@ export class CmsApi {
     };
 
     try {
-      const deal: Partial<ExperienceProduct> = {
-        id: rawDeal.sys.id,
-        name: rawDeal?.fields?.name,
-        restaurant: this.convertRestaurant(rawDeal?.fields?.restaurant),
-        tagline: rawDeal?.fields?.tagline,
-        pricePerHeadGBP: rawDeal?.fields?.price,
-        additionalInfo: rawDeal?.fields?.additionalInfo ?? null,
-        allowedHeads: convertAllowedHeads(rawDeal?.fields?.allowedHeads),
-        image: this.convertImage(rawDeal?.fields?.image?.fields),
-        dynamicImage:
-          this.convertImage(rawDeal?.fields?.dynamicImage?.fields) ?? null,
+      const product: Partial<ExperienceProduct> = {
+        id: rawProduct.sys.id,
+        name: rawProduct?.fields?.name,
+        restaurant: this.convertRestaurant(rawProduct?.fields?.restaurant),
+        pricePerHeadGBP: rawProduct?.fields?.price,
+        allowedHeads: convertAllowedHeads(rawProduct?.fields?.allowedHeads),
+        image: this.convertImage(rawProduct?.fields?.image?.fields),
       };
 
       if (
-        !deal.id ||
-        !deal.name ||
-        !deal.restaurant ||
-        !deal.tagline ||
-        !deal.pricePerHeadGBP ||
-        !deal.image
+        !product.id ||
+        !product.name ||
+        !product.restaurant ||
+        !product.pricePerHeadGBP ||
+        !product.image
       ) {
         reportInternalError({
           code: TastiestInternalErrorCode.CMS_CONVERSION,
           message: '',
           timestamp: Date.now(),
-          originFile: '/src/services/cms.ts:convertDeal',
+          originFile: '/src/services/cms.ts:convertProduct',
           shouldAlert: false,
           severity: 'HIGH',
           properties: {
-            ...deal,
+            ...product,
           },
         });
 
         return;
       }
 
-      return deal as ExperienceProduct;
+      return product as ExperienceProduct;
     } catch (error) {
       return;
     }
@@ -736,7 +731,7 @@ export class CmsApi {
       date: moment(rawPost.date).format('DD MMMM YYYY'),
       city: rawPost?.city,
       cuisine: CuisineSymbol[rawCuisine],
-      deal: this.convertDeal(rawPost?.deal),
+      product: this.convertProduct(rawPost?.product),
       restaurant: this.convertRestaurant(rawPost?.restaurant),
       tags: rawPost?.tags ?? [],
       slug: rawPost?.slug,
@@ -757,14 +752,29 @@ export class CmsApi {
       !post.body ||
       !post.date ||
       !post.city ||
-      !post.deal ||
       !post.plate ||
       !post.title ||
       !post.cuisine ||
+      !post.product ||
       !post.restaurant ||
       !post.description ||
       !post.displayLocation
     ) {
+      dlog('cms ➡️ post.id:', post.id);
+      dlog('cms ➡️ post.tags:', post.tags);
+      dlog('cms ➡️ post.slug:', post.slug);
+      dlog('cms ➡️ post.meta:', post.meta);
+      dlog('cms ➡️ post.body:', post.body);
+      dlog('cms ➡️ post.date:', post.date);
+      dlog('cms ➡️ post.city:', post.city);
+      dlog('cms ➡️ post.plate:', post.plate);
+      dlog('cms ➡️ post.title:', post.title);
+      dlog('cms ➡️ post.cuisine:', post.cuisine);
+      dlog('cms ➡️ post.product:', post.product);
+      dlog('cms ➡️ post.restaurant:', post.restaurant);
+      dlog('cms ➡️ post.description:', post.description);
+      dlog('cms ➡️ post.displayLocation:', post.displayLocation);
+
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
         message: '',

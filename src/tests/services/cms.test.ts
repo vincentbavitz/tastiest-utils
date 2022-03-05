@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { CmsApi, CuisineSymbol, dlog, minsIntoHumanTime } from '../..';
+import { CmsApi, CuisineSymbol, minsIntoHumanTime } from '../..';
 
 dotenv.config({ path: '.env.local' });
 const cms = new CmsApi(undefined, undefined, 'production');
@@ -24,7 +24,7 @@ describe('Convert Types from CMS', () => {
       expect(post).toHaveProperty('slug');
       expect(post).toHaveProperty('meta');
       expect(post).toHaveProperty('city');
-      expect(post).toHaveProperty('deal');
+      expect(post).toHaveProperty('product');
       expect(post).toHaveProperty('title');
       expect(post).toHaveProperty('cuisine');
       expect(post).toHaveProperty('menuImage');
@@ -33,22 +33,20 @@ describe('Convert Types from CMS', () => {
       expect(post).toHaveProperty('displayLocation');
     });
   });
-  test('Convert Deal', async () => {
+  test('Convert Product', async () => {
     const { posts } = await cms.getPosts();
     posts
-      .map(p => p.deal)
-      .forEach(deal => {
-        expect(deal).toBeDefined();
-        expect(deal).toHaveProperty('id');
-        expect(deal).toHaveProperty('name');
-        expect(deal).toHaveProperty('image');
-        expect(deal).toHaveProperty('restaurant');
-        expect(deal).toHaveProperty('tagline');
-        expect(deal).toHaveProperty('allowedHeads');
-        expect(deal).toHaveProperty('pricePerHeadGBP');
-        expect(deal).toHaveProperty('additionalInfo');
+      .map(p => p.product)
+      .forEach(product => {
+        expect(product).toBeDefined();
+        expect(product).toHaveProperty('id');
+        expect(product).toHaveProperty('name');
+        expect(product).toHaveProperty('image');
+        expect(product).toHaveProperty('restaurant');
+        expect(product).toHaveProperty('allowedHeads');
+        expect(product).toHaveProperty('pricePerHeadGBP');
 
-        expect(deal?.restaurant).toBeDefined();
+        expect(product?.restaurant).toBeDefined();
       });
   });
 });
@@ -66,7 +64,7 @@ describe('Get Content from CMS', () => {
   test('Get all restaurants', async () => {
     const { restaurants } = await cms.getRestaurants();
 
-    dlog('cms.test ➡️ restaurants:', restaurants);
+    // dlog('cms.test ➡️ restaurants:', restaurants);
     expect(restaurants).toBeDefined();
   });
 
@@ -75,9 +73,8 @@ describe('Get Content from CMS', () => {
     expect(posts).toBeDefined();
   });
 
-  test('Get Post By Deal ID', async () => {
-    const post = await cms.getPostByDealId('v5WWg3Sr573AleBLH9LmH');
-
+  test('Get Post By Product ID', async () => {
+    const post = await cms.getPostByProductId('5AmzSHTouV7Kk0GeoZfm2q');
     expect(post).toBeDefined();
   });
 
@@ -93,7 +90,7 @@ describe('Get Content from CMS', () => {
     expect(dishes).toBeDefined();
   });
 
-  test('Get promo', async () => {
+  test('Get Promo', async () => {
     const promo = await cms.getPromo('5OFF');
     expect(promo).toBeDefined();
   });
