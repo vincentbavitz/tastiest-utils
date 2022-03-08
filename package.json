@@ -10,7 +10,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "repository": "git://github.com:tastiest-io/tastiest-utils",
-  "version": "1.68.0",
+  "version": "1.70.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "engines": {
@@ -23,7 +23,8 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "publish:minor": "npm version minor && npm publish"
   },
   "husky": {
     "hooks": {
@@ -45,6 +46,7 @@
     "@contentful/rich-text-types": "^14.1.2",
     "@shopify/shopify-api": "^1.4.0",
     "@stripe/stripe-js": "^1.13.2",
+    "@tastiest-io/tastiest-horus": "^0.5.0",
     "@tastiest-io/tastiest-utils": "^1.58.0",
     "@types/react": "^17.0.3",
     "contentful": "^8.2.1",

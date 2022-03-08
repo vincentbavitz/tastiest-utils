@@ -1,3 +1,4 @@
+import { HorusRoutesGET } from '@tastiest-io/tastiest-horus';
 import nodeFetch from 'node-fetch';
 import { useMemo } from 'react';
 import useSWR, { Fetcher, SWRConfiguration } from 'swr';
@@ -13,6 +14,20 @@ const TASTIEST_BACKEND_URL = ['development','test'].includes(process.env.NODE_EN
     ? 'http://localhost:4444'
     : 'https://api.tastiest.io';
 
+type QueryParams = Record<string, string | number>;
+type HorusGetOptions<T = QueryParams> = {
+  query?: T;
+
+  /**
+   * For routes such as /users/:uid, the dynamic string will be set here.
+   * Eg. for the above route and `dynamic = 33`, the final route will
+   * be /users/33
+   * Currently only supports dynamic string for the end of the endpoint,
+   * not between slashes.
+   */
+  dynamic?: string;
+};
+
 /**
  * Horus manages all interactions with the Tastiest API.
  * Server-side only (admin) endpoints are under Horus.Admin
@@ -26,19 +41,32 @@ export class Horus {
    * Provide query parameters to the function rather than appending to the endponit.
    * Eg. don't go /users?role=ADMIN, rather set { role: 'ADMIN' } as query object.
    */
-  async get<QueryParams = Record<string, string | number>, ResponseType = any>(
-    endpoint: string,
-    query?: QueryParams,
+  async get<Params = Record<string, string | number>, ResponseType = any>(
+    endpoint: HorusRoutesGET,
+    options?: HorusGetOptions<Params>,
   ): Promise<HorusResponse<ResponseType>> {
-    const queryParams = query ?? {};
+    const queryParams = options?.query ?? {};
 
-    const options = {
+    const requestOptions = {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${this.token}`,
         'Content-Type': 'application/json',
       },
     };
+
+    // Are we on a dynamic route? Eg. /users/:uid
+    // If so; adjust the endpoint to include the dynamic part.
+    if (endpoint.match(/:[\w]*/)) {
+      if (!options?.dynamic) {
+        throw new Error('Must include `dynamic` for dynamic routes.');
+      }
+
+      endpoint = endpoint.replace(
+        /\/:[\w]*/,
+        `/${options.dynamic}`,
+      ) as HorusRoutesGET;
+    }
 
     const url = new URL(endpoint, TASTIEST_BACKEND_URL);
     Object.entries(queryParams).forEach(([key, value]) => {
@@ -49,8 +77,8 @@ export class Horus {
       // Use server side fetch if necessary
       const response =
         typeof window === 'undefined'
-          ? await nodeFetch(url.toString(), options)
-          : await fetch(url.toString(), options);
+          ? await nodeFetch(url.toString(), requestOptions)
+          : await fetch(url.toString(), requestOptions);
 
       if (response.ok) {
         let data: ResponseType | null = null;
@@ -79,7 +107,7 @@ export class Horus {
    * Endpoint doesn't include the base path. Eg. do /admin/users.
    */
   async post<Params = any, ResponseType = any>(
-    endpoint: string,
+    endpoint: HorusRoutesPOST,
     params: Params,
   ): Promise<HorusResponse<ResponseType>> {
     const options = {
