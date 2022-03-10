@@ -15,6 +15,9 @@ describe('Convert Types from CMS', () => {
   test('Convert Posts', async () => {
     const { posts } = await cms.getPosts(5);
     expect(posts).toBeDefined();
+
+    console.log('cms.test ➡️ posts:', posts);
+
     posts.forEach(post => {
       expect(post).toBeDefined();
       expect(post).toHaveProperty('id');

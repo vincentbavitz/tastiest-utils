@@ -6,5 +6,4 @@ export * from './firebase';
 export * from './geography';
 export * from './payments';
 export * from './restaurant';
-export * from './support';
 export * from './user';

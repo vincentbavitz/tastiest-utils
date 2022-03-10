@@ -1,27 +1,63 @@
+import {
+  DiscountAmount,
+  HorusExperiencePost,
+  HorusExperienceProduct,
+  HorusRestaurant,
+  HorusRestaurantProfile,
+  Media,
+  MetaDetails,
+} from '@tastiest-io/tastiest-horus';
 import { dlog } from '@tastiest-io/tastiest-utils';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
-import { reportInternalError, TastiestInternalErrorCode } from '..';
-import CMS from '../constants/cms';
 import {
-  ExperiencePost,
-  ExperienceProduct,
-  Media,
-  MetaDetails,
-  RestaurantContentful,
+  reportInternalError,
   TastiestDish,
-} from '../types/cms';
+  TastiestInternalErrorCode,
+} from '..';
+import CMS from '../constants/cms';
 import { CuisineSymbol } from '../types/cuisine';
 import { Address } from '../types/geography';
-import { DiscountAmount, Promo } from '../types/payments';
+import { Promo } from '../types/payments';
+
+export type ContentfulRestaurant = Omit<
+  HorusRestaurantProfile,
+  'restaurant_id'
+> &
+  Pick<
+    HorusRestaurant,
+    | 'name'
+    | 'city'
+    | 'cuisine'
+    | 'uri_name'
+    | 'location_lat'
+    | 'location_lon'
+    | 'location_address'
+    | 'location_display'
+    | 'booking_system'
+    | 'is_demo'
+    | 'contact_first_name'
+    | 'contact_last_name'
+    | 'contact_email'
+    | 'contact_phone_number'
+  >;
+
+export type ContentfulProduct = HorusExperienceProduct & {
+  restaurant: ContentfulRestaurant;
+};
+
+export type ContentfulPost = HorusExperiencePost & {
+  product: ContentfulProduct;
+  restaurant: ContentfulRestaurant;
+};
 
 interface FetchPostsReturn {
-  posts: Array<ExperiencePost>;
+  posts: Array<ContentfulPost>;
   total: number;
 }
 
 interface FetchProductsReturn {
-  products: Array<ExperienceProduct>;
+  products: Array<HorusExperienceProduct>;
   total: number;
 }
 
@@ -31,7 +67,7 @@ interface FetchDishesReturn {
 }
 
 interface FetchRestaurantsReturn {
-  restaurants: Array<RestaurantContentful>;
+  restaurants: Array<ContentfulRestaurant>;
   total: number;
 }
 
@@ -90,7 +126,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts, total: entries.total };
     }
@@ -115,7 +151,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts, total: entries.total };
     }
@@ -125,7 +161,7 @@ export class CmsApi {
 
   public async getPostBySlug(
     slug: string,
-  ): Promise<ExperiencePost | undefined> {
+  ): Promise<ContentfulPost | undefined> {
     const { posts } = await this.getPostsOfSlugs([slug], 1);
     return posts?.[0];
   }
@@ -147,7 +183,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts, total: entries.total };
     }
@@ -175,7 +211,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts, total: entries.total };
     }
@@ -201,7 +237,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const posts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts, total: entries.total };
     }
@@ -211,7 +247,7 @@ export class CmsApi {
 
   public async getPostByProductId(
     productId: string,
-  ): Promise<ExperiencePost | undefined> {
+  ): Promise<ContentfulPost | undefined> {
     const entries = await this.client.getEntries({
       content_type: 'post',
       limit: 1,
@@ -321,8 +357,8 @@ export class CmsApi {
       const restaurants = entries.items
         .map(entry => this.convertRestaurant(entry))
         .filter(
-          r => Boolean(r) && Boolean(r?.isDemo) === getDemoRestaurants,
-        ) as RestaurantContentful[];
+          r => Boolean(r) && Boolean(r?.is_demo) === getDemoRestaurants,
+        ) as ContentfulRestaurant[];
 
       return { restaurants, total: entries.total };
     }
@@ -332,7 +368,7 @@ export class CmsApi {
 
   public async getRestaurantById(
     restaurantId: string,
-  ): Promise<RestaurantContentful | undefined> {
+  ): Promise<ContentfulRestaurant | undefined> {
     const entries = await this.client.getEntries({
       content_type: 'restaurant',
       'fields.id[in]': restaurantId,
@@ -393,7 +429,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const blogPosts = entries.items
         .map(entry => this.convertPost(entry))
-        .filter(post => Boolean(post)) as ExperiencePost[];
+        .filter(post => Boolean(post)) as ContentfulPost[];
 
       return { posts: blogPosts, total: entries.total };
     }
@@ -441,7 +477,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const restaurants = entries.items
         .map(entry => this.convertRestaurant(entry))
-        .filter(restaurant => Boolean(restaurant)) as RestaurantContentful[];
+        .filter(restaurant => Boolean(restaurant)) as ContentfulRestaurant[];
 
       return { restaurants, total: entries.total };
     }
@@ -456,9 +492,9 @@ export class CmsApi {
 
   public getProduct = async (
     productId: string,
-  ): Promise<ExperienceProduct | undefined> => {
+  ): Promise<ContentfulProduct | undefined> => {
     try {
-      const entry = await this.client.getEntry<ExperienceProduct>(productId, {
+      const entry = await this.client.getEntry<ContentfulProduct>(productId, {
         include: 10,
       });
 
@@ -486,7 +522,7 @@ export class CmsApi {
     if (entries?.items?.length > 0) {
       const products = entries.items
         .map(entry => this.convertProduct(entry))
-        .filter(product => Boolean(product)) as ExperienceProduct[];
+        .filter(product => Boolean(product)) as ContentfulProduct[];
 
       return { products, total: entries.total };
     }
@@ -525,7 +561,7 @@ export class CmsApi {
     };
   };
 
-  public convertProduct = (rawProduct: any): ExperienceProduct | undefined => {
+  public convertProduct = (rawProduct: any): ContentfulProduct | undefined => {
     const convertAllowedHeads = (rawAllowedHeads: string) => {
       try {
         return JSON.parse(rawAllowedHeads);
@@ -535,20 +571,20 @@ export class CmsApi {
     };
 
     try {
-      const product: Partial<ExperienceProduct> = {
+      const product: Partial<ContentfulProduct> = {
         id: rawProduct.sys.id,
         name: rawProduct?.fields?.name,
         restaurant: this.convertRestaurant(rawProduct?.fields?.restaurant),
-        pricePerHeadGBP: rawProduct?.fields?.price,
-        allowedHeads: convertAllowedHeads(rawProduct?.fields?.allowedHeads),
+        price: rawProduct?.fields?.price,
         image: this.convertImage(rawProduct?.fields?.image?.fields),
+        allowed_heads: convertAllowedHeads(rawProduct?.fields?.allowedHeads),
       };
 
       if (
         !product.id ||
         !product.name ||
         !product.restaurant ||
-        !product.pricePerHeadGBP ||
+        !product.price ||
         !product.image
       ) {
         reportInternalError({
@@ -566,7 +602,7 @@ export class CmsApi {
         return;
       }
 
-      return product as ExperienceProduct;
+      return product as ContentfulProduct;
     } catch (error) {
       return;
     }
@@ -601,44 +637,43 @@ export class CmsApi {
 
   public convertRestaurant = (
     rawRestaurant: any,
-  ): RestaurantContentful | undefined => {
+  ): ContentfulRestaurant | undefined => {
     const id = rawRestaurant?.fields?.id;
     const city = rawRestaurant?.fields?.city;
     const name = rawRestaurant?.fields?.name;
-    const uriName = rawRestaurant?.fields?.uriName;
+    const uri_name = rawRestaurant?.fields?.uriName;
     const cuisine = this.convertCuisine(rawRestaurant?.fields?.cuisine);
     const website = rawRestaurant?.fields?.website;
     const location = this.convertLocation(rawRestaurant?.fields?.location);
-    const businessType = rawRestaurant?.fields?.businessType;
-    const publicPhoneNumber = rawRestaurant?.fields?.phone ?? null;
-    const bookingSystem = rawRestaurant?.fields?.bookingSystem ?? null;
+    const public_phone_number = rawRestaurant?.fields?.phone ?? null;
+    const booking_system = rawRestaurant?.fields?.bookingSystem ?? null;
 
     // Only admins can see contact information.
     const contact = rawRestaurant?.fields?.contact ?? null;
 
-    const profilePicture = this.convertImage(
+    const profile_picture = this.convertImage(
       rawRestaurant?.fields?.profilePicture?.fields,
     );
 
-    const backdropVideo = this.convertImage(
+    const backdrop_video = this.convertImage(
       rawRestaurant?.fields?.backdropVideo?.fields,
     );
 
-    const backdropStillFrame = this.convertImage(
+    const backdrop_still_frame = this.convertImage(
       rawRestaurant?.fields?.backdropStillFrame?.fields,
     );
 
-    const displayPhotograph = this.convertImage(
+    const display_photograph = this.convertImage(
       rawRestaurant?.fields?.displayPhotograph?.fields,
     );
 
     // Restaurant page properties
     const description = rawRestaurant?.fields?.description ?? null;
-    const heroIllustration = this.convertImage(
+    const hero_illustration = this.convertImage(
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
-    const isDemo = rawRestaurant?.fields?.isDemo ?? false;
+    const is_demo = rawRestaurant?.fields?.isDemo ?? false;
 
     const convertMeta = (rawRestaurant: any): MetaDetails | undefined => {
       const title = rawRestaurant?.fields?.metaTitle ?? null;
@@ -663,46 +698,52 @@ export class CmsApi {
       !name ||
       !city ||
       !cuisine ||
-      !uriName ||
+      !uri_name ||
       !website ||
       !location ||
-      !businessType ||
-      !profilePicture ||
-      !publicPhoneNumber ||
-      !backdropVideo ||
-      !backdropStillFrame ||
-      !displayPhotograph ||
-      !heroIllustration ||
+      !profile_picture ||
+      !public_phone_number ||
+      !backdrop_video ||
+      !backdrop_still_frame ||
+      !display_photograph ||
+      !hero_illustration ||
       !description ||
       !meta
     ) {
       return;
     }
 
-    return {
+    const restaurant: ContentfulRestaurant = {
       id,
       name,
       city,
       cuisine,
-      uriName,
+      uri_name,
       website,
-      location,
-      businessType,
-      profilePicture,
-      publicPhoneNumber,
-      backdropVideo,
-      backdropStillFrame,
-      displayPhotograph,
-      bookingSystem,
-      heroIllustration,
+      profile_picture,
+      public_phone_number,
+      backdrop_video,
+      backdrop_still_frame,
+      display_photograph,
+      booking_system,
+      hero_illustration,
       description,
       meta,
-      isDemo,
-      contact: this.isAdmin ? contact : null,
+      is_demo,
+      location_lat: location?.lat ?? null,
+      location_lon: location?.lon ?? null,
+      location_address: location?.address ?? null,
+      location_display: location?.displayLocation ?? null,
+      contact_first_name: this.isAdmin ? contact?.firstName ?? null : null,
+      contact_last_name: this.isAdmin ? contact?.lastName ?? null : null,
+      contact_email: this.isAdmin ? contact?.email ?? null : null,
+      contact_phone_number: this.isAdmin ? contact?.mobile ?? null : null,
     };
+
+    return restaurant;
   };
 
-  public convertPost = (rawData: any): ExperiencePost | undefined => {
+  public convertPost = (rawData: any): ContentfulPost | undefined => {
     const rawPost = rawData?.fields;
     const rawPlate = rawPost?.plate?.fields;
     const rawCuisine = rawPost?.cuisine?.fields?.name.toUpperCase() as CuisineSymbol;
@@ -723,12 +764,12 @@ export class CmsApi {
       };
     };
 
-    const post: Partial<ExperiencePost> = {
+    const post: Partial<ContentfulPost> = {
       id: rawData?.sys?.id,
       title: rawPost?.title,
       description: rawPost?.description,
       body: rawPost?.body,
-      date: moment(rawPost.date).format('DD MMMM YYYY'),
+      date: new Date(rawPost.date),
       city: rawPost?.city,
       cuisine: CuisineSymbol[rawCuisine],
       product: this.convertProduct(rawPost?.product),
@@ -736,11 +777,11 @@ export class CmsApi {
       tags: rawPost?.tags ?? [],
       slug: rawPost?.slug,
       meta: convertMeta(rawPost),
-      plate: this.convertImage(rawPlate),
-      displayLocation: rawPost?.displayLocation ?? null,
-      seeRestaurantButton: rawPost?.seeRestaurantButton ?? null,
-      menuImage: this.convertImage(rawPost?.menuImage?.fields) ?? null,
-      auxiliaryImage:
+      plate_image: this.convertImage(rawPlate),
+      display_location: rawPost?.displayLocation ?? null,
+      see_restaurant_button: rawPost?.seeRestaurantButton ?? null,
+      menu_image: this.convertImage(rawPost?.menuImage?.fields) ?? null,
+      auxiliary_image:
         this.convertImage(rawPost?.auxiliaryImage?.fields) ?? null,
     };
 
@@ -752,13 +793,13 @@ export class CmsApi {
       !post.body ||
       !post.date ||
       !post.city ||
-      !post.plate ||
       !post.title ||
       !post.cuisine ||
       !post.product ||
       !post.restaurant ||
+      !post.plate_image ||
       !post.description ||
-      !post.displayLocation
+      !post.display_location
     ) {
       dlog('cms ➡️ post.id:', post.id);
       dlog('cms ➡️ post.tags:', post.tags);
@@ -767,13 +808,13 @@ export class CmsApi {
       dlog('cms ➡️ post.body:', post.body);
       dlog('cms ➡️ post.date:', post.date);
       dlog('cms ➡️ post.city:', post.city);
-      dlog('cms ➡️ post.plate:', post.plate);
       dlog('cms ➡️ post.title:', post.title);
       dlog('cms ➡️ post.cuisine:', post.cuisine);
       dlog('cms ➡️ post.product:', post.product);
+      dlog('cms ➡️ post.plate:', post.plate_image);
       dlog('cms ➡️ post.restaurant:', post.restaurant);
       dlog('cms ➡️ post.description:', post.description);
-      dlog('cms ➡️ post.displayLocation:', post.displayLocation);
+      dlog('cms ➡️ post.displayLocation:', post.display_location);
 
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
@@ -790,7 +831,7 @@ export class CmsApi {
       return;
     }
 
-    return post as ExperiencePost;
+    return post as ContentfulPost;
   };
 
   public convertTastiestDish = (

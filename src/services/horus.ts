@@ -1,4 +1,4 @@
-import { HorusRoutesGET } from '@tastiest-io/tastiest-horus';
+import { HorusRoutesGET, HorusRoutesPOST } from '@tastiest-io/tastiest-horus';
 import nodeFetch from 'node-fetch';
 import { useMemo } from 'react';
 import useSWR, { Fetcher, SWRConfiguration } from 'swr';

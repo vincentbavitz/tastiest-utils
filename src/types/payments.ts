@@ -1,21 +1,15 @@
 import { StripeErrorType } from '@stripe/stripe-js';
+import { DiscountAmount } from '@tastiest-io/tastiest-horus';
 import Stripe from 'stripe';
 
-// export interface Promo {
-//   name: string;
-//   code: string;
-//   validTo: number;
-//   discount: DiscountAmount;
-//   maximumUses: number | null;
-//   validForSlugs?: 'all' | string[];
-//   validForUsersIds?: 'all' | string[];
-// }
-
-export interface PaymentDetails {
-  // https://stripe.com/docs/payments/save-and-renuse#web-create-setup-intent
-  stripeCustomerId: string;
-  stripeSetupSecret: string;
-  paymentMethods: string[];
+export interface Promo {
+  name: string;
+  code: string;
+  validTo: number;
+  discount: DiscountAmount;
+  maximumUses: number | null;
+  validForSlugs?: 'all' | string[];
+  validForUsersIds?: 'all' | string[];
 }
 
 export enum CardBrand {
