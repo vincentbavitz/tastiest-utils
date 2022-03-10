@@ -7,7 +7,6 @@ import {
   Media,
   MetaDetails,
 } from '@tastiest-io/tastiest-horus';
-import { dlog } from '@tastiest-io/tastiest-utils';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
 import {
@@ -801,20 +800,20 @@ export class CmsApi {
       !post.description ||
       !post.display_location
     ) {
-      dlog('cms ➡️ post.id:', post.id);
-      dlog('cms ➡️ post.tags:', post.tags);
-      dlog('cms ➡️ post.slug:', post.slug);
-      dlog('cms ➡️ post.meta:', post.meta);
-      dlog('cms ➡️ post.body:', post.body);
-      dlog('cms ➡️ post.date:', post.date);
-      dlog('cms ➡️ post.city:', post.city);
-      dlog('cms ➡️ post.title:', post.title);
-      dlog('cms ➡️ post.cuisine:', post.cuisine);
-      dlog('cms ➡️ post.product:', post.product);
-      dlog('cms ➡️ post.plate:', post.plate_image);
-      dlog('cms ➡️ post.restaurant:', post.restaurant);
-      dlog('cms ➡️ post.description:', post.description);
-      dlog('cms ➡️ post.displayLocation:', post.display_location);
+      // dlog('cms ➡️ post.id:', post.id);
+      // dlog('cms ➡️ post.tags:', post.tags);
+      // dlog('cms ➡️ post.slug:', post.slug);
+      // dlog('cms ➡️ post.meta:', post.meta);
+      // dlog('cms ➡️ post.body:', post.body);
+      // dlog('cms ➡️ post.date:', post.date);
+      // dlog('cms ➡️ post.city:', post.city);
+      // dlog('cms ➡️ post.title:', post.title);
+      // dlog('cms ➡️ post.cuisine:', post.cuisine);
+      // dlog('cms ➡️ post.product:', post.product);
+      // dlog('cms ➡️ post.plate:', post.plate_image);
+      // dlog('cms ➡️ post.restaurant:', post.restaurant);
+      // dlog('cms ➡️ post.description:', post.description);
+      // dlog('cms ➡️ post.displayLocation:', post.display_location);
 
       reportInternalError({
         code: TastiestInternalErrorCode.CMS_CONVERSION,
