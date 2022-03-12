@@ -87,8 +87,8 @@ export class CmsApi {
   isAdmin: boolean;
 
   constructor(
-    space: string = process.env.CONTENTFUL_SPACE_ID ?? '',
-    accessToken: string = process.env.CONTENTFUL_ACCESS_TOKEN ?? '',
+    space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
+    accessToken: string = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ?? '',
     environment: 'production' | 'development' = 'production',
     /** Gives access to protected fields like restaurant.contact */
     adminToken = '',
