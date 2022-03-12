@@ -45,9 +45,12 @@ export type ContentfulProduct = HorusExperienceProduct & {
   restaurant: ContentfulRestaurant;
 };
 
-export type ContentfulPost = HorusExperiencePost & {
+export type ContentfulPost = Omit<HorusExperiencePost, 'date'> & {
   product: ContentfulProduct;
   restaurant: ContentfulRestaurant;
+
+  // Because JS Dates are hard to JSON serialize.
+  date: string;
 };
 
 interface FetchPostsReturn {
@@ -768,7 +771,7 @@ export class CmsApi {
       title: rawPost?.title,
       description: rawPost?.description,
       body: rawPost?.body,
-      date: new Date(rawPost.date),
+      date: new Date(rawPost.date).toISOString(),
       city: rawPost?.city,
       cuisine: CuisineSymbol[rawCuisine],
       product: this.convertProduct(rawPost?.product),
