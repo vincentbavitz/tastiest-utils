@@ -91,7 +91,7 @@ export class CmsApi {
     accessToken: string = process.env.CONTENTFUL_ACCESS_TOKEN ?? '',
     environment: 'production' | 'development' = 'production',
     /** Gives access to protected fields like restaurant.contact */
-    adminToken?: string,
+    adminToken = '',
   ) {
     this.client = createClient({
       space,
