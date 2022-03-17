@@ -172,13 +172,26 @@ const fetcher = async (url: string, token: string) => {
 /**
  * Endpoint doesn't include the base path. Eg. do /admin/users.
  * Token is the user token from firebase.auth().getIdToken()
+ *
+ * Use query parameter to append search params to the end of the URL.
  */
 export function useHorusSWR<T>(
   endpoint: HorusRoutesGET,
   token: string,
+  query?: Record<string, string>,
   configuration?: Partial<SWRConfiguration<T>>,
 ) {
-  const path = useMemo(() => `${TASTIEST_BACKEND_URL}${endpoint}`, [endpoint]);
+  const path = useMemo(() => {
+    const _url = new URL(`${TASTIEST_BACKEND_URL}${endpoint}`);
+
+    if (query) {
+      Object.entries(query).map(([key, value]) =>
+        _url.searchParams.append(key, value),
+      );
+    }
+
+    return _url.toString();
+  }, [endpoint]);
   const response = useSWR<T>(
     [path, token],
     (fetcher as never) as Fetcher<T>,
