@@ -174,7 +174,7 @@ const fetcher = async (url: string, token: string) => {
  * Token is the user token from firebase.auth().getIdToken()
  */
 export function useHorusSWR<T>(
-  endpoint: string,
+  endpoint: HorusRoutesGET,
   token: string,
   configuration?: Partial<SWRConfiguration<T>>,
 ) {
