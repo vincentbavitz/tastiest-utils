@@ -6,6 +6,7 @@ import {
   HorusRestaurantProfile,
   Media,
   MetaDetails,
+  YouTubeVideo,
 } from '@tastiest-io/tastiest-horus';
 import { ContentfulClientApi, createClient } from 'contentful';
 import moment from 'moment';
@@ -675,6 +676,11 @@ export class CmsApi {
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
+    const feature_videos =
+      rawRestaurant?.fields?.featureVideos?.map?.((v: any) =>
+        this.convertYouTubeVideo(v),
+      ) ?? [];
+
     const is_demo = rawRestaurant?.fields?.isDemo ?? false;
 
     const convertMeta = (rawRestaurant: any): MetaDetails | undefined => {
@@ -729,6 +735,7 @@ export class CmsApi {
       display_photograph,
       booking_system,
       hero_illustration,
+      feature_videos,
       description,
       meta,
       is_demo,
@@ -743,6 +750,13 @@ export class CmsApi {
     };
 
     return restaurant;
+  };
+
+  public convertYouTubeVideo = (rawData: any): YouTubeVideo | undefined => {
+    return {
+      url: rawData.fields.url,
+      title: rawData.fields.displayTitle ?? null,
+    };
   };
 
   public convertPost = (rawData: any): ContentfulPost | undefined => {

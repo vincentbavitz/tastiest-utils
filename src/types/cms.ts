@@ -2,12 +2,6 @@ import { Media } from '@tastiest-io/tastiest-horus';
 import { ContentfulRestaurant } from '../services/cms';
 import { CuisineSymbol } from './cuisine';
 
-export type YouTubeVideo = {
-  url: string;
-  displayTitle: string | null;
-  description: string | null;
-};
-
 export type BodyDocument = {
   nodeType: 'document';
   content: any;

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { CmsApi, CuisineSymbol, minsIntoHumanTime } from '../..';
+import { CmsApi, dlog, minsIntoHumanTime } from '../..';
 
 dotenv.config({ path: '.env.local' });
 const cms = new CmsApi(undefined, undefined, 'production');
@@ -15,8 +15,6 @@ describe('Convert Types from CMS', () => {
   test('Convert Posts', async () => {
     const { posts } = await cms.getPosts(5);
     expect(posts).toBeDefined();
-
-    console.log('cms.test ➡️ posts:', posts);
 
     posts.forEach(post => {
       expect(post).toBeDefined();
@@ -47,7 +45,7 @@ describe('Convert Types from CMS', () => {
         expect(product).toHaveProperty('image');
         expect(product).toHaveProperty('restaurant');
         expect(product).toHaveProperty('allowedHeads');
-        expect(product).toHaveProperty('pricePerHeadGBP');
+        expect(product).toHaveProperty('price');
 
         expect(product?.restaurant).toBeDefined();
       });
@@ -55,99 +53,102 @@ describe('Convert Types from CMS', () => {
 });
 
 describe('Get Content from CMS', () => {
-  test('Get tastiest dishes of restaurant', async () => {
-    const { dishes } = await cms.getTastiestDishesOfRestaurant(
-      'numa-cafe-mill-hill',
-    );
+  // test('Get tastiest dishes of restaurant', async () => {
+  //   const { dishes } = await cms.getTastiestDishesOfRestaurant(
+  //     'numa-cafe-mill-hill',
+  //   );
 
-    // dishes.forEach(r => dlog('cms.test ➡️ dishes:', [r.name, r.description]));
-    expect(dishes).toBeDefined();
-  });
+  //   // dishes.forEach(r => dlog('cms.test ➡️ dishes:', [r.name, r.description]));
+  //   expect(dishes).toBeDefined();
+  // });
 
   test('Get all restaurants', async () => {
     const { restaurants } = await cms.getRestaurants();
 
-    // dlog('cms.test ➡️ restaurants:', restaurants);
+    dlog(
+      'cms.test ➡️ restaurants:',
+      restaurants.map(r => r.feature_videos),
+    );
     expect(restaurants).toBeDefined();
   });
 
-  test('Get all posts', async () => {
-    const { posts } = await cms.getPosts();
-    expect(posts).toBeDefined();
-  });
+  // test('Get all posts', async () => {
+  //   const { posts } = await cms.getPosts();
+  //   expect(posts).toBeDefined();
+  // });
 
-  test('Get Post By Product ID', async () => {
-    const post = await cms.getPostByProductId('5AmzSHTouV7Kk0GeoZfm2q');
-    expect(post).toBeDefined();
-  });
+  // test('Get Post By Product ID', async () => {
+  //   const post = await cms.getPostByProductId('5AmzSHTouV7Kk0GeoZfm2q');
+  //   expect(post).toBeDefined();
+  // });
 
-  test('Get Posts of Restaurant', async () => {
-    const { posts } = await cms.getPostsOfRestaurant('numa-cafe-mill-hill');
+  // test('Get Posts of Restaurant', async () => {
+  //   const { posts } = await cms.getPostsOfRestaurant('numa-cafe-mill-hill');
 
-    expect(posts).toBeDefined();
-  });
+  //   expect(posts).toBeDefined();
+  // });
 
-  test('Get Tastiest Dishes of Restaurant', async () => {
-    const { dishes } = await cms.getTastiestDishes();
+  // test('Get Tastiest Dishes of Restaurant', async () => {
+  //   const { dishes } = await cms.getTastiestDishes();
 
-    expect(dishes).toBeDefined();
-  });
+  //   expect(dishes).toBeDefined();
+  // });
 
-  test('Get Promo', async () => {
-    const promo = await cms.getPromo('5OFF');
-    expect(promo).toBeDefined();
-  });
+  // test('Get Promo', async () => {
+  //   const promo = await cms.getPromo('5OFF');
+  //   expect(promo).toBeDefined();
+  // });
 
-  test('Get Restaurant from ID', async () => {
-    const restaurant = await cms.getRestaurantById(
-      'zFekbQT8LNaQb5enmzKw5iLe46P2',
-    );
+  // test('Get Restaurant from ID', async () => {
+  //   const restaurant = await cms.getRestaurantById(
+  //     'zFekbQT8LNaQb5enmzKw5iLe46P2',
+  //   );
 
-    expect(restaurant).toBeDefined();
-  });
+  //   expect(restaurant).toBeDefined();
+  // });
 
-  test('Get Restaurant from URI Name', async () => {
-    const restaurant = await cms.getRestaurantFromUriName(
-      'el-vaquero-mill-hill',
-    );
+  // test('Get Restaurant from URI Name', async () => {
+  //   const restaurant = await cms.getRestaurantFromUriName(
+  //     'el-vaquero-mill-hill',
+  //   );
 
-    expect(restaurant).toBeDefined();
-  });
+  //   expect(restaurant).toBeDefined();
+  // });
 
-  test('Get nearby Posts', async () => {
-    const nearSpongebobPosts = await cms.getPosts(5, 1, {
-      near: { lat: 25, lon: -92 },
-    });
+  // test('Get nearby Posts', async () => {
+  //   const nearSpongebobPosts = await cms.getPosts(5, 1, {
+  //     near: { lat: 25, lon: -92 },
+  //   });
 
-    nearSpongebobPosts;
+  //   nearSpongebobPosts;
 
-    // nearSpongebobPosts.posts.map(post => {
-    // });
-  });
+  //   // nearSpongebobPosts.posts.map(post => {
+  //   // });
+  // });
 
-  test('Get Restaurant Posts', async () => {
-    const posts = await cms.getPostsOfRestaurant('bite-me-burger');
+  // test('Get Restaurant Posts', async () => {
+  //   const posts = await cms.getPostsOfRestaurant('bite-me-burger');
 
-    expect(posts).toBeDefined();
-  });
+  //   expect(posts).toBeDefined();
+  // });
 
-  test('Get Tastiest Dishes of Cuisine', async () => {
-    const posts = await cms.getTastiestDishesOfCuisine(CuisineSymbol.CARIBBEAN);
+  // test('Get Tastiest Dishes of Cuisine', async () => {
+  //   const posts = await cms.getTastiestDishesOfCuisine(CuisineSymbol.CARIBBEAN);
 
-    expect(posts).toBeDefined();
-  });
+  //   expect(posts).toBeDefined();
+  // });
 
-  test('Get restaurant by ID', async () => {
-    const restaurant = await cms.getRestaurantById(
-      'zFekbQT8LNaQb5enmzKw5iLe46P2',
-    );
+  // test('Get restaurant by ID', async () => {
+  //   const restaurant = await cms.getRestaurantById(
+  //     'zFekbQT8LNaQb5enmzKw5iLe46P2',
+  //   );
 
-    expect(restaurant).toBeDefined();
-  });
+  //   expect(restaurant).toBeDefined();
+  // });
 
-  test('Global Search Restaurants', async () => {
-    const searchedRestaurants = await cms.searchRestaurants('back');
+  // test('Global Search Restaurants', async () => {
+  //   const searchedRestaurants = await cms.searchRestaurants('back');
 
-    expect(searchedRestaurants).toBeDefined();
-  });
+  //   expect(searchedRestaurants).toBeDefined();
+  // });
 });

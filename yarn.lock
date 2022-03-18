@@ -1677,10 +1677,10 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
-"@tastiest-io/tastiest-horus@^0.12.0":
-  version "0.12.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-horus/0.12.0/d84b01b3ef59ed322ab89e02cb04feb0b9762ca2cb5eb87cc859b6341a9c2a8e#9a2763ef78e2674eb03681e17d20538f09734393"
-  integrity sha512-94BVTAjjmhT91XsjzX6lAIhEGLydF/xZ/Gumr4skL2axhR3dIz23XjVWasPpzQjywr0b9X+86h1eCGkDrlH1zg==
+"@tastiest-io/tastiest-horus@^0.14.0":
+  version "0.14.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-horus/0.14.0/64982eae61dc59a446d5a1b2298324a13494a48be6eaa6514902b594116a0192#1f716796e774892ee535ac3613c0156555b72d86"
+  integrity sha512-Y3rEkZqbGxJKpswprPDHe2le86z5qjHHVgYnZf5UStJJ3T3lgg7A95NxJ/dWGJLonx4A2NJernindWEwiNuYNQ==
   dependencies:
     "@contentful/rich-text-types" "^15.11.1"
     "@types/stripe" "^8.0.417"
@@ -4161,10 +4161,10 @@ eslint-config-prettier@^6.0.0:
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-config-prettier@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-8.1.0.tgz#4ef1eaf97afe5176e6a75ddfb57c335121abc5a6"
-  integrity sha512-oKMhGv3ihGbCIimCAjqkdzx2Q+jthoqnXSP+d86M9tptwugycmTFdVR4IpLgq2c4SHifbwO90z2fQ8/Aio73yw==
+eslint-config-prettier@^8.5.0:
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.5.0.tgz#5a81680ec934beca02c7b1a61cf8ca34b66feab1"
+  integrity sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==
 
 eslint-config-react-app@^5.2.1:
   version "5.2.1"
