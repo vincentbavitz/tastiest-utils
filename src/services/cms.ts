@@ -676,7 +676,7 @@ export class CmsApi {
       rawRestaurant?.fields?.heroIllustration?.fields,
     );
 
-    const feature_videos =
+    const feature_videos: YouTubeVideo[] =
       rawRestaurant?.fields?.featureVideos?.map?.((v: any) =>
         this.convertYouTubeVideo(v),
       ) ?? [];
