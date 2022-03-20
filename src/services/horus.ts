@@ -9,6 +9,11 @@ type HorusResponse<T = any> = {
   error: string | null;
 };
 
+type HorusSWROptions = {
+  token: string;
+  query?: Record<string, string>;
+};
+
 // prettier-ignore
 const TASTIEST_BACKEND_URL = ['development','test'].includes(process.env.NODE_ENV as string)
     ? 'http://localhost:4444'
@@ -177,15 +182,14 @@ const fetcher = async (url: string, token: string) => {
  */
 export function useHorusSWR<T>(
   endpoint: HorusRoutesGET,
-  token: string,
-  query?: Record<string, string>,
+  options: HorusSWROptions,
   configuration?: Partial<SWRConfiguration<T>>,
 ) {
   const path = useMemo(() => {
     const _url = new URL(`${TASTIEST_BACKEND_URL}${endpoint}`);
 
-    if (query) {
-      Object.entries(query).map(([key, value]) =>
+    if (options.query) {
+      Object.entries(options.query).map(([key, value]) =>
         _url.searchParams.append(key, value),
       );
     }
@@ -193,7 +197,7 @@ export function useHorusSWR<T>(
     return _url.toString();
   }, [endpoint]);
   const response = useSWR<T>(
-    [path, token],
+    [path, options.token],
     (fetcher as never) as Fetcher<T>,
     configuration,
   );
