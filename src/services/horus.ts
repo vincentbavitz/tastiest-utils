@@ -198,11 +198,9 @@ export function useHorusSWR<T = any>(
     return _url.toString();
   }, [endpoint]);
 
-  const response = useSWR<T>(
+  return useSWR<T>(
     [path, options.token],
     (fetcher as never) as Fetcher<T>,
     configuration,
   );
-
-  return response;
 }
