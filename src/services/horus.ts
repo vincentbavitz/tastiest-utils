@@ -158,7 +158,8 @@ export class Horus {
 }
 
 const fetcher = async (url: string, token: string) => {
-  if (!token) {
+  // Non-public routes require a token
+  if (!url.includes('public') && !token) {
     dlog('useTastiestSWR ➡️ failed');
     return;
   }
@@ -180,7 +181,7 @@ const fetcher = async (url: string, token: string) => {
  *
  * Use query parameter to append search params to the end of the URL.
  */
-export function useHorusSWR<T>(
+export function useHorusSWR<T = any>(
   endpoint: HorusRoutesGET,
   options: HorusSWROptions,
   configuration?: Partial<SWRConfiguration<T>>,
@@ -196,6 +197,7 @@ export function useHorusSWR<T>(
 
     return _url.toString();
   }, [endpoint]);
+
   const response = useSWR<T>(
     [path, options.token],
     (fetcher as never) as Fetcher<T>,
