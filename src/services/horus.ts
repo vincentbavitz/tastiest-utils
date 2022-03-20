@@ -187,6 +187,12 @@ export function useHorusSWR<T = any>(
   configuration?: Partial<SWRConfiguration<T>>,
 ) {
   const path = useMemo(() => {
+    // Allows nulling routes;
+    // no requests will be made when path is null
+    if (!endpoint) {
+      return null;
+    }
+
     const _url = new URL(`${TASTIEST_BACKEND_URL}${endpoint}`);
 
     if (options.query) {
