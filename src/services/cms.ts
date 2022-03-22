@@ -84,6 +84,14 @@ interface GetPostsOptions {
   near: Omit<Address, 'address'>;
 }
 
+const defaultSpaceId =
+  process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ??
+  process.env.CONTENTFUL_SPACE_ID;
+
+const defaultAccessToken =
+  process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ??
+  process.env.CONTENTFUL_ACCESS_TOKEN;
+
 export class CmsApi {
   [x: string]: any;
   client: ContentfulClientApi;
@@ -91,8 +99,8 @@ export class CmsApi {
   isAdmin: boolean;
 
   constructor(
-    space: string = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID ?? '',
-    accessToken: string = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN ?? '',
+    space: string = defaultSpaceId ?? '',
+    accessToken: string = defaultAccessToken ?? '',
     environment: 'production' | 'development' = 'production',
     /** Gives access to protected fields like restaurant.contact */
     adminToken = '',
