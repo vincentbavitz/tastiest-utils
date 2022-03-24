@@ -1677,10 +1677,10 @@
   resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.13.2.tgz#bb2f561085b5dd091355df871d432b8e1fd467f6"
   integrity sha512-fycUk7ECukNc31lD5apcrUgdRC1BfiIacs+CpacoCjOgo3ablolnWCvDQWMmVWtODYa8bBv2dlBla+Edc5OvZg==
 
-"@tastiest-io/tastiest-horus@^0.18.0":
-  version "0.18.0"
-  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-horus/0.18.0/54d92db5dd04bad8ba26aaaf2cdb291f3e296a28f6d3a44101688c13fdedd3bd#21b1f5f83ebe624238c2695850209508daaf9135"
-  integrity sha512-pW//0G8LcAEN42h/3Pn9tZCDpZXQzCcfdVzxKqifdH7jZnL3sAQl8e33DgOYTnveEtZDJvoVNxZO8J6WLCTVpQ==
+"@tastiest-io/tastiest-horus@^0.22.0":
+  version "0.22.0"
+  resolved "https://npm.pkg.github.com/download/@tastiest-io/tastiest-horus/0.22.0/991477f405c93fe27946670bc8817c815fbab4b840d1b95f463622cec7c49b05#a1ad72bb01f4472e7095eedf7329836c264804ab"
+  integrity sha512-QMSdYj7NjikmEMw/naEYk207o6tnXEIWYmmcWL/ldsAAk9Ss4UDjwWYMO6OsVCZTgp55tMgfuN/9+EGEpjsfNA==
   dependencies:
     "@contentful/rich-text-types" "^15.11.1"
     "@types/stripe" "^8.0.417"
