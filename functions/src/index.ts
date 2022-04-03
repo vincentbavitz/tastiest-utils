@@ -1,5 +1,4 @@
 export * from './bookings';
-export * from './checkout';
 export * from './errors';
 export * from './restaurants';
 export * from './sessions';
