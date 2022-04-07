@@ -20,6 +20,7 @@ const TASTIEST_BACKEND_URL = ['development','test'].includes(process.env.NODE_EN
     : 'https://api.tastiest.io';
 
 type QueryParams = Record<string, string | number>;
+
 type HorusGetOptions<T = QueryParams> = {
   query?: T;
 
