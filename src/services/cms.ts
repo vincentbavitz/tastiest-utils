@@ -1,7 +1,5 @@
 import {
   DiscountAmount,
-  HorusExperiencePost,
-  HorusExperienceProduct,
   HorusRestaurant,
   HorusRestaurantProfile,
   Media,
@@ -42,11 +40,11 @@ export type ContentfulRestaurant = Omit<
     | 'contact_phone_number'
   >;
 
-export type ContentfulProduct = HorusExperienceProduct & {
+export type ContentfulProduct = any & {
   restaurant: ContentfulRestaurant;
 };
 
-export type ContentfulPost = Omit<HorusExperiencePost, 'date'> & {
+export type ContentfulPost = Omit<any, 'date'> & {
   product: ContentfulProduct;
   restaurant: ContentfulRestaurant;
 
