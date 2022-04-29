@@ -58,7 +58,7 @@ interface FetchPostsReturn {
 }
 
 interface FetchProductsReturn {
-  products: Array<HorusExperienceProduct>;
+  products: Array<any>;
   total: number;
 }
 
